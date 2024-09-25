@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/MenuButtonStyle.uss?fileID=7433441132597879392&amp;guid=40fa08e91726e44b0b09e28403e8d8c8&amp;type=3#MenuButtonStyle" />
+    <ui:VisualElement style="flex-grow: 1; align-self: center; justify-content: center; align-items: center; flex-direction: row; padding-top: 10%; padding-right: 10%; padding-bottom: 10%; border-left-color: rgb(233, 0, 0); border-right-color: rgb(233, 0, 0); border-top-color: rgb(233, 0, 0); border-bottom-color: rgb(233, 0, 0); border-top-width: 6px; border-right-width: 6px; border-bottom-width: 6px; border-left-width: 6px; transform-origin: center; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-left: 10%;" />
+</ui:UXML>
