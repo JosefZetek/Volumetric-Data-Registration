@@ -318,9 +318,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 556406119}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81e455c8324ff4dad97d2a769619a627, type: 3}
+  m_Script: {fileID: 11500000, guid: 70742bff8256d496387906e3c6765e2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Materials:
+  - {fileID: 2100000, guid: a3900e066251246a195526d4aeeee847, type: 2}
+  mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  material: {fileID: 2100000, guid: f1d5445f15a2e44a9a67e1bbedbfe1ca, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

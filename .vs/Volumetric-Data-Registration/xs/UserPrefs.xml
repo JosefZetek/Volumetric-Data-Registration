@@ -1,0 +1,38 @@
+﻿<Properties StartupConfiguration="{E9E6DABC-757D-9313-16C6-28C0AFD75379}|">
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Claude/InstancedColorShader.shader">
+    <Files>
+      <File FileName="Assets/SceneHandlers/FileLoader.cs" Line="82" Column="34" />
+      <File FileName="Assets/Claude/NewSurfaceShader.shader" Line="30" Column="40" />
+      <File FileName="Assets/Claude/Script.cs" Line="87" Column="51" />
+      <File FileName="Assets/Registration/VolumetricData.cs" Line="428" Column="28" />
+      <File FileName="Assets/Claude/InstancedColorMaterial.mat" Line="1" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="Volumetric-Data-Registration" expanded="True">
+            <Node name="Assets" expanded="True">
+              <Node name="Claude" expanded="True">
+                <Node name="InstancedColorShader.shader" selected="True" />
+              </Node>
+              <Node name="Registration" expanded="True" />
+              <Node name="SceneHandlers" expanded="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+      <Pad Id="MonoDevelop.UnitTesting.TestPad">
+        <State name="__root__">
+          <Node name="Unity" selected="True" />
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="25f93b9e-9413-433c-9e21-31db98fe2ccc" />
+  <MultiItemStartupConfigurations />
+</Properties>
