@@ -18,16 +18,14 @@ Shader "Custom/InstancedColorShader" {
         };
 
         UNITY_INSTANCING_BUFFER_START(Props)
-            UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
+            UNITY_DEFINE_INSTANCED_PROP(float, _Color)
         UNITY_INSTANCING_BUFFER_END(Props)
 
-        void setup()
-        {
-        }
-
         void surf (Input IN, inout SurfaceOutput o) {
-            fixed4 c = tex2D (_MainTex, IN.uv_MainTex);
-            c *= UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
+            //fixed4 c = tex2D (_MainTex, IN.uv_MainTex);
+            float value = UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
+            fixed4 c = fixed4(value, value, value, 1);
+            //c *= UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
             o.Albedo = c.rgb;
             o.Alpha = c.a;
         }

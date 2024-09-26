@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using DataView;
+using UnityEngine.UIElements;
 
 public class Loader : MonoBehaviour
 {
@@ -18,18 +19,18 @@ public class Loader : MonoBehaviour
     /// <summary>
     /// Batches to render
     /// </summary>
-    private List<Matrix4x4[]> batches = new List<Matrix4x4[]>();
+    private Matrix4x4[][] batches = new Matrix4x4[0][];
 
     /// <summary>
-    /// Colors for given voxels
+    /// List of arguments representing 
     /// </summary>
-    private List<Vector4[]> colorData = new List<Vector4[]>();
+    private float[][] properties = new float[0][];
 
     /// <summary>
     /// Size of a batch thats being rendered simultaneously
     /// </summary>
     private const int BATCH_SIZE = 1023; // Maximum batch size for GPU instancing
-
+    
     private bool ShowDialogBox(string title, string content)
     {
         return EditorUtility.DisplayDialog(title, content, "Select different file", "Cancel");
@@ -37,31 +38,69 @@ public class Loader : MonoBehaviour
 
     private FilePathDescriptor GetFilePath()
     {
-        string metadataPath = "", dataPath = "";
+        string metadataPath = EditorUtility.OpenFilePanel("Select metadata file descriptor for input object.", "", "mhd");
+        if (metadataPath.Length == 0 && !ShowDialogBox("Meatadata file descriptor was not selected.", "Would you like to continue"))
+            return null;
 
-        while (metadataPath.Length == 0)
-        {
-            metadataPath = EditorUtility.OpenFilePanel("Select metadata file descriptor for input object.", "", "mhd");
-
-            if (metadataPath.Length == 0 && !ShowDialogBox("Meatadata file descriptor was not selected.", "Would you like to continue"))
-                return null;
-        }
-
-        while (dataPath.Length == 0)
-        {
-            dataPath = EditorUtility.OpenFilePanel("Select data file with input object.", metadataPath, "raw");
-            if (dataPath.Length == 0 && !ShowDialogBox("Data file with input object was not selected.", "Would you like to continue"))
-                return null;
-        }
+        string dataPath = EditorUtility.OpenFilePanel("Select data file with input object.", metadataPath, "raw");
+        if (dataPath.Length == 0 && !ShowDialogBox("Data file with input object was not selected.", "Would you like to continue"))
+            return null;
 
         return new FilePathDescriptor(metadataPath, dataPath);
+    }
+
+    /// <summary>
+    /// Calculates number of vertices
+    /// </summary>
+    /// <param name="volumetricData">Instance of Volumetric Data</param>
+    /// <returns>Returns number of vertices in VolumetricData instance</returns>
+    private int GetNumberOfVertices(VolumetricData volumetricData)
+    {
+        int NUMBER_OF_VERTICES_X = (int)(volumetricData.Measures[0] / volumetricData.XSpacing);
+        int NUMBER_OF_VERTICES_Y = (int)(volumetricData.Measures[1] / volumetricData.YSpacing);
+        int NUMBER_OF_VERTICES_Z = (int)(volumetricData.Measures[2] / volumetricData.ZSpacing);
+
+        int NUMBER_OF_VERTICES = NUMBER_OF_VERTICES_X * NUMBER_OF_VERTICES_Y * NUMBER_OF_VERTICES_Z;
+
+        //Mathf.CeilToInt(NUMBER_OF_VERTICES / BATCH_SIZE);
+        return NUMBER_OF_VERTICES;
+    }
+
+    private void InitBatches(int NUMBER_OF_VERTICES)
+    {
+        int NUMBER_OF_BATCHES = Mathf.CeilToInt((float)((double)NUMBER_OF_VERTICES / (double)BATCH_SIZE));
+
+        this.batches = new Matrix4x4[NUMBER_OF_BATCHES][];
+        this.properties = new float[NUMBER_OF_BATCHES][];
+    }
+
+    /// <summary>
+    /// Adds space for another batch
+    /// </summary>
+    /// <param name="NUMBER_OF_VERTICES">Total number of vertices</param>
+    /// <param name="batchNumber">Number of a current batch being the index of the current batch</param>
+    private void AddAnotherBatch(int NUMBER_OF_VERTICES, int batchNumber)
+    {
+        //Number of vertices to be placed in this batch (smaller than batch size if remainder)
+        int VERTICES_IN_BATCH = Mathf.Min(NUMBER_OF_VERTICES - batchNumber * BATCH_SIZE, BATCH_SIZE);
+
+        batches[batchNumber] = new Matrix4x4[VERTICES_IN_BATCH];
+        properties[batchNumber] = new float[VERTICES_IN_BATCH];
+
+
     }
 
     private void LoadData(FilePathDescriptor filePathDescriptor)
     {
         VolumetricData loadedData = new VolumetricData(filePathDescriptor);
-        List<Matrix4x4> currentBatch = new List<Matrix4x4>();
-        List<Vector4> currentColorData = new List<Vector4>();
+
+        int NUMBER_OF_VERTICES = GetNumberOfVertices(loadedData);
+        InitBatches(NUMBER_OF_VERTICES);
+
+        int batchNumber = 0;
+        int orderNumber = 0;
+
+        int zkouska = 0;
 
         for (float i = 0; i < loadedData.Measures[0]; i += (float)loadedData.XSpacing)
         {
@@ -69,48 +108,52 @@ public class Loader : MonoBehaviour
             {
                 for (float k = 0; k < loadedData.Measures[2]; k += (float)loadedData.ZSpacing)
                 {
-                    if (currentBatch.Count >= BATCH_SIZE)
-                    {
-                        batches.Add(currentBatch.ToArray());
-                        colorData.Add(currentColorData.ToArray());
-                        currentBatch = new List<Matrix4x4>();
-                        currentColorData = new List<Vector4>();
-                    }
 
-                    currentBatch.Add(Matrix4x4.TRS(new Vector3(i, j, k), Quaternion.identity, Vector3.one));
+                    if (orderNumber == 0)
+                        AddAnotherBatch(NUMBER_OF_VERTICES, batchNumber);
 
                     double currentValue = loadedData.GetValue(i, j, k);
-                    float normalizedValue = (float)(currentValue / loadedData.MaxValue);
-                    currentColorData.Add(new Vector4(0, 0, normalizedValue, 1f));
+                    float normalizedValue = (float)((currentValue - loadedData.MinValue)/ (loadedData.MaxValue - loadedData.MinValue));
+
+                    batches[batchNumber][orderNumber] = Matrix4x4.TRS(new Vector3(i, j, k), Quaternion.identity, Vector3.one);
+                    properties[batchNumber][orderNumber] = normalizedValue;
+
+                    batchNumber += (orderNumber >= (BATCH_SIZE-1)) ? 1 : 0;
+                    orderNumber = (orderNumber + 1) % BATCH_SIZE;
+                    zkouska++;
                 }
             }
-        }
-
-        // Add any remaining data
-        if (currentBatch.Count > 0)
-        {
-            batches.Add(currentBatch.ToArray());
-            colorData.Add(currentColorData.ToArray());
         }
     }
 
     private void RenderBatches()
     {
-        for (int b = 0; b < batches.Count; b++)
+        for (int b = 0; b < batches.Length; b++)
         {
             MaterialPropertyBlock props = new MaterialPropertyBlock();
-            props.SetVectorArray("_Color", colorData[b]);
+            props.SetFloatArray("_Color", properties[b]);
 
             Graphics.DrawMeshInstanced(mesh, 0, material, batches[b], batches[b].Length, props);
         }
     }
 
-    void Start()
+    private void AddActionsToUI()
     {
-        FilePathDescriptor filePathDescriptor = GetFilePath();
-        if (filePathDescriptor == null)
-            return;
-        LoadData(filePathDescriptor);
+        var uiDocument = GetComponent<UIDocument>();
+        var rootVisualElement = uiDocument.rootVisualElement;
+
+        Button myButton = rootVisualElement.Q<Button>("loadObjectButton");
+        myButton.clicked += () => {
+            FilePathDescriptor filePathDescriptor = GetFilePath();
+            if (filePathDescriptor == null)
+                return;
+            LoadData(filePathDescriptor);
+        };
+    }
+
+    void OnEnable()
+    {
+        AddActionsToUI();
     }
 
     void Update()
