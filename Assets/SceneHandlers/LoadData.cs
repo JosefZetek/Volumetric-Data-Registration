@@ -63,6 +63,7 @@ public class Loader : MonoBehaviour
         int NUMBER_OF_VERTICES = NUMBER_OF_VERTICES_X * NUMBER_OF_VERTICES_Y * NUMBER_OF_VERTICES_Z;
 
         //Mathf.CeilToInt(NUMBER_OF_VERTICES / BATCH_SIZE);
+        Debug.Log("Number of vertices: " + NUMBER_OF_VERTICES);
         return NUMBER_OF_VERTICES;
     }
 

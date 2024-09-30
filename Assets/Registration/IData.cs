@@ -15,7 +15,6 @@ namespace DataView
         double MinValue { get; }
         double MaxValue { get; }
         double GetValue(double x, double y, double z);
-        double[,] Cut(double[] point, double[] v1, double[] v2, int xRes, int yRes, double spacing);
         double GetValue(Point3D p);
         double GetValueDistribution(double value);
     }

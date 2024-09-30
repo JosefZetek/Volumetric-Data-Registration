@@ -1,36 +1,22 @@
 ﻿<Properties StartupConfiguration="{E9E6DABC-757D-9313-16C6-28C0AFD75379}|">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SceneHandlers/MovementHandler.cs">
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="cd253919-eb83-4202-bf5c-af33d471debc" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SceneHandlers/CutViewer/CutViewerHandler.cs">
     <Files>
-      <File FileName="Assets/Registration/VolumetricData.cs" />
-      <File FileName="Assets/SceneHandlers/LoadData.cs" Line="133" Column="9" />
-      <File FileName="Assets/SceneHandlers/InstancedColorShader.shader" Line="27" Column="15" />
-      <File FileName="Assets/Registration/VolumetricDataDistribution.cs" Line="1" Column="1" />
-      <File FileName="Assets/SceneHandlers/InstancedColorMaterial.mat" Line="1" Column="1" />
-      <File FileName="Assets/SceneHandlers/MovementHandler.cs" Line="76" Column="1" />
+      <File FileName="Assets/Registration/VolumetricData.cs" Line="311" Column="14" />
+      <File FileName="Assets/SceneHandlers/InstancedColorShader.shader" />
+      <File FileName="Assets/Registration/VolumetricDataDistribution.cs" />
+      <File FileName="Assets/SceneHandlers/InstancedColorMaterial.mat" />
+      <File FileName="Assets/SceneHandlers/MovementHandler.cs" />
+      <File FileName="Assets/Registration/Point3D.cs" />
+      <File FileName="Assets/SceneHandlers/LoadData.cs" Line="143" Column="9" />
+      <File FileName="Assets/SceneHandlers/CutViewer/CutViewerHandler.cs" Line="97" Column="48" />
+      <File FileName="Assets/Registration/IData.cs" />
     </Files>
-    <Pads>
-      <Pad Id="ProjectPad">
-        <State name="__root__">
-          <Node name="Volumetric-Data-Registration" expanded="True">
-            <Node name="Assets" expanded="True">
-              <Node name="Registration" expanded="True" />
-              <Node name="SceneHandlers" expanded="True" />
-            </Node>
-          </Node>
-        </State>
-      </Pad>
-      <Pad Id="MonoDevelop.UnitTesting.TestPad">
-        <State name="__root__">
-          <Node name="Unity" selected="True" />
-        </State>
-      </Pad>
-    </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="25f93b9e-9413-433c-9e21-31db98fe2ccc" />
-  <MultiItemStartupConfigurations />
 </Properties>
