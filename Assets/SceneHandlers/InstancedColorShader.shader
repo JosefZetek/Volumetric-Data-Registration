@@ -17,6 +17,10 @@ Shader "Custom/InstancedColorShader" {
             float2 uv_MainTex;
         };
 
+        fixed3 GrayscaleColormap(float x) {
+            return fixed3(x, x, x);
+        }
+
         fixed3 ViridisColormap(float x) {
 
             fixed3 colormap[6] = {
@@ -44,7 +48,7 @@ Shader "Custom/InstancedColorShader" {
         void surf (Input IN, inout SurfaceOutput o) {
             //fixed4 c = tex2D (_MainTex, IN.uv_MainTex);
             float value = UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
-            fixed3 rgbViridis = ViridisColormap(value);
+            fixed3 rgbViridis = GrayscaleColormap(value);
 
             fixed4 c = fixed4(rgbViridis.x, rgbViridis.y, rgbViridis.z, 1);
             //c *= UNITY_ACCESS_INSTANCED_PROP(Props, _Color);

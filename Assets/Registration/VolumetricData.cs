@@ -60,14 +60,12 @@ namespace DataView
 
                 VData = new int[height][,];
                 int c = 0;
+
                 if (Data.ElementType == "MET_USHORT")
                 {
                     dataDistribution = new VolumetricDataDistribution();
-
                     for (int k = 0; k < height; k++)
                     {
-                     //   VData[k] = new int[width, depth];
-
                         VData[k] = new int[width, depth];
                         for (int j = 0; j < depth; j++)
                         {
@@ -87,9 +85,6 @@ namespace DataView
 
                 else if (Data.ElementType == "MET_UCHAR")
                 {
-                    //int numberOfBits = 8; //One byte data type
-                    //volumetricDataDistribution = new VolumetricDataDistribution(step: 1, (1 << numberOfBits) - 1);
-
                     dataDistribution = new VolumetricDataDistribution();
 
                     for (int k = 0; k < height; k++)
@@ -110,9 +105,7 @@ namespace DataView
 
                 }
                 else
-                {
                     Console.WriteLine("Wrong element type.");
-                }
 
                 br.Close();
                 return VData;
@@ -279,49 +272,14 @@ namespace DataView
             return histo;
         }
 
-        public double GetValueDistribution(double value)
+        public double GetPercentile(double value)
         {
             return this.dataDistribution.GetDistributionPercentage(value);
         }
 
-        
-        public double[][] Cut(double t, int axis, CutResolution resolution)
-        {
-            double[][] cutData = new double[resolution.Height][];
-            double[] coordinates = new double[3];
-            coordinates[axis] = t;
-
-            /* Assigning index for axes that are going to vary in each iteration */
-            int firstVariableIndex = (axis == 0) ? 1 : 0, secondVariableIndex = (axis == 2) ? 1 : 2;
-            
-            for(int i = 0; i < resolution.Height; i++)
-            {
-                cutData[i] = new double[resolution.Width];
-
-                double secondDimensionProgress = ((double)i / (double)resolution.Height) * Measures[secondVariableIndex];
-                coordinates[secondVariableIndex] = secondDimensionProgress;
-
-                for(int j = 0; j < resolution.Width; j++)
-                {
-                    double firstDimensionProgress = ((double)j / (double)resolution.Width) * Measures[firstVariableIndex];
-                    coordinates[firstVariableIndex] = firstDimensionProgress;
-
-                    cutData[i][j] = NormalizeValue(GetValue(coordinates[0], coordinates[1], coordinates[2]));
-                }
-            }
-
-            return cutData;
-        }
-
-
         private double NormalizeValue(double value)
         {
             return (value - MinValue) / (MaxValue - MinValue);
-        }
-
-        private double NormalizeValueDistribution(double value)
-        {
-            return dataDistribution.GetDistributionPercentage(value);
         }
 
         public int[] Measures { get => Data.DimSize; set => Data.DimSize = value; }
@@ -333,6 +291,7 @@ namespace DataView
         internal Data Data { get => data; set => data = value; }
 
         public int[][,] VData { get => vData; set => vData = value; }
+
         public double MinValue { get => dataDistribution.MinValue; }
         public double MaxValue { get => dataDistribution.MaxValue; }
     }

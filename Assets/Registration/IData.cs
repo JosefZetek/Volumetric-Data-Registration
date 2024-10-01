@@ -16,6 +16,6 @@ namespace DataView
         double MaxValue { get; }
         double GetValue(double x, double y, double z);
         double GetValue(Point3D p);
-        double GetValueDistribution(double value);
+        double GetPercentile(double value);
     }
 }

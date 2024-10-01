@@ -10,7 +10,7 @@ class CutViewerHandler : MonoBehaviour
     private DropdownField dropdown;
     private VisualElement cutPreview;
 
-    private VolumetricData volumetricData;
+    private DataSlicer dataSlicer;
 
     private Image image;
 
@@ -22,7 +22,7 @@ class CutViewerHandler : MonoBehaviour
     /// Data organized as follows [row][column], where [0][0] is bottom left corner.
     /// </param>
     /// <returns>Texture with values applied.</returns>
-    public Texture2D GetTextureSequentially(double[][] values)
+    public Texture2D GetTextureSequentially(Color[][] values)
     {
         int height = values.Length;
         if (height == 0)
@@ -41,7 +41,7 @@ class CutViewerHandler : MonoBehaviour
 
             for (int j = 0; j < values[i].Length; j++)
             {
-                texture.SetPixel(j, i, new Color((float)values[i][j], (float)values[i][j], (float)values[i][j]));
+                texture.SetPixel(j, i, values[i][j]);
             }
         }
 
@@ -49,27 +49,10 @@ class CutViewerHandler : MonoBehaviour
         return texture;
     }
 
-    public double[][] GetCutData(double sliderValue, int axis, CutResolution resolution)
+    public Color[][] GetCutData(double sliderValue, int axis, CutResolution resolution)
     {
-        double[][] values = volumetricData.Cut(sliderValue * (volumetricData.Measures[axis] - 1), axis, resolution);
-        PrintStatistics(values);
+        Color[][] values = dataSlicer.Cut(sliderValue, axis, resolution);
         return values;
-    }
-
-    private void PrintStatistics(double[][] values)
-    {
-        float minValue = float.MaxValue, maxValue = float.MinValue;
-
-        for(int i = 0; i< values.Length; i++)
-        {
-            for(int j = 0; j < values[i].Length; j++)
-            {
-                minValue = Mathf.Min((float)values[i][j], minValue);
-                maxValue = Mathf.Max((float)values[i][j], maxValue);
-            }
-        }
-
-        Debug.Log("Min value = " + minValue + ", Max value = " + maxValue);
     }
 
     void OnEnable()
@@ -96,16 +79,20 @@ class CutViewerHandler : MonoBehaviour
 
     private void Start()
     {
-        this.volumetricData = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/rotatedEllipsoidMicro.mhd", "/Users/pepazetek/Desktop/rotatedEllipsoidMicro.raw"));
+        VolumetricData d = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/rotatedEllipsoidMicro.mhd", "/Users/pepazetek/Desktop/rotatedEllipsoidMicro.raw"));
+
+        CustomData customData = new CustomData();
+        this.dataSlicer = new DataSlicer(customData);
+
         UpdateImage();
     }
 
     void UpdateImage()
     {
-        if (volumetricData == null)
+        if (dataSlicer == null)
             return;
 
-        double[][] values = GetCutData(slider.value, dropdown.index, new CutResolution(100, 100));
+        Color[][] values = GetCutData(slider.value, dropdown.index, new CutResolution(6, 6));
 
         image.image = GetTextureSequentially(values);
     }

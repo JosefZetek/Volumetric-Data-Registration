@@ -54,7 +54,7 @@ public class Loader : MonoBehaviour
     /// </summary>
     /// <param name="volumetricData">Instance of Volumetric Data</param>
     /// <returns>Returns number of vertices in VolumetricData instance</returns>
-    private int GetNumberOfVertices(VolumetricData volumetricData)
+    private int GetNumberOfVertices(IData volumetricData)
     {
         int NUMBER_OF_VERTICES_X = (int)(volumetricData.Measures[0] / volumetricData.XSpacing);
         int NUMBER_OF_VERTICES_Y = (int)(volumetricData.Measures[1] / volumetricData.YSpacing);
@@ -63,7 +63,6 @@ public class Loader : MonoBehaviour
         int NUMBER_OF_VERTICES = NUMBER_OF_VERTICES_X * NUMBER_OF_VERTICES_Y * NUMBER_OF_VERTICES_Z;
 
         //Mathf.CeilToInt(NUMBER_OF_VERTICES / BATCH_SIZE);
-        Debug.Log("Number of vertices: " + NUMBER_OF_VERTICES);
         return NUMBER_OF_VERTICES;
     }
 
@@ -91,9 +90,42 @@ public class Loader : MonoBehaviour
 
     }
 
+    private void LoadDataAlternative()
+    {
+        IData customData = new CustomData();
+
+        int NUMBER_OF_VERTICES = GetNumberOfVertices(customData);
+        InitBatches(NUMBER_OF_VERTICES);
+
+        int batchNumber = 0;
+        int orderNumber = 0;
+
+        for (float i = 0; i < customData.Measures[0]; i += (float)customData.XSpacing)
+        {
+            for (float j = 0; j < customData.Measures[1]; j += (float)customData.YSpacing)
+            {
+                for (float k = 0; k < customData.Measures[2]; k += (float)customData.ZSpacing)
+                {
+
+                    if (orderNumber == 0)
+                        AddAnotherBatch(NUMBER_OF_VERTICES, batchNumber);
+
+                    double currentValue = customData.GetValue(i, j, k);
+                    float normalizedValue = (float)((currentValue - customData.MinValue) / (customData.MaxValue - customData.MinValue));
+
+                    batches[batchNumber][orderNumber] = Matrix4x4.TRS(new Vector3(i, j, k), Quaternion.identity, Vector3.one);
+                    properties[batchNumber][orderNumber] = normalizedValue;
+
+                    batchNumber += (orderNumber >= (BATCH_SIZE - 1)) ? 1 : 0;
+                    orderNumber = (orderNumber + 1) % BATCH_SIZE;
+                }
+            }
+        }
+    }
+
     private void LoadData(FilePathDescriptor filePathDescriptor)
     {
-        VolumetricData loadedData = new VolumetricData(filePathDescriptor);
+        IData loadedData = new VolumetricData(filePathDescriptor);
 
         int NUMBER_OF_VERTICES = GetNumberOfVertices(loadedData);
         InitBatches(NUMBER_OF_VERTICES);
@@ -101,7 +133,6 @@ public class Loader : MonoBehaviour
         int batchNumber = 0;
         int orderNumber = 0;
 
-        int zkouska = 0;
 
         for (float i = 0; i < loadedData.Measures[0]; i += (float)loadedData.XSpacing)
         {
@@ -109,7 +140,6 @@ public class Loader : MonoBehaviour
             {
                 for (float k = 0; k < loadedData.Measures[2]; k += (float)loadedData.ZSpacing)
                 {
-
                     if (orderNumber == 0)
                         AddAnotherBatch(NUMBER_OF_VERTICES, batchNumber);
 
@@ -121,7 +151,6 @@ public class Loader : MonoBehaviour
 
                     batchNumber += (orderNumber >= (BATCH_SIZE-1)) ? 1 : 0;
                     orderNumber = (orderNumber + 1) % BATCH_SIZE;
-                    zkouska++;
                 }
             }
         }
@@ -145,10 +174,11 @@ public class Loader : MonoBehaviour
 
         Button myButton = rootVisualElement.Q<Button>("loadObjectButton");
         myButton.clicked += () => {
-            FilePathDescriptor filePathDescriptor = GetFilePath();
-            if (filePathDescriptor == null)
-                return;
-            LoadData(filePathDescriptor);
+            LoadDataAlternative();
+            //FilePathDescriptor filePathDescriptor = GetFilePath();
+            //if (filePathDescriptor == null)
+            //    return;
+            //LoadData(filePathDescriptor);
         };
     }
 
