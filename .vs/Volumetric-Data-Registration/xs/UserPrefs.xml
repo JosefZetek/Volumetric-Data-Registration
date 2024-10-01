@@ -1,24 +1,31 @@
 ﻿<Properties StartupConfiguration="{E9E6DABC-757D-9313-16C6-28C0AFD75379}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Registration/CustomData.cs">
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="4e69390f-7da6-45bd-a849-e97be8f2d2cd" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Registration/DataSlicer.cs">
     <Files>
-      <File FileName="Assets/Registration/VolumetricData.cs" Line="108" Column="62" />
-      <File FileName="Assets/SceneHandlers/InstancedColorShader.shader" Line="51" Column="50" />
-      <File FileName="Assets/Registration/VolumetricDataDistribution.cs" Line="1" Column="1" />
-      <File FileName="Assets/SceneHandlers/InstancedColorMaterial.mat" Line="1" Column="1" />
+      <File FileName="Assets/Registration/VolumetricData.cs" Line="141" Column="1" />
+      <File FileName="Assets/SceneHandlers/InstancedColorShader.shader" />
+      <File FileName="Assets/Registration/VolumetricDataDistribution.cs" />
+      <File FileName="Assets/SceneHandlers/InstancedColorMaterial.mat" />
       <File FileName="Assets/SceneHandlers/MovementHandler.cs" />
       <File FileName="Assets/Registration/Point3D.cs" />
-      <File FileName="Assets/SceneHandlers/LoadData.cs" Line="1" Column="1" />
-      <File FileName="Assets/Registration/IData.cs" Line="19" Column="29" />
+      <File FileName="Assets/SceneHandlers/LoadData.cs" />
+      <File FileName="Assets/Registration/IData.cs" Line="17" Column="16" />
       <File FileName="Assets/Registration/CutResolution.cs" Line="3" Column="11" />
-      <File FileName="Assets/Registration/NewClass.cs" Line="26" Column="39" />
-      <File FileName="Assets/Registration/NewClass1.cs" Line="54" Column="66" />
-      <File FileName="Assets/SceneHandlers/FPSLimiter.cs" Line="24" Column="26" />
-      <File FileName="Assets/SceneHandlers/CutViewer/CutViewerHandler.cs" Line="54" Column="41" />
+      <File FileName="Assets/SceneHandlers/FPSLimiter.cs" />
+      <File FileName="Assets/SceneHandlers/CutViewer/CutViewerHandler.cs" Line="82" Column="181" />
+      <File FileName="Assets/Registration/DataSlicer.cs" Line="103" Column="38" />
+      <File FileName="Assets/Registration/CustomData.cs" Line="26" Column="84" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="Volumetric-Data-Registration" expanded="True">
+          <Node name="Volumetric-Data-Registration">
             <Node name="Assets" expanded="True">
               <Node name="Registration" expanded="True" />
               <Node name="SceneHandlers" expanded="True">
@@ -30,11 +37,4 @@
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="b6b15a89-7fbc-4fce-898d-843bf16678bf" />
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
 </Properties>

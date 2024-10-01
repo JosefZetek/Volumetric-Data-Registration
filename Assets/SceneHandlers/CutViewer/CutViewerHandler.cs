@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using DataView;
@@ -79,7 +77,7 @@ class CutViewerHandler : MonoBehaviour
 
     private void Start()
     {
-        VolumetricData d = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/rotatedEllipsoidMicro.mhd", "/Users/pepazetek/Desktop/rotatedEllipsoidMicro.raw"));
+        //VolumetricData d = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/rotatedEllipsoidMicro.mhd", "/Users/pepazetek/Desktop/rotatedEllipsoidMicro.raw"));
 
         CustomData customData = new CustomData();
         this.dataSlicer = new DataSlicer(customData);
@@ -92,7 +90,7 @@ class CutViewerHandler : MonoBehaviour
         if (dataSlicer == null)
             return;
 
-        Color[][] values = GetCutData(slider.value, dropdown.index, new CutResolution(6, 6));
+        Color[][] values = GetCutData(slider.value, dropdown.index, new CutResolution(100, 100));
 
         image.image = GetTextureSequentially(values);
     }
