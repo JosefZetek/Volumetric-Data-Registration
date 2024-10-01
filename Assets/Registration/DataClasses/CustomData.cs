@@ -21,9 +21,13 @@ namespace DataView
             if (x >= Measures[0] || y >= Measures[1] || z >= Measures[2])
                 throw new ArgumentException("Out of bounds");
 
-            double roundedX = Math.Min(NearestPoint(x, XSpacing), Measures[0] - 1);
-            double roundedY = Math.Min(NearestPoint(y, YSpacing), Measures[1] - 1);
-            double roundedZ = Math.Min(NearestPoint(z, ZSpacing), Measures[2] - 1);
+            //double roundedX = Math.Min(NearestPoint(x, XSpacing), Measures[0] - 1);
+            //double roundedY = Math.Min(NearestPoint(y, YSpacing), Measures[1] - 1);
+            //double roundedZ = Math.Min(NearestPoint(z, ZSpacing), Measures[2] - 1);
+
+            double roundedX = ThirdsDivision(x);
+            double roundedY = ThirdsDivision(y);
+            double roundedZ = ThirdsDivision(z);
 
             return roundedX + roundedY * 3 + roundedZ * 9;
         }
@@ -47,6 +51,17 @@ namespace DataView
             double biggerNeighborDistance = ((divider + 1) * spacing) - value;
 
             return smallerNeighborDistance < biggerNeighborDistance ? (divider * spacing) : ((divider + 1) * spacing);
+        }
+
+        private double ThirdsDivision(double value)
+        {
+            if (value < (2 / 3.0))
+                return 0;
+
+            if (value < (4 / 3.0))
+                return 1;
+
+            return 2;
         }
 
         public double XSpacing { get => xSpacing; set => xSpacing = value > 0 ? value : xSpacing; }

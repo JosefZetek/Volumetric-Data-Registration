@@ -43,28 +43,16 @@ namespace DataView
 
                 double secondDimensionProgress = ((double)i / ((double)resolution.Height - 1)) * (data.Measures[secondVariableIndex] - 1);
                 coordinates[secondVariableIndex] = secondDimensionProgress;
-                int[] hodnoty = new int[3];
 
                 for (int j = 0; j < resolution.Width; j++)
                 {
                     double firstDimensionProgress = ((double)j / ((double)resolution.Width - 1)) * (data.Measures[firstVariableIndex] - 1);
                     coordinates[firstVariableIndex] = firstDimensionProgress;
 
-                    currentNormalizedValue = (float)data.GetValue(coordinates[0], coordinates[1], coordinates[2]);
-
-                    if(i == 0)
-                    {
-                        Debug.Log("Getting value at: " + coordinates[0] + ", " + coordinates[1] + ", " + coordinates[2] + " = " + currentNormalizedValue);
-                        hodnoty[(int)(currentNormalizedValue / 3)]++;
-                    }
-
-                    currentNormalizedValue = NormalizeValue(currentNormalizedValue);
-                    //currentNormalizedValue = NormalizeValue(data.GetValue(coordinates[0], coordinates[1], coordinates[2]));
+                    currentNormalizedValue = NormalizeValue(data.GetValue(coordinates[0], coordinates[1], coordinates[2]));
                     cutData[i][j] = new Color(currentNormalizedValue, currentNormalizedValue, currentNormalizedValue);
 
                 }
-                if(i == 0)
-                    Debug.Log(hodnoty[0] + ", " + hodnoty[1] + ", " + hodnoty[2]);
             }
 
             return cutData;
