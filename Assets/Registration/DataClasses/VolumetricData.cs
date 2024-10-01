@@ -8,7 +8,7 @@ namespace DataView
     /// <summary>
     /// This class represents the data
     /// </summary>
-    class VolumetricData : IData
+    class VolumetricData : AData
     {
         /* Data itself */
         private int[][,] vData;
@@ -211,12 +211,12 @@ namespace DataView
             }
         }
 
-        public double GetValue(double x, double y, double z) // Interpolation3D in real coordinates 
+        public override double GetValue(double x, double y, double z) // Interpolation3D in real coordinates 
         {
             return GetValue(new Point3D(x, y, z));
         }
 
-        public double GetValue(Point3D point)
+        public override double GetValue(Point3D point)
         {
             point = point.ApplyTranslationRotation(transformation);
 
@@ -228,7 +228,7 @@ namespace DataView
             int zLDC = (int)(point.Z / zSpacing);
 
 
-            if (!IsWithinBounds(xLDC, yLDC, zLDC))
+            if (!IndicesWithinBounds(xLDC, yLDC, zLDC))
                 throw new ArgumentException("This value is not within bounds");
             
             int zRDC = zLDC + 1;
@@ -243,14 +243,9 @@ namespace DataView
             return InterpolationReal(valueA, valueB, point.Z, zLDC, ZSpacing);            
         }
 
-        public bool IsWithinBounds(double x, double y, double z)
+        private bool IndicesWithinBounds(double x, double y, double z)
         {
             return (x < Data.DimSize[0] && y < Data.DimSize[1] && z < Data.DimSize[2] && x >= 0 && y >= 0 && z >= 0);
-        }
-
-        public bool IsWithinBounds(Point3D point)
-        {
-            return IsWithinBounds(point.X, point.Y, point.Z);
         }
 
         public double GetSampledValue(double x, double y, double z)
@@ -379,7 +374,7 @@ namespace DataView
             return histo;
         }
 
-        public double GetPercentile(double value)
+        public override double GetPercentile(double value)
         {
             return this.dataDistribution.GetDistributionPercentage(value);
         }
@@ -389,17 +384,17 @@ namespace DataView
             return (value - MinValue) / (MaxValue - MinValue);
         }
 
-        public int[] Measures { get => Data.DimSize; set => Data.DimSize = value; }
+        public override int[] Measures { get => Data.DimSize; set => Data.DimSize = value; }
 
-        public double XSpacing { get => xSpacing; set => xSpacing = value; }
-        public double YSpacing { get => ySpacing; set => ySpacing = value; }
-        public double ZSpacing { get => zSpacing; set => zSpacing = value; }
+        public override double XSpacing { get => xSpacing; set => xSpacing = value; }
+        public override double YSpacing { get => ySpacing; set => ySpacing = value; }
+        public override double ZSpacing { get => zSpacing; set => zSpacing = value; }
 
         internal Data Data { get => data; set => data = value; }
 
         public int[][,] VData { get => vData; set => vData = value; }
 
-        public double MinValue { get => dataDistribution.MinValue; }
-        public double MaxValue { get => dataDistribution.MaxValue; }
+        public override double MinValue { get => dataDistribution.MinValue; }
+        public override double MaxValue { get => dataDistribution.MaxValue; }
     }
 }

@@ -13,7 +13,7 @@ namespace DataView
             this.count = count;
         }
 
-        public Point3D[] Sample(IData d, int count)
+        public Point3D[] Sample(AData d, int count)
         {
             Random rnd = new Random();
             int quality = 5; //how many times this method discards undersirable points (higher quality -> more proccesor time)
@@ -43,7 +43,7 @@ namespace DataView
         }
 
         //Using config file
-        public Point3D[] Sample(IData d)
+        public Point3D[] Sample(AData d)
         {
             return Sample(d, count);
         }
@@ -57,7 +57,7 @@ namespace DataView
         /// <param name="border"></param>
         /// <param name="measures"></param>
         /// <param name="rnd"></param>
-        private void AddPointsToList(List<PointRated> ratedPoints, IData d, int count, int border, int[] measures, Random rnd)
+        private void AddPointsToList(List<PointRated> ratedPoints, AData d, int count, int border, int[] measures, Random rnd)
         {
             FeatureComputer featureComputer = new FeatureComputer();
             while(ratedPoints.Count() < count)
@@ -199,7 +199,7 @@ namespace DataView
         /// 
         /// Array version
         /// </summary>
-        private PointWithFeatures[] ComputeFeaturesForPoints(Point3D[] points, IData d)
+        private PointWithFeatures[] ComputeFeaturesForPoints(Point3D[] points, AData d)
         {
             PointWithFeatures[] pointsWithFeatures = new PointWithFeatures[points.Count()];
             FeatureComputer featureComputer = new FeatureComputer();
@@ -220,7 +220,7 @@ namespace DataView
         /// <param name="points"></param>
         /// <param name="d"></param>
         /// <returns></returns>
-        private List<PointWithFeatures> ComputeFeaturesForPoints(List<Point3D> points, IData d)
+        private List<PointWithFeatures> ComputeFeaturesForPoints(List<Point3D> points, AData d)
         {
             List<PointWithFeatures> pointsWithFeatures = new List<PointWithFeatures>();
             FeatureComputer featureComputer = new FeatureComputer();
@@ -241,7 +241,7 @@ namespace DataView
         /// <param name="count"></param>
         /// <param name="border"></param>
         /// <returns></returns>
-        private Point3D[] GenerateRandomPoints(IData d, int count, int border)
+        private Point3D[] GenerateRandomPoints(AData d, int count, int border)
         {
             Point3D[] points = new Point3D[count];
             int[] measures = d.Measures;
@@ -284,7 +284,7 @@ namespace DataView
         /// <param name="count"></param>
         /// <param name="border"></param>
         /// <returns></returns>
-        private List<Point3D> GenerateRandomPoints(IData d, int count, int border, Random rnd)
+        private List<Point3D> GenerateRandomPoints(AData d, int count, int border, Random rnd)
         {
             List<Point3D> points = new List<Point3D>();
             int[] measures = d.Measures;

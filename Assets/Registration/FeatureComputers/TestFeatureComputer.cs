@@ -11,7 +11,7 @@ namespace DataView
     /// </summary>
     class TestFeatureComputer : IFeatureComputer
     {
-        public FeatureVector ComputeFeatureVector(IData d, Point3D p)
+        public FeatureVector ComputeFeatureVector(AData d, Point3D p)
         {
             Random random = new Random();
             List<Point3D> sampledPoints;
@@ -70,7 +70,7 @@ namespace DataView
             return points;
         }
 
-        private Vector<double> GetDirectionVector(List<Point3D> sampledPoints, Point3D centerPoint, IData data, ref double percentage)
+        private Vector<double> GetDirectionVector(List<Point3D> sampledPoints, Point3D centerPoint, AData data, ref double percentage)
         {
             Vector<double> directionVector = Vector<double>.Build.Dense(3);
 

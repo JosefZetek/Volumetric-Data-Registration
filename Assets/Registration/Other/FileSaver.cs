@@ -10,10 +10,10 @@ class FileSaver
     private StreamWriter streamWriter;
 
     private string fileName;
-    private IData d;
+    private AData d;
 
 
-    public FileSaver(string directory, string fileName, IData d)
+    public FileSaver(string directory, string fileName, AData d)
     {
         this.fileName = fileName;
         this.d = d;

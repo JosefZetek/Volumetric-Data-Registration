@@ -15,7 +15,7 @@ namespace DataView
         /// <param name="pointMacro">Point in data2 to take samples around</param>
         /// <param name="count">Number of samples taken</param>
         /// <returns></returns>
-        public static Matrix<double> CalculateRotation(IData dMicro, IData dMacro, Point3D pointMicro, Point3D pointMacro, int count)
+        public static Matrix<double> CalculateRotation(AData dMicro, AData dMacro, Point3D pointMicro, Point3D pointMacro, int count)
         {
             Random mainRnd = new Random();
 
@@ -211,7 +211,7 @@ namespace DataView
             basis[2, v] = -basis[2, v];
         }
 
-        private static Point3D[] SampleSphereAroundPoint(IData d, Point3D centerPoint, int radius, int count, Random rnd)
+        private static Point3D[] SampleSphereAroundPoint(AData d, Point3D centerPoint, int radius, int count, Random rnd)
         {
             List<Point3D> survivingPoints = new List<Point3D>();
             List<Point3D> pointsInSphere = GetSphere(centerPoint, radius, count, rnd.Next()); //gets all points in a given sphere
@@ -289,7 +289,7 @@ namespace DataView
         /// <param name="d"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        private static Matrix<double> GetSymetricMatrixForEigenVectors(IData d, Point3D point, int count, Random rnd)
+        private static Matrix<double> GetSymetricMatrixForEigenVectors(AData d, Point3D point, int count, Random rnd)
         {
             Point3D[] sample = SampleSphereAroundPoint(d, point, 3, count, rnd);
 
@@ -303,7 +303,7 @@ namespace DataView
         }
 
         // od pana V�i
-        private static Matrix<double> GetSymetricMatrixForEigenVectors(IData d, Point3D point, int count, double radius, Random rnd)
+        private static Matrix<double> GetSymetricMatrixForEigenVectors(AData d, Point3D point, int count, double radius, Random rnd)
         {
             List<Point3D> pointsInSphere = GetSphere(point, radius, count, rnd.Next());
 

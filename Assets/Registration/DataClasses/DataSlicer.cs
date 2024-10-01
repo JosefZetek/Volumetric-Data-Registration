@@ -5,10 +5,10 @@ namespace DataView
 {
 	class DataSlicer
 	{
-		private IData data;
+		private AData data;
         private const int DIMENSIONS = 3;
 
-		public DataSlicer(IData data)
+		public DataSlicer(AData data)
 		{
 			this.data = data;
 		}
@@ -49,9 +49,8 @@ namespace DataView
                     double firstDimensionProgress = ((double)j / ((double)resolution.Width - 1)) * (data.Measures[firstVariableIndex] - 1);
                     coordinates[firstVariableIndex] = firstDimensionProgress;
 
-                    currentNormalizedValue = NormalizeValue(data.GetValue(coordinates[0], coordinates[1], coordinates[2]));
+                    currentNormalizedValue = (float)data.GetNormalizedValue(coordinates[0], coordinates[1], coordinates[2]);
                     cutData[i][j] = new Color(currentNormalizedValue, currentNormalizedValue, currentNormalizedValue);
-
                 }
             }
 
@@ -67,11 +66,11 @@ namespace DataView
         /// <param name="t">Value between 0-1</param>
         /// <param name="axis">Number of axis [0 = x, 1 = y, 2 = z]</param>
         /// <param name="microData">Micro data that replaces refference data when they overlap.</param>
-        /// <param name="transformation"></param>
+        /// <param name="transformation">Transformation that aligns microData onto macroData</param>
         /// <returns></returns>
-        public Color[][] TransformationCut(double t, int axis, IData microData, Transform3D transformation, CutResolution resolution)
+        public Color[][] TransformationCut(double t, int axis, AData microData, Transform3D transformation, CutResolution resolution)
         {
-            Point3D currentPoint;
+            Point3D microDataPoint;
 
             /* Constraining t to be within range */
             t = Math.Min(Math.Max(0, t), 1);
@@ -100,20 +99,23 @@ namespace DataView
                     coordinates[firstVariableIndex] = firstDimensionProgress;
 
 
-                    currentPoint = new Point3D(coordinates[0], coordinates[1], coordinates[2]);
-                    //currentPoint.Appl
+                    microDataPoint = new Point3D(coordinates[0], coordinates[1], coordinates[2]);
+                    microDataPoint = microDataPoint.ApplyTranslationRotation(transformation.GetInverseTransformation());
 
-                    currentNormalizedValue = NormalizeValue(data.GetValue(coordinates[0], coordinates[1], coordinates[2]));
-                    cutData[i][j] = new Color(currentNormalizedValue, currentNormalizedValue, currentNormalizedValue);
+                    if (microData.PointWithinBounds(microDataPoint))
+                    {
+                        currentNormalizedValue = (float)microData.GetNormalizedValue(microDataPoint);
+                        cutData[i][j] = new Color(0, currentNormalizedValue, 0);
+                    }
+                    else
+                    {
+                        currentNormalizedValue = (float)data.GetNormalizedValue(coordinates[0], coordinates[1], coordinates[2]);
+                        cutData[i][j] = new Color(currentNormalizedValue, currentNormalizedValue, currentNormalizedValue);
+                    }
                 }
             }
 
             return cutData;
-        }
-
-        private float NormalizeValue(double value)
-        {
-            return (float)((value - data.MinValue) / (data.MaxValue - data.MinValue));
         }
     }
 }

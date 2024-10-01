@@ -24,7 +24,7 @@ namespace DataView
         /// <param name="microData"></param>
         /// <param name="macroData"></param>
         /// <param name="percentage">Percentage is a value between 0 and 1</param>
-		public SamplerIdentical(IData microData, IData macroData, double percentage, double randomIncrement)
+		public SamplerIdentical(AData microData, AData macroData, double percentage, double randomIncrement)
 		{
             int seed = 100;
             this.random = new Random(seed);
@@ -40,7 +40,7 @@ namespace DataView
             maxBounds = new Point3D(Math.Max(0, maxX - 1), Math.Max(0, maxY - 1), Math.Max(0, maxZ - 1));
 		}
 
-        public Point3D[] Sample(IData d, int count)
+        public Point3D[] Sample(AData d, int count)
         {
             int numberOfSamePoints = (int)(count * percentage);
             GenerateSamePoints(numberOfSamePoints);

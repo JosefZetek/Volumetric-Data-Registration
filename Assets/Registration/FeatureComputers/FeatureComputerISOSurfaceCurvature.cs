@@ -10,7 +10,7 @@ namespace DataView
 		{
 		}
 
-        private FeatureVector ShapeOperator(IData d, Point3D p)
+        private FeatureVector ShapeOperator(AData d, Point3D p)
         {
             Console.WriteLine("Shape operator implementation: ");
 
@@ -49,7 +49,7 @@ namespace DataView
 
         }
 
-        private FeatureVector OriginalImplementation(IData d, Point3D p)
+        private FeatureVector OriginalImplementation(AData d, Point3D p)
         {
             Point3D nearestGridPoint = new Point3D(
                 RoundToNearestSpacingMultiplier(p.X, d.XSpacing),
@@ -77,7 +77,7 @@ namespace DataView
             return new FeatureVector(p, new double[] { minCurvature, maxCurvature });
         }
 
-        private FeatureVector AlternativeImplementation(IData d, Point3D p)
+        private FeatureVector AlternativeImplementation(AData d, Point3D p)
         {
             Console.WriteLine("Alternative implementation: ");
 
@@ -108,7 +108,7 @@ namespace DataView
             return new FeatureVector(p, new double[] { minCurvature, maxCurvature });
         }
 
-        public FeatureVector ComputeFeatureVector(IData d, Point3D p)
+        public FeatureVector ComputeFeatureVector(AData d, Point3D p)
         {
             return OriginalImplementation(d, p);
             //AlternativeImplementation(d, p);
@@ -196,7 +196,7 @@ namespace DataView
         /// <param name="surroundingPoints">List of points from the surrounding of a given value</param>
         /// <param name="d">Data class</param>
         /// <returns>Returns equation matrix for least squares method</returns>
-        private Matrix<double> ConstructEquationMatrix(List<Point3D> surroundingPoints, Point3D centerPoint, IData d)
+        private Matrix<double> ConstructEquationMatrix(List<Point3D> surroundingPoints, Point3D centerPoint, AData d)
         {
             //this gets created here to improve efficiency - 9 values corresponding to function format, 10th is the value at given point
             double[] row = new double[10];
@@ -228,7 +228,7 @@ namespace DataView
             return equationMatrix;
         }
 
-        private Matrix<double> ConstructEquationMatrixAlternative(List<Point3D> surroundingPoints, IData d)
+        private Matrix<double> ConstructEquationMatrixAlternative(List<Point3D> surroundingPoints, AData d)
         {
             List<Vector<double>> leftSide = new List<Vector<double>>();
             List<Vector<double>> rightSide = new List<Vector<double>>();
@@ -296,7 +296,7 @@ namespace DataView
             }
         }
 
-        private List<Point3D> GetSurroundingPoints(Point3D nearestGridPoint, IData d)
+        private List<Point3D> GetSurroundingPoints(Point3D nearestGridPoint, AData d)
         {
             List<Point3D> surroundingPoints = new List<Point3D>();
 

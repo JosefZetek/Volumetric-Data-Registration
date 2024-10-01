@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using MathNet.Numerics.LinearAlgebra;
 using DataView;
 
 class CutViewerHandler : MonoBehaviour
@@ -9,6 +10,8 @@ class CutViewerHandler : MonoBehaviour
     private VisualElement cutPreview;
 
     private DataSlicer dataSlicer;
+
+    private CustomData customData;
 
     private Image image;
 
@@ -49,7 +52,8 @@ class CutViewerHandler : MonoBehaviour
 
     public Color[][] GetCutData(double sliderValue, int axis, CutResolution resolution)
     {
-        Color[][] values = dataSlicer.Cut(sliderValue, axis, resolution);
+        Color[][] values = dataSlicer.TransformationCut(sliderValue, axis, customData, new Transform3D(Matrix<double>.Build.DenseIdentity(3), Vector<double>.Build.DenseOfArray(new double[] { -1, 0, 0 })), resolution);
+        //Color[][] values = dataSlicer.Cut(sliderValue, axis, resolution);
         return values;
     }
 
@@ -79,7 +83,7 @@ class CutViewerHandler : MonoBehaviour
     {
         //VolumetricData d = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/rotatedEllipsoidMicro.mhd", "/Users/pepazetek/Desktop/rotatedEllipsoidMicro.raw"));
 
-        CustomData customData = new CustomData();
+        customData = new CustomData();
         this.dataSlicer = new DataSlicer(customData);
 
         UpdateImage();
@@ -90,7 +94,7 @@ class CutViewerHandler : MonoBehaviour
         if (dataSlicer == null)
             return;
 
-        Color[][] values = GetCutData(slider.value, dropdown.index, new CutResolution(100, 100));
+        Color[][] values = GetCutData(slider.value, dropdown.index, new CutResolution(3, 3));
 
         image.image = GetTextureSequentially(values);
     }

@@ -50,7 +50,7 @@ namespace DataView
 
             return points;
         }
-        public FeatureVector ComputeFeatureVector(IData d, Point3D p)
+        public FeatureVector ComputeFeatureVector(AData d, Point3D p)
         {
             double[] fv = new double[5];
             double norm = 0;

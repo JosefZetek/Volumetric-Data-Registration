@@ -54,7 +54,7 @@ public class Loader : MonoBehaviour
     /// </summary>
     /// <param name="volumetricData">Instance of Volumetric Data</param>
     /// <returns>Returns number of vertices in VolumetricData instance</returns>
-    private int GetNumberOfVertices(IData volumetricData)
+    private int GetNumberOfVertices(AData volumetricData)
     {
         int NUMBER_OF_VERTICES_X = (int)(volumetricData.Measures[0] / volumetricData.XSpacing);
         int NUMBER_OF_VERTICES_Y = (int)(volumetricData.Measures[1] / volumetricData.YSpacing);
@@ -92,7 +92,7 @@ public class Loader : MonoBehaviour
 
     private void LoadDataAlternative()
     {
-        IData customData = new CustomData();
+        AData customData = new CustomData();
 
         int NUMBER_OF_VERTICES = GetNumberOfVertices(customData);
         InitBatches(NUMBER_OF_VERTICES);
@@ -125,7 +125,7 @@ public class Loader : MonoBehaviour
 
     private void LoadData(FilePathDescriptor filePathDescriptor)
     {
-        IData loadedData = new VolumetricData(filePathDescriptor);
+        AData loadedData = new VolumetricData(filePathDescriptor);
 
         int NUMBER_OF_VERTICES = GetNumberOfVertices(loadedData);
         InitBatches(NUMBER_OF_VERTICES);

@@ -7,7 +7,7 @@ namespace DataView
     class Transformer3D : ITransformer
     {
 
-        public Transform3D GetTransformation(Match m, IData dataMicro, IData dataMacro)
+        public Transform3D GetTransformation(Match m, AData dataMicro, AData dataMacro)
         {
             //int count = 1_000;
 

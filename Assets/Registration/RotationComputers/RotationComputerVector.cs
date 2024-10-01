@@ -18,7 +18,7 @@ namespace DataView
         /// <param name="pointMacro">Point in data2 to take samples around</param>
         /// <param name="count">Number of samples taken</param>
         /// <returns></returns>
-        public static Matrix<double> CalculateRotation(IData dMicro, IData dMacro, Point3D pointMicro, Point3D pointMacro, int count)
+        public static Matrix<double> CalculateRotation(AData dMicro, AData dMacro, Point3D pointMicro, Point3D pointMacro, int count)
         {
             Random mainRnd = new Random();
 
@@ -216,7 +216,7 @@ namespace DataView
         }
 
         // od pana V�i
-        private static Vector<double> GetDirectionVector(IData d, Point3D point, int count, double radius, Random rnd)
+        private static Vector<double> GetDirectionVector(AData d, Point3D point, int count, double radius, Random rnd)
         {
             List<Point3D> pointsInSphere = GetSphere(point, radius, count, rnd.Next()); 
 

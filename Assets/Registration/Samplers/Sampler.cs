@@ -8,7 +8,7 @@ namespace DataView
 
         private int rSphere;
 
-        public Point3D[] Sample(IData d, int count)
+        public Point3D[] Sample(AData d, int count)
         {
             Point3D[] points = new Point3D[count];
 

@@ -8,7 +8,7 @@ namespace DataView
     {
         public static double radius = 3;
 
-        public Matrix<double> CalculatePCAVectors(IData data, Point3D point, double spacing)
+        public Matrix<double> CalculatePCAVectors(AData data, Point3D point, double spacing)
         {
 
 
@@ -47,7 +47,7 @@ namespace DataView
         }
 
         // od pana Váši
-        private Matrix<double> GetPointBasis(IData d, Point3D point, double spacing, double radius)
+        private Matrix<double> GetPointBasis(AData d, Point3D point, double spacing, double radius)
         {
             List<Point3D> pointsInSphere = GetSphere(point, radius, spacing, d);
             List<double> values = new List<double>();
@@ -106,7 +106,7 @@ namespace DataView
         /// <param name="spacing">Spacing between the points</param>
         /// <param name="data">Data unsed for checking if the value is within bounds of the object.</param>
         /// <returns>A grid of points uniformly distributed in the sphere radius from a given point.</returns>
-        private static List<Point3D> GetSphere(Point3D p, double r, double spacing, IData data)
+        private static List<Point3D> GetSphere(Point3D p, double r, double spacing, AData data)
         {
             List<Point3D> points = new List<Point3D>();
 
@@ -138,7 +138,7 @@ namespace DataView
         /// <param name="data">Data instance for the object</param>
         /// <param name="p">Point tested</param>
         /// <returns>Returns true if point is within the bounds, false otherwise.</returns>
-        private static bool IsWithinBounds(IData data, Point3D p)
+        private static bool IsWithinBounds(AData data, Point3D p)
         {
             if (p.X < 0 || p.X > (data.Measures[0] - data.XSpacing))
                 return false;
@@ -176,7 +176,7 @@ namespace DataView
             return new Bounds(minZ, maxZ);
         }
 
-        public FeatureVector ComputeFeatureVector(IData d, Point3D p)
+        public FeatureVector ComputeFeatureVector(AData d, Point3D p)
         {
             const double radiusX = 2;
             const double radiusY = 2;

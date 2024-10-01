@@ -5,12 +5,12 @@ namespace DataView
 {
 	class BenchmarkFeatureComputer
 	{
-		private IData d;
+		private AData d;
 		private IFeatureComputer featureComputer;
 		private Random random;
 		private List<Point2D> listOfPoints;
 
-		public BenchmarkFeatureComputer(IData d, IFeatureComputer featureComputer)
+		public BenchmarkFeatureComputer(AData d, IFeatureComputer featureComputer)
 		{
 			this.d = d;
 			this.featureComputer = featureComputer;

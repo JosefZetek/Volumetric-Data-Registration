@@ -53,7 +53,7 @@ namespace DataView
         /// <param name="d"></param>
         /// <param name="p"></param>
         /// <returns></returns>
-        public FeatureVector ComputeFeatureVector(IData d, Point3D p)
+        public FeatureVector ComputeFeatureVector(AData d, Point3D p)
         {
             double[] fv = new double[5];
             double norm = 0;

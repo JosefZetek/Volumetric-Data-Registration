@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DataView
+﻿namespace DataView
 {
     interface IFeatureComputer
     {
@@ -15,6 +9,6 @@ namespace DataView
         /// <param name="d">Data class for a given point</param>
         /// <param name="p">Point</param>
         /// <returns>Returns FeatureVector consisting of characteristic values as well as the point used for their calculation.</returns>
-        FeatureVector ComputeFeatureVector(IData d, Point3D p);
+        FeatureVector ComputeFeatureVector(AData d, Point3D p);
     }
 }

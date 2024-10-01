@@ -23,7 +23,7 @@ namespace DataView
             this.radius = radius;
         }
 
-        public Point3D[] Sample(IData d, int count, int radius)
+        public Point3D[] Sample(AData d, int count, int radius)
         {
             this.pointsMax = new Point3D[count];
             this.pointsMin = new Point3D[count];
@@ -53,7 +53,7 @@ namespace DataView
             this.translationZ = translation[2];
         }
 
-        public Point3D[] Sample(IData d, int count)
+        public Point3D[] Sample(AData d, int count)
         {
             return Sample(d, count, radius);
         }

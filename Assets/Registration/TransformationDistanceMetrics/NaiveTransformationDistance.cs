@@ -11,13 +11,13 @@ namespace DataView
     class NaiveTransformationDistance : ITransformationDistance
     {
 
-        private IData data;
+        private AData data;
 
         /// <summary>
         /// Constructor takes in data object and saves it
         /// </summary>
         /// <param name="data">Instance of IData for object on which the transformations are going to be applied</param>
-        public NaiveTransformationDistance(IData data)
+        public NaiveTransformationDistance(AData data)
         {
             this.data = data;
         }

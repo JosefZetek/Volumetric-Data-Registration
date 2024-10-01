@@ -11,7 +11,7 @@ namespace DataView
 
         private const int DEFAULT_SIZE = 20;
 
-        public FeatureVector ComputeFeatureVector(IData d, Point3D p)
+        public FeatureVector ComputeFeatureVector(AData d, Point3D p)
         {
 
             hodnoty = new List<double>();
@@ -53,7 +53,7 @@ namespace DataView
             numberOfOccurences[closestBiggerInteger] += percentageBigger;
         }
 
-        public void ShowValues(IData d, Point3D p)
+        public void ShowValues(AData d, Point3D p)
         {
 
             List<double> data = new List<double>();

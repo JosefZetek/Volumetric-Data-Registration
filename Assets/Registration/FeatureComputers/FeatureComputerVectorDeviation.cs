@@ -8,7 +8,7 @@ namespace DataView
     {
         private QuickSelectClass quickSelectClass;
 
-        public FeatureVector ComputeFeatureVector(IData d, Point3D p)
+        public FeatureVector ComputeFeatureVector(AData d, Point3D p)
         {
 
             //return new FeatureVector(p, p.X, p.Y, p.Z, 0, 0);
@@ -27,7 +27,7 @@ namespace DataView
             return new FeatureVector(p, pointSurrounding.HighConcentrationValue, pointSurrounding.LowConcentrationValue, pointSurrounding.AngleXY, pointSurrounding.AngleXZ, pointSurrounding.DistributionValueAvg);
         }
 
-        private PointSurrounding GetPointSurrounding(IData d, Point3D point, int count, double radius, int seed)
+        private PointSurrounding GetPointSurrounding(AData d, Point3D point, int count, double radius, int seed)
         {
             List<Point3D> pointsInSphere = GetSphere(point, radius, count, seed);
 

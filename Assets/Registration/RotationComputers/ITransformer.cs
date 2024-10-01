@@ -2,6 +2,6 @@
 {
     interface ITransformer
     {
-        Transform3D GetTransformation(Match m, IData d1, IData d2);
+        Transform3D GetTransformation(Match m, AData d1, AData d2);
     }
 }

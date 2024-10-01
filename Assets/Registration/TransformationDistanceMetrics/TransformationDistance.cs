@@ -31,7 +31,7 @@ namespace DataView
         /// Constructor initializes precomputed values for the given data
         /// </summary>
         /// <param name="microData">Instance of IData for Micro Data</param>
-        public TransformationDistance(IData microData)
+        public TransformationDistance(AData microData)
         {
             int sizeX = microData.Measures[0];
             int sizeY = microData.Measures[1];

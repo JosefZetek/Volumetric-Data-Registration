@@ -9,7 +9,7 @@ namespace DataView
     {
         //public static double radius = 2;
 
-        private Matrix<double> GetPCABasis(IData d, Point3D point, double spacing, double radius)
+        private Matrix<double> GetPCABasis(AData d, Point3D point, double spacing, double radius)
         {
             List<Point3D> pointsInSphere = GetSphere(point, radius, spacing, d);
             List<double> values = new List<double>();
@@ -68,7 +68,7 @@ namespace DataView
         /// <param name="spacing">Spacing between the points</param>
         /// <param name="data">Data unsed for checking if the value is within bounds of the object.</param>
         /// <returns>A grid of points uniformly distributed in the sphere radius from a given point.</returns>
-        private static List<Point3D> GetSphere(Point3D p, double r, double spacing, IData data)
+        private static List<Point3D> GetSphere(Point3D p, double r, double spacing, AData data)
         {
             List<Point3D> points = new List<Point3D>();
 
@@ -101,7 +101,7 @@ namespace DataView
         /// <param name="data">Data instance for the object</param>
         /// <param name="p">Point tested</param>
         /// <returns>Returns true if point is within the bounds, false otherwise.</returns>
-        private static bool IsWithinBounds(IData data, Point3D p)
+        private static bool IsWithinBounds(AData data, Point3D p)
         {
             if (p.X < 0 || p.X > (data.Measures[0] - data.XSpacing))
                 return false;
@@ -115,7 +115,7 @@ namespace DataView
             return true;
         }
 
-        private Curvatures CalculateCurvature(Point3D point, IData d, double spacing, double radius, double derivativeStep)
+        private Curvatures CalculateCurvature(Point3D point, AData d, double spacing, double radius, double derivativeStep)
         {
             Vector<double> pointVertex = Vector<double>.Build.DenseOfArray(new double[3] { point.X, point.Y, point.Z });
             pointVertex /= pointVertex.L2Norm();
@@ -198,7 +198,7 @@ namespace DataView
             return new Bounds(minZ, maxZ);
         }
 
-        public FeatureVector ComputeFeatureVector(IData d, Point3D p)
+        public FeatureVector ComputeFeatureVector(AData d, Point3D p)
         {
             double radius = Math.Max(Math.Max(d.XSpacing, d.YSpacing), d.ZSpacing)/2;
 

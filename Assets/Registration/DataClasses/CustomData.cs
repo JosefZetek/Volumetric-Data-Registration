@@ -2,7 +2,7 @@
 using UnityEngine;
 namespace DataView
 {
-    class CustomData : IData
+    class CustomData : AData
     {
         private int[] measures = new int[] { 3, 3, 3 };
 
@@ -10,12 +10,12 @@ namespace DataView
         private double ySpacing = 1;
         private double zSpacing = 1;
 
-        public double GetPercentile(double value)
+        public override double GetPercentile(double value)
         {
             throw new NotImplementedException();
         }
 
-        public double GetValue(double x, double y, double z)
+        public override double GetValue(double x, double y, double z)
         {
 
             if (x >= Measures[0] || y >= Measures[1] || z >= Measures[2])
@@ -32,7 +32,7 @@ namespace DataView
             return roundedX + roundedY * 3 + roundedZ * 9;
         }
 
-        public double GetValue(Point3D p)
+        public override double GetValue(Point3D p)
         {
             return GetValue(p.X, p.Y, p.Z);
         }
@@ -64,15 +64,15 @@ namespace DataView
             return 2;
         }
 
-        public double XSpacing { get => xSpacing; set => xSpacing = value > 0 ? value : xSpacing; }
-        public double YSpacing { get => ySpacing; set => ySpacing = value > 0 ? value : ySpacing; }
-        public double ZSpacing { get => zSpacing; set => zSpacing = value > 0 ? value : zSpacing; }
+        public override double XSpacing { get => xSpacing; set => xSpacing = value > 0 ? value : xSpacing; }
+        public override double YSpacing { get => ySpacing; set => ySpacing = value > 0 ? value : ySpacing; }
+        public override double ZSpacing { get => zSpacing; set => zSpacing = value > 0 ? value : zSpacing; }
 
-        public int[] Measures { get => measures; set => measures = value.Length == 3 ? value : measures; }
+        public override int[] Measures { get => measures; set => measures = value.Length == 3 ? value : measures; }
 
-        public double MinValue => 0;
+        public override double MinValue => 0;
 
-        public double MaxValue => 26;
+        public override double MaxValue => 26;
     }
 
 
