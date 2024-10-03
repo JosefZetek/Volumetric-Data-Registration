@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.SceneManagement;
 using MathNet.Numerics.LinearAlgebra;
 using DataView;
 
@@ -11,7 +12,7 @@ class CutViewerHandler : MonoBehaviour
 
     private DataSlicer dataSlicer;
 
-    private CustomData customData;
+    //private CustomData customData;
 
     private Image image;
 
@@ -52,8 +53,8 @@ class CutViewerHandler : MonoBehaviour
 
     public Color[][] GetCutData(double sliderValue, int axis, CutResolution resolution)
     {
-        Color[][] values = dataSlicer.TransformationCut(sliderValue, axis, customData, new Transform3D(Matrix<double>.Build.DenseIdentity(3), Vector<double>.Build.DenseOfArray(new double[] { -1, 0, 0 })), resolution);
-        //Color[][] values = dataSlicer.Cut(sliderValue, axis, resolution);
+        //Color[][] values = dataSlicer.TransformationCut(sliderValue, axis, customData, new Transform3D(Matrix<double>.Build.DenseIdentity(3), Vector<double>.Build.DenseOfArray(new double[] { -1, 0, 0 })), resolution);
+        Color[][] values = dataSlicer.Cut(sliderValue, axis, resolution);
         return values;
     }
 
@@ -77,14 +78,21 @@ class CutViewerHandler : MonoBehaviour
         image.style.height = new StyleLength(Length.Percent(100));
 
         cutPreview.Add(image);
+
+        rootVisualElement.Q<Button>("backButton").clicked += () => SceneManager.LoadScene("MainView");
+        rootVisualElement.Q<Button>("loadButton").clicked += () => LoadObject();
     }
 
-    private void Start()
+    private void LoadObject()
     {
-        //VolumetricData d = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/rotatedEllipsoidMicro.mhd", "/Users/pepazetek/Desktop/rotatedEllipsoidMicro.raw"));
+        FilePathDescriptor filePathDescriptor = FileDialog.GetFilePath();
+        if (filePathDescriptor == null)
+            return;
 
-        customData = new CustomData();
-        this.dataSlicer = new DataSlicer(customData);
+        AData volumetricData = new VolumetricData(filePathDescriptor);
+        
+        //customData = new CustomData();
+        this.dataSlicer = new DataSlicer(volumetricData);
 
         UpdateImage();
     }

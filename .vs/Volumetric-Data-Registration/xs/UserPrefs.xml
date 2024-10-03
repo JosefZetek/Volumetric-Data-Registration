@@ -1,26 +1,9 @@
 ﻿<Properties StartupConfiguration="{E9E6DABC-757D-9313-16C6-28C0AFD75379}|">
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="4e69390f-7da6-45bd-a849-e97be8f2d2cd" />
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Registration/DataSlicer.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SceneHandlers/RegistrationView/RegistrationViewHandler.cs">
     <Files>
-      <File FileName="Assets/Registration/VolumetricData.cs" Line="141" Column="1" />
-      <File FileName="Assets/SceneHandlers/InstancedColorShader.shader" />
-      <File FileName="Assets/Registration/VolumetricDataDistribution.cs" />
-      <File FileName="Assets/SceneHandlers/InstancedColorMaterial.mat" />
-      <File FileName="Assets/SceneHandlers/MovementHandler.cs" />
-      <File FileName="Assets/Registration/Point3D.cs" />
-      <File FileName="Assets/SceneHandlers/LoadData.cs" />
-      <File FileName="Assets/Registration/IData.cs" Line="17" Column="16" />
-      <File FileName="Assets/Registration/CutResolution.cs" Line="3" Column="11" />
-      <File FileName="Assets/SceneHandlers/FPSLimiter.cs" />
-      <File FileName="Assets/SceneHandlers/CutViewer/CutViewerHandler.cs" Line="82" Column="181" />
-      <File FileName="Assets/Registration/DataSlicer.cs" Line="103" Column="38" />
-      <File FileName="Assets/Registration/CustomData.cs" Line="26" Column="84" />
+      <File FileName="Assets/SceneHandlers/CutViewer/CutViewerHandler.cs" />
+      <File FileName="Assets/SceneHandlers/RegistrationView/RegistrationViewHandler.cs" Line="61" Column="1" />
+      <File FileName="Assets/Registration/Main.cs" Line="90" Column="15" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -30,6 +13,7 @@
               <Node name="Registration" expanded="True" />
               <Node name="SceneHandlers" expanded="True">
                 <Node name="CutViewer" expanded="True" />
+                <Node name="RegistrationView" expanded="True" />
               </Node>
             </Node>
           </Node>
@@ -37,4 +21,11 @@
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="7a38bac1-33c4-40a9-a813-db4f23d759bc" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
 </Properties>

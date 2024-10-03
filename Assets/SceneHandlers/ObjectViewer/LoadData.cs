@@ -30,24 +30,6 @@ public class Loader : MonoBehaviour
     /// Size of a batch thats being rendered simultaneously
     /// </summary>
     private const int BATCH_SIZE = 1023; // Maximum batch size for GPU instancing
-    
-    private bool ShowDialogBox(string title, string content)
-    {
-        return EditorUtility.DisplayDialog(title, content, "Select different file", "Cancel");
-    }
-
-    private FilePathDescriptor GetFilePath()
-    {
-        string metadataPath = EditorUtility.OpenFilePanel("Select metadata file descriptor for input object.", "", "mhd");
-        if (metadataPath.Length == 0 && !ShowDialogBox("Meatadata file descriptor was not selected.", "Would you like to continue"))
-            return null;
-
-        string dataPath = EditorUtility.OpenFilePanel("Select data file with input object.", metadataPath, "raw");
-        if (dataPath.Length == 0 && !ShowDialogBox("Data file with input object was not selected.", "Would you like to continue"))
-            return null;
-
-        return new FilePathDescriptor(metadataPath, dataPath);
-    }
 
     /// <summary>
     /// Calculates number of vertices
@@ -86,41 +68,6 @@ public class Loader : MonoBehaviour
 
         batches[batchNumber] = new Matrix4x4[VERTICES_IN_BATCH];
         properties[batchNumber] = new float[VERTICES_IN_BATCH];
-
-
-    }
-
-    private void LoadDataAlternative()
-    {
-        AData customData = new CustomData();
-
-        int NUMBER_OF_VERTICES = GetNumberOfVertices(customData);
-        InitBatches(NUMBER_OF_VERTICES);
-
-        int batchNumber = 0;
-        int orderNumber = 0;
-
-        for (float i = 0; i < customData.Measures[0]; i += (float)customData.XSpacing)
-        {
-            for (float j = 0; j < customData.Measures[1]; j += (float)customData.YSpacing)
-            {
-                for (float k = 0; k < customData.Measures[2]; k += (float)customData.ZSpacing)
-                {
-
-                    if (orderNumber == 0)
-                        AddAnotherBatch(NUMBER_OF_VERTICES, batchNumber);
-
-                    double currentValue = customData.GetValue(i, j, k);
-                    float normalizedValue = (float)((currentValue - customData.MinValue) / (customData.MaxValue - customData.MinValue));
-
-                    batches[batchNumber][orderNumber] = Matrix4x4.TRS(new Vector3(i, j, k), Quaternion.identity, Vector3.one);
-                    properties[batchNumber][orderNumber] = normalizedValue;
-
-                    batchNumber += (orderNumber >= (BATCH_SIZE - 1)) ? 1 : 0;
-                    orderNumber = (orderNumber + 1) % BATCH_SIZE;
-                }
-            }
-        }
     }
 
     private void LoadData(FilePathDescriptor filePathDescriptor)
@@ -172,13 +119,12 @@ public class Loader : MonoBehaviour
         var uiDocument = GetComponent<UIDocument>();
         var rootVisualElement = uiDocument.rootVisualElement;
 
-        Button myButton = rootVisualElement.Q<Button>("loadObjectButton");
-        myButton.clicked += () => {
-            LoadDataAlternative();
-            //FilePathDescriptor filePathDescriptor = GetFilePath();
-            //if (filePathDescriptor == null)
-            //    return;
-            //LoadData(filePathDescriptor);
+        rootVisualElement.Q<Button>("loadObjectButton").clicked += () =>
+        {
+            FilePathDescriptor filePathDescriptor = FileDialog.GetFilePath();
+            if (filePathDescriptor == null)
+                return;
+            LoadData(filePathDescriptor);
         };
     }
 

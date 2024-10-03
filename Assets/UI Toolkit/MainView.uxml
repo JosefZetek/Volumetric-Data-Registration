@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 1;">
+        <ui:VisualElement style="flex-grow: 1; height: 10%; width: 100%; align-items: center; -unity-text-align: upper-left; align-self: center; justify-content: center;">
+            <ui:Label tabindex="-1" text="Volumetric Data Registration" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Label" style="-unity-text-align: upper-center; -unity-font-style: bold; justify-content: center; align-self: center;" />
+        </ui:VisualElement>
+        <ui:VisualElement style="flex-grow: 1; height: 90%; align-items: center; justify-content: center;">
+            <ui:VisualElement style="flex-grow: 1; width: 50%; height: auto; align-self: center; justify-content: center;">
+                <ui:Button text="Run Registration" parse-escape-sequences="true" display-tooltip-when-elided="true" name="runRegistration" />
+                <ui:Button text="Create Object" parse-escape-sequences="true" display-tooltip-when-elided="true" name="createObject" />
+                <ui:Button text="Object Viewer" parse-escape-sequences="true" display-tooltip-when-elided="true" name="objectViewer" />
+                <ui:Button text="Slicer" parse-escape-sequences="true" display-tooltip-when-elided="true" name="slicer" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
