@@ -4,7 +4,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace DataView
 {
-    class RotationComputerVector
+    public class RotationComputerVector
     {
 
         public static double radius = 1;

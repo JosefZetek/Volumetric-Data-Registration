@@ -1,4 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI%20Toolkit/Menu%20Design/MenuButtonStyle.uss?fileID=7433441132597879392&amp;guid=40fa08e91726e44b0b09e28403e8d8c8&amp;type=3#MenuButtonStyle" />
-    <ui:Button text="Load Object" parse-escape-sequences="true" display-tooltip-when-elided="true" name="loadObjectButton" />
+    <ui:VisualElement name="VisualElement" style="flex-grow: 1; flex-direction: row; align-items: center; align-self: flex-end; width: 100%; height: 5%;">
+        <ui:Button text="Load Object" parse-escape-sequences="true" display-tooltip-when-elided="true" name="loadObjectButton" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; width: 90%; height: 100%; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+        <ui:Button text="Back" parse-escape-sequences="true" display-tooltip-when-elided="true" name="backButton" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; width: 10%; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; height: 100%;" />
+    </ui:VisualElement>
+    <ui:VisualElement style="flex-grow: 1; height: 90%;" />
 </ui:UXML>

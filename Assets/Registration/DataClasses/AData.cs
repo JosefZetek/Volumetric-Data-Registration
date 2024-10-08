@@ -1,6 +1,6 @@
 ﻿namespace DataView
 {
-    abstract class AData
+    public abstract class AData
     {
         public abstract double XSpacing { get; set; }
         public abstract double YSpacing { get; set; }

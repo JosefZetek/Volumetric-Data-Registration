@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DataView
 {
-	class BenchmarkFeatureComputer
+    public class BenchmarkFeatureComputer
 	{
 		private AData d;
 		private IFeatureComputer featureComputer;

@@ -8,7 +8,7 @@ namespace DataView
     /// Class calculating distance between two given transformations as squared differece between each vertex after applying transformation on it
     /// Highly ineficient, use for debug purposes only
     /// </summary>
-    class NaiveTransformationDistance : ITransformationDistance
+    public class NaiveTransformationDistance : ITransformationDistance
     {
 
         private AData data;

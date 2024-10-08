@@ -3,7 +3,7 @@ using System.IO;
 
 namespace DataView
 {
-    class TestDataBuilder
+    public class TestDataBuilder
     {
         public void BuildData(string cylinderRotation)
         {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DataView
 {
-    class FeatureComputerNormedRings : IFeatureComputer
+    public class FeatureComputerNormedRings : IFeatureComputer
     {
         private List<Point3D> GetSphere(Point3D x, double r, int count)
         {

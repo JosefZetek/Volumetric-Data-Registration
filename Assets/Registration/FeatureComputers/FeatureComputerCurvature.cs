@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using MathNet.Numerics.LinearAlgebra;
 
 namespace DataView
 {
-    class FeatureComputerCurvature : IFeatureComputer
+    public class FeatureComputerCurvature : IFeatureComputer
     {
         //public static double radius = 2;
 

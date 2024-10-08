@@ -9,7 +9,7 @@ namespace DataView
     /// <summary>
     /// 
     /// </summary>
-    class Match
+    public class Match
     {
         private FeatureVector f1;
         private FeatureVector f2;

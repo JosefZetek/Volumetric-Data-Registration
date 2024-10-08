@@ -1,11 +1,9 @@
-﻿using System;
-
-namespace DataView
+﻿namespace DataView
 {
     /// <summary>
     /// Fake Feature Computer uses point coordinates as the descriptor.
     /// </summary>
-    class FakeFeatureComputer : IFeatureComputer
+    public class FakeFeatureComputer : IFeatureComputer
     {
         public FeatureVector ComputeFeatureVector(AData d, Point3D p)
         {

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace DataView
 {
-	class DataSlicer
+	public class DataSlicer
 	{
 		private AData data;
         private const int DIMENSIONS = 3;

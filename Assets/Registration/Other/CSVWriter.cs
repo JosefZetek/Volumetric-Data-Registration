@@ -3,7 +3,7 @@ using System.IO;
 
 namespace DataView
 {
-	class CSVWriter
+	public class CSVWriter
 	{
 		/// <summary>
 		/// Writes 2D array into a CSV file

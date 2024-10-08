@@ -1,6 +1,6 @@
 ﻿namespace DataView
 {
-    class CutResolution
+    public class CutResolution
     {
         private int width;
         private int height;

@@ -5,6 +5,7 @@ using DataView;
 
 public class RegistrationViewHandler : MonoBehaviour
 {
+    private VisualElement rootVisualElement;
 
     private FilePathDescriptor microDataPath;
     private FilePathDescriptor macroDataPath;
@@ -19,16 +20,16 @@ public class RegistrationViewHandler : MonoBehaviour
     private void OnEnable()
     {
         var uiDocument = GetComponent<UIDocument>();
-        var rootVisualElement = uiDocument.rootVisualElement;
+        this.rootVisualElement = uiDocument.rootVisualElement;
 
-        rootVisualElement.Q<Button>("backButton").clicked += () => SceneManager.LoadScene("MainView");
+        this.rootVisualElement.Q<Button>("backButton").clicked += () => SceneManager.LoadScene("MainView");
 
         microDataLoadButton = rootVisualElement.Q<Button>("microDataLoad");
         macroDataLoadButton = rootVisualElement.Q<Button>("macroDataLoad");
 
         runButton = rootVisualElement.Q<Button>("runButton");
 
-        rootVisualElement.Q<Button>("runButton").clicked += () => RunRegistration();
+        this.rootVisualElement.Q<Button>("runButton").clicked += () => RunRegistration();
 
         microDataLoadButton.clicked += () =>
         {
@@ -54,9 +55,36 @@ public class RegistrationViewHandler : MonoBehaviour
             this.runButton.SetEnabled(this.microDataPath != null && this.macroDataPath != null);
         };
 
-        rootVisualElement.Q<Button>("runButton").SetEnabled(false);
-        registrationStateLabel = rootVisualElement.Q<Label>("registrationState");
+        this.rootVisualElement.Q<Button>("runButton").SetEnabled(false);
+        registrationStateLabel = this.rootVisualElement.Q<Label>("registrationState");
+    }
 
+    private void ShowRegistrationFinishedView(VolumetricData microData, VolumetricData macroData, Transform3D transformation)
+    {
+        //add elements to rootVisualElement
+        VisualElement registrationPreview = rootVisualElement.Q<VisualElement>("registrationPreview");
+        registrationPreview.Clear();
+
+        Button buttonCutPreview = new Button();
+        //Button buttonObjectPreview = new Button();
+        //buttonObjectPreview.text = "Object preview";
+        //buttonObjectPreview.style.height = new Length(50, LengthUnit.Percent);
+        //buttonObjectPreview.style.width = new Length(20, LengthUnit.Percent);
+        //registrationPreview.Add(buttonObjectPreview);
+
+        buttonCutPreview.text = "Slicer preview";
+        buttonCutPreview.style.height = new Length(50, LengthUnit.Percent);
+        buttonCutPreview.style.width = new Length(20, LengthUnit.Percent);
+        buttonCutPreview.clicked += () =>
+        {
+            CutViewerHandler.microData = microData;
+            CutViewerHandler.macroData = macroData;
+            CutViewerHandler.transformation = transformation;
+
+            SceneManager.LoadScene("CutViewer");
+        };
+
+        registrationPreview.Add(buttonCutPreview);
     }
 
     private void RunRegistration()
@@ -64,10 +92,18 @@ public class RegistrationViewHandler : MonoBehaviour
         registrationStateLabel.text = "STARTED";
         registrationStateLabel.style.fontSize = 100;
         RegistrationLauncher registrationLauncher = new RegistrationLauncher();
-        Transform3D tr = registrationLauncher.RunRegistration(microDataPath, macroDataPath);
 
+        Debug.Log("Loading micro data");
+        VolumetricData microData = new VolumetricData(microDataPath);
+        Debug.Log("Loading macro data");
+        VolumetricData macroData = new VolumetricData(macroDataPath);
+
+        Transform3D tr = registrationLauncher.RunRegistration(microData, macroData);
         Transform3D finalTransformation = registrationLauncher.RevertCenteringTransformation(tr);
-        registrationStateLabel.style.fontSize = 50;
-        registrationStateLabel.text = "Result transformation:\n" + finalTransformation.ToString();
+        Debug.Log("Transformation: " + finalTransformation);
+
+        ShowRegistrationFinishedView(microData, macroData, finalTransformation);
+
+        //ShowRegistrationFinishedView();
     }
 }

@@ -3,7 +3,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace DataView
 {
-    class Candidate
+    public class Candidate
     {
         private Transform3D originalTranform;
 

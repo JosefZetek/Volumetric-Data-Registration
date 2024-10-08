@@ -1,9 +1,8 @@
 using System;
 using System.IO;
 using DataView;
-using MathNet.Numerics;
 
-class FileSaver
+public class FileSaver
 {
 
     private BinaryWriter binaryWriter;

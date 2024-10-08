@@ -4,7 +4,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace DataView
 {
-    class FeatureComputerPCA : IFeatureComputer
+    public class FeatureComputerPCA : IFeatureComputer
     {
         public static double radius = 3;
 

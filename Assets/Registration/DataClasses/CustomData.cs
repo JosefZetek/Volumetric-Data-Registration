@@ -1,8 +1,8 @@
 ﻿using System;
-using UnityEngine;
+
 namespace DataView
 {
-    class CustomData : AData
+    public class CustomData : AData
     {
         private int[] measures = new int[] { 3, 3, 3 };
 
@@ -21,10 +21,6 @@ namespace DataView
             if (x >= Measures[0] || y >= Measures[1] || z >= Measures[2])
                 throw new ArgumentException("Out of bounds");
 
-            //double roundedX = Math.Min(NearestPoint(x, XSpacing), Measures[0] - 1);
-            //double roundedY = Math.Min(NearestPoint(y, YSpacing), Measures[1] - 1);
-            //double roundedZ = Math.Min(NearestPoint(z, ZSpacing), Measures[2] - 1);
-
             double roundedX = ThirdsDivision(x);
             double roundedY = ThirdsDivision(y);
             double roundedZ = ThirdsDivision(z);
@@ -35,22 +31,6 @@ namespace DataView
         public override double GetValue(Point3D p)
         {
             return GetValue(p.X, p.Y, p.Z);
-        }
-
-        /// <summary>
-        /// This function takes in a value and rounds it to the nearest value that is a multiplier of spacing
-        /// </summary>
-        /// <param name="value">Value to be rounded</param>
-        /// <param name="spacing">Spacing</param>
-        /// <returns>Returns rounded value</returns>
-        private double NearestPoint(double value, double spacing)
-        {
-
-            int divider = (int)(value / spacing);
-            double smallerNeighborDistance = value - (divider * spacing);
-            double biggerNeighborDistance = ((divider + 1) * spacing) - value;
-
-            return smallerNeighborDistance < biggerNeighborDistance ? (divider * spacing) : ((divider + 1) * spacing);
         }
 
         private double ThirdsDivision(double value)
@@ -74,6 +54,4 @@ namespace DataView
 
         public override double MaxValue => 26;
     }
-
-
 }

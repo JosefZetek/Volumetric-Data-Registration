@@ -7,7 +7,7 @@ namespace DataView
     /// <summary>
     /// This sampler outputs identical points for both micro and macro data
     /// </summary>
-    class SamplerIdentical : ISampler
+    public class SamplerIdentical : ISampler
 	{
         private Random random;
         private List<Point3D> points;

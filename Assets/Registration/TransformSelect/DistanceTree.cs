@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DataView
 {
-    class DTNode
+    public class DTNode
     {
         int node;
         DTNode close;

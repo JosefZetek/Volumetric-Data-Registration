@@ -9,7 +9,7 @@ namespace DataView
     /// This implementation of FeatureComputer calculates average vector in two rings.
     /// It then calcualtes magnitude of these vectors, average values and the angle between them and uses these values as features.
     /// </summary>
-    class TestFeatureComputer : IFeatureComputer
+    public class TestFeatureComputer : IFeatureComputer
     {
         public FeatureVector ComputeFeatureVector(AData d, Point3D p)
         {

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace DataView
 {
-    class SamplerFeatureVector : ISampler
+    public class SamplerFeatureVector : ISampler
     {
         private int count;
 

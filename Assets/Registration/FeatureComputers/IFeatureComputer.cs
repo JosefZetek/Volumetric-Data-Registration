@@ -1,6 +1,6 @@
 ﻿namespace DataView
 {
-    interface IFeatureComputer
+    public interface IFeatureComputer
     {
         /// <summary>
         /// Calculates a set of features, that are as specific to a given point as possible.

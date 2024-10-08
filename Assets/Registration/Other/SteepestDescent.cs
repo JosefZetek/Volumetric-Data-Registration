@@ -1,10 +1,9 @@
 ﻿using System;
 using MathNet.Numerics.LinearAlgebra;
-using DataView;
 
 namespace DataView
 {
-	class SteepestDescent
+	public class SteepestDescent
 	{
 
 		public SteepestDescent(Matrix<double> coeficientMatrix)

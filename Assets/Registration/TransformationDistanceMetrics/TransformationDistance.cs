@@ -14,7 +14,7 @@ namespace DataView
     /// vq*t1^T*t1 - 2*vq*t1^T*t2 + vq*t2^T*t2 - black part
     /// diag(- 2*R1^T*R2) . diag(Σ(from i = 1 to vq)qi*qi^T), where . denotes Dot Product
     /// </summary>
-    class TransformationDistance: ITransformationDistance
+    public class TransformationDistance : ITransformationDistance
 	{
         private int numberOfVertices = 0;
 

@@ -2,7 +2,7 @@
 
 namespace DataView
 {
-    class SamplerHalfFake: ISampler
+    public class SamplerHalfFake : ISampler
     {
         private int radius;
 

@@ -8,7 +8,7 @@ namespace DataView
     /// <summary>
     /// This class represents the data
     /// </summary>
-    class VolumetricData : AData
+    public class VolumetricData : AData
     {
         /* Data itself */
         private int[][,] vData;

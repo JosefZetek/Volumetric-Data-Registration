@@ -7,7 +7,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace DataView
 {
-    class PCATester
+    public class PCATester
     {
         public Vector<double> v1;
         public Vector<double> v2;

@@ -4,11 +4,8 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace DataView
 {
-    class FeatureComputerISOSurfaceCurvature : IFeatureComputer
+    public class FeatureComputerISOSurfaceCurvature : IFeatureComputer
     {
-        public FeatureComputerISOSurfaceCurvature()
-		{
-		}
 
         private FeatureVector ShapeOperator(AData d, Point3D p)
         {

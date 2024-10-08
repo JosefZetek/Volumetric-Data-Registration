@@ -10,7 +10,7 @@ namespace DataView
     /// <summary>
     /// 
     /// </summary>
-    class Matcher : IMatcher
+    public class Matcher : IMatcher
     {
         public Match[] Match(FeatureVector[] fMicro, FeatureVector[] fMacro, double threshold)
         {

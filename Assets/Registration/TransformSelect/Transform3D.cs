@@ -3,7 +3,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace DataView
 {
-    class Transform3D : IComparable<Transform3D>
+    public class Transform3D : IComparable<Transform3D>
     {
         private static ITransformationDistance transformationDistance;
 

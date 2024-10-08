@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace DataView
 {
-    class DensityFastest
+    public class DensityFastest
     {
         public Transform3D Find(Transform3D[] transforms)
         {

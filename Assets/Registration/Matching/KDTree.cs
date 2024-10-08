@@ -9,7 +9,7 @@ namespace DataView
     /// <summary>
     /// K-Dimensional Tree for FeautureVector proximity queries
     /// </summary>
-    class KDTree
+    public class KDTree
     {
         /// <summary>
         /// Node in K-Dimensional Tree

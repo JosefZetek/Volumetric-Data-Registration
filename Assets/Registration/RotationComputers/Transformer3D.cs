@@ -4,7 +4,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace DataView
 {
-    class Transformer3D : ITransformer
+    public class Transformer3D : ITransformer
     {
 
         public Transform3D GetTransformation(Match m, AData dataMicro, AData dataMacro)

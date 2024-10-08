@@ -224,11 +224,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1559170983}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 420c7e9d93b6f40d9bcd3a09f2ee36a7, type: 3}
+  m_Script: {fileID: 11500000, guid: 90671fd8714b9446a9405270eddf78a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
-  material: {fileID: 2100000, guid: f1d5445f15a2e44a9a67e1bbedbfe1ca, type: 2}
+  FPS_Limit: 60
 --- !u!1 &1741443818
 GameObject:
   m_ObjectHideFlags: 0

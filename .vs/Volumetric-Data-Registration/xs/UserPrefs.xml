@@ -1,19 +1,37 @@
 ﻿<Properties StartupConfiguration="{E9E6DABC-757D-9313-16C6-28C0AFD75379}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SceneHandlers/RegistrationView/RegistrationViewHandler.cs">
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Registration/DataClasses/CustomData.cs">
     <Files>
-      <File FileName="Assets/SceneHandlers/CutViewer/CutViewerHandler.cs" />
-      <File FileName="Assets/SceneHandlers/RegistrationView/RegistrationViewHandler.cs" Line="61" Column="1" />
-      <File FileName="Assets/Registration/Main.cs" Line="90" Column="15" />
+      <File FileName="Assets/SceneHandlers/CutViewer/CutViewerHandler.cs" Line="89" Column="50" />
+      <File FileName="Assets/SceneHandlers/ObjectViewer/LoadData.cs" />
+      <File FileName="Assets/Registration/DataClasses/DataSlicer.cs" />
+      <File FileName="Assets/SceneHandlers/MainViewHandler.cs" />
+      <File FileName="Assets/SceneHandlers/RegistrationView/RegistrationViewHandler.cs" />
+      <File FileName="Assets/UI Toolkit/CustomElements/NewBehaviourScript.cs" Line="3" Column="28" />
+      <File FileName="Assets/Registration/Other/FileSaver.cs" Line="1" Column="1" />
+      <File FileName="Assets/Registration/DataClasses/CustomData.cs" Line="22" Column="62" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="Volumetric-Data-Registration">
             <Node name="Assets" expanded="True">
-              <Node name="Registration" expanded="True" />
+              <Node name="Registration" expanded="True">
+                <Node name="DataClasses" expanded="True" />
+                <Node name="Other" expanded="True" />
+              </Node>
               <Node name="SceneHandlers" expanded="True">
                 <Node name="CutViewer" expanded="True" />
+                <Node name="GeneralScripts" expanded="True" />
+                <Node name="ObjectViewer" expanded="True" />
                 <Node name="RegistrationView" expanded="True" />
+              </Node>
+              <Node name="UI Toolkit" expanded="True">
+                <Node name="CustomElements" expanded="True" />
               </Node>
             </Node>
           </Node>
@@ -21,11 +39,6 @@
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="7a38bac1-33c4-40a9-a813-db4f23d759bc" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="ff63142e-a6ed-45d1-b731-de888d0962f6" />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
 </Properties>

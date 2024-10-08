@@ -1,16 +1,19 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
-using MathNet.Numerics.LinearAlgebra;
 using DataView;
 
-class CutViewerHandler : MonoBehaviour
+public class CutViewerHandler : MonoBehaviour
 {
     private Slider slider;
     private DropdownField dropdown;
     private VisualElement cutPreview;
 
     private DataSlicer dataSlicer;
+
+    public static Transform3D transformation;
+    public static AData microData;
+    public static AData macroData;
 
     //private CustomData customData;
 
@@ -53,9 +56,12 @@ class CutViewerHandler : MonoBehaviour
 
     public Color[][] GetCutData(double sliderValue, int axis, CutResolution resolution)
     {
-        //Color[][] values = dataSlicer.TransformationCut(sliderValue, axis, customData, new Transform3D(Matrix<double>.Build.DenseIdentity(3), Vector<double>.Build.DenseOfArray(new double[] { -1, 0, 0 })), resolution);
-        Color[][] values = dataSlicer.Cut(sliderValue, axis, resolution);
-        return values;
+        return dataSlicer.Cut(sliderValue, axis, resolution);
+    }
+
+    public Color[][] GetTransformedCut(double sliderValue, int axis, CutResolution resolution)
+    {
+        return dataSlicer.TransformationCut(sliderValue, axis, microData, transformation, resolution);
     }
 
     void OnEnable()
@@ -81,6 +87,10 @@ class CutViewerHandler : MonoBehaviour
 
         rootVisualElement.Q<Button>("backButton").clicked += () => SceneManager.LoadScene("MainView");
         rootVisualElement.Q<Button>("loadButton").clicked += () => LoadObject();
+
+        if (macroData != null)
+            this.dataSlicer = new DataSlicer(macroData);
+
     }
 
     private void LoadObject()
@@ -89,9 +99,9 @@ class CutViewerHandler : MonoBehaviour
         if (filePathDescriptor == null)
             return;
 
+        ResetValues();
+
         AData volumetricData = new VolumetricData(filePathDescriptor);
-        
-        //customData = new CustomData();
         this.dataSlicer = new DataSlicer(volumetricData);
 
         UpdateImage();
@@ -102,8 +112,27 @@ class CutViewerHandler : MonoBehaviour
         if (dataSlicer == null)
             return;
 
-        Color[][] values = GetCutData(slider.value, dropdown.index, new CutResolution(3, 3));
+        Color[][] values;
+        CutResolution resolution = new CutResolution(500, 200);
+
+
+        if (microData != null)
+            values = GetTransformedCut(slider.value, dropdown.index, resolution);
+        else
+            values = GetCutData(slider.value, dropdown.index, resolution);
 
         image.image = GetTextureSequentially(values);
+    }
+
+    private void ResetValues()
+    {
+        microData = null;
+        macroData = null;
+        transformation = null;
+    }
+
+    private void OnDestroy()
+    {
+        ResetValues();
     }
 }

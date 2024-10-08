@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataView
 {
-    interface IMatcher
+    public interface IMatcher
     {
         Match[] Match(FeatureVector[] f1, FeatureVector[] f2, double threshold);
         Match[] Match(FeatureVector[] f1, FeatureVector[] f2);

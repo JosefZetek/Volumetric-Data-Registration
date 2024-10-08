@@ -1,8 +1,7 @@
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 using DataView;
 using UnityEngine.UIElements;
+using UnityEngine.SceneManagement;
 
 public class Loader : MonoBehaviour
 {
@@ -126,6 +125,8 @@ public class Loader : MonoBehaviour
                 return;
             LoadData(filePathDescriptor);
         };
+
+        rootVisualElement.Q<Button>("backButton").clicked += () => SceneManager.LoadScene("MainView");
     }
 
     void OnEnable()

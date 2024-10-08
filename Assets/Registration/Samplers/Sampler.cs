@@ -2,7 +2,7 @@
 
 namespace DataView
 {
-    class Sampler : ISampler
+    public class Sampler : ISampler
     {
         //private int rSphere = 5; //Included in config
 

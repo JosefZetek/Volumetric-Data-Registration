@@ -2,7 +2,7 @@
 /// <summary>
 /// Class contains information regarding the path for data object with its metadata file
 /// </summary>
-class FilePathDescriptor
+public class FilePathDescriptor
 {
     public string MHDFilePath { get; }
     public string DataFilePath { get; }

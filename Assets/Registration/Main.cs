@@ -5,16 +5,25 @@ using UnityEngine;
 
 namespace DataView
 {
-    class RegistrationLauncher
+    public class RegistrationLauncher
     {
         private AData iDataMicro;
-        private AData iDataMacro;
+        private AData macroData;
 
         private Transform3D inverseTransformation;
 
 
 
         public Transform3D RunRegistration(FilePathDescriptor microPathDescriptor, FilePathDescriptor macroPathDescriptor)
+        {
+            Debug.Log("Reading micro data.");
+            VolumetricData microData = new VolumetricData(microPathDescriptor);
+            Debug.Log("Reading macro data.");
+            VolumetricData macroData = new VolumetricData(macroPathDescriptor);
+            return RunRegistration(microData, macroData);
+        }
+
+        public Transform3D RunRegistration(VolumetricData microData,  VolumetricData macroData)
         {
             //Sets Locale to US
             //Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
@@ -27,14 +36,14 @@ namespace DataView
             const double THRESHOLD = 10; //percentage - top 10% best matches should be kept
 
             Debug.Log("Reading micro data.");
-            this.iDataMicro = new VolumetricData(microPathDescriptor);
+            this.iDataMicro = microData;
             //((VolumetricData)(iDataMicro)).CenterObjectAroundOrigin();
             this.inverseTransformation = new Transform3D(Matrix<double>.Build.DenseIdentity(3), Vector<double>.Build.Dense(3));
 
             Debug.Log("Reading macro data.");
-            this.iDataMacro = new VolumetricData(macroPathDescriptor);
+            this.macroData = macroData;
 
-            ISampler s = new SamplerIdentical(iDataMicro, iDataMacro, 1, 0.1);
+            ISampler s = new SamplerIdentical(iDataMicro, this.macroData, 1, 0.1);
             IFeatureComputer fc = new FeatureComputerISOSurfaceCurvature();
 
             IMatcher matcher = new Matcher();
@@ -45,7 +54,7 @@ namespace DataView
             Console.WriteLine("Computing micro feature vectors.");
             List<FeatureVector> featureVectorsMicro = CalculateFeatureVectors(s, fc, iDataMicro, NUMBER_OF_POINTS_MICRO);
             Console.WriteLine("Computing macro feature vectors.");
-            List<FeatureVector> featureVectorsMacro = CalculateFeatureVectors(s, fc, iDataMacro, NUMBER_OF_POINTS_MACRO);
+            List<FeatureVector> featureVectorsMacro = CalculateFeatureVectors(s, fc, this.macroData, NUMBER_OF_POINTS_MACRO);
 
             //----------------------------------------SETUP TRANSFORMATION METRICS------------------------------------------------
             //What object is the result transformation going to be applied on (in this case, micro)
@@ -67,13 +76,13 @@ namespace DataView
                 //Calculate transformation and if the transformation doesnt exist, it will skip it and print out the error message
                 try
                 {
-                    Transform3D transformation = transformer.GetTransformation(matches[i], iDataMicro, iDataMacro);
+                    Transform3D transformation = transformer.GetTransformation(matches[i], iDataMicro, this.macroData);
                     transformations.Add(transformation);
                 }
                 catch { continue; }
-                    //Debug.Log(e.Message);
-                    //Console.WriteLine(e.Message);
-                    
+                //Debug.Log(e.Message);
+                //Console.WriteLine(e.Message);
+
             }
 
             //for (int i = 0; i < transformations.Count; i++)

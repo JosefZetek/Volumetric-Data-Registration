@@ -1,6 +1,6 @@
 ﻿namespace DataView
 {
-    interface ISampler
+    public interface ISampler
     {
        Point3D[] Sample(AData d, int count);
     }

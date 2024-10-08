@@ -8,7 +8,7 @@ namespace DataView
     /// <summary>
     /// 
     /// </summary>
-    class Data
+    public class Data
     {
         private double[] elementSpacing; // three double values indicating distance between two points in concrete direction
         private int[] dimSize; // three int values indicating the "length" of the side of the cuboid in concerete direction

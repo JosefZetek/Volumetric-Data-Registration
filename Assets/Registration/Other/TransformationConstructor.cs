@@ -1,6 +1,5 @@
 ﻿using System;
 using MathNet.Numerics.LinearAlgebra;
-using DataView;
 
 public class TransformationConstructor
 {

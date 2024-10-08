@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace DataView
 {
-    class FeatureComputerVectorDeviation : IFeatureComputer
+    public class FeatureComputerVectorDeviation : IFeatureComputer
     {
         private QuickSelectClass quickSelectClass;
 

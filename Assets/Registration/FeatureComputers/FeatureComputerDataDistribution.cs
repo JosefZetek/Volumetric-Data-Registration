@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DataView
 {
-    class FeatureComputerDataDistribution : IFeatureComputer
+    public class FeatureComputerDataDistribution : IFeatureComputer
 	{
         List<double> hodnoty;
 

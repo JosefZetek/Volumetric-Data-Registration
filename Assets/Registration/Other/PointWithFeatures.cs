@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace DataView
 {
-    class PointWithFeatures : Point3D //TODO - Matěj - zeptat se
+    public class PointWithFeatures : Point3D //TODO - Matěj - zeptat se
     {
         public double[] featureVector;
 

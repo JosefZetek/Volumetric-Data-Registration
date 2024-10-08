@@ -4,7 +4,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace DataView
 {
-    class RotationComputer
+    public class RotationComputer
     {
         /// <summary>
         /// Calculates the rotation matrix from d1 to d2

@@ -8,7 +8,7 @@ using Framework;
 
 namespace DataView
 {
-    class Density
+    public class Density
     {
         // configuration
         public static double radius = Double.NaN; // this has to be set for particular object roughly as average distance to centroid

@@ -3,7 +3,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace DataView
 {
-    class Point3D
+    public class Point3D
     {
         /// <summary>
         /// [0] = x

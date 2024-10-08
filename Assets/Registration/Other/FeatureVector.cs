@@ -5,7 +5,7 @@ namespace DataView
     /// <summary>
     /// 
     /// </summary>
-    class FeatureVector
+    public class FeatureVector
     {
         private static int NumberOfFeatures = -1;
 

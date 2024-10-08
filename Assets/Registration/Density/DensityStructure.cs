@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DataView
 {
-	class DensityStructure
+	public class DensityStructure
 	{
 		private DensityTree rootNode;
 		private Transform3D[] transformations;

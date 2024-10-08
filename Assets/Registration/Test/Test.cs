@@ -1,6 +1,6 @@
 ﻿namespace DataView
 {
-    class Test
+    public class Test
     {
         public Transform3D t;
         public double alpha;

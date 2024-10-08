@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataView
 {
-    class FeatureComputerRings : IFeatureComputer
+    public class FeatureComputerRings : IFeatureComputer
     {
         private List<Point3D> GetSphere(Point3D p, double r, int count)
         {

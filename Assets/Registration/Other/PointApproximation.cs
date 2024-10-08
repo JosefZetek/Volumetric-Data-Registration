@@ -1,5 +1,4 @@
 ﻿using System;
-using MathNet.Numerics.LinearAlgebra;
 
 namespace DataView
 {
@@ -9,7 +8,7 @@ namespace DataView
     /// This found point should be in the surrounding of given original point
     /// Doesn't significantly improve accuracy of points at the moment, tested with cost function implemented as difference of feature vectors and difference in points distribution values
     /// </summary>
-    class PointApproximation
+    public class PointApproximation
 	{
 
 		private AData data;
