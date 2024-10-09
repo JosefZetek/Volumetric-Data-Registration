@@ -12,8 +12,6 @@ namespace DataView
 
         private Transform3D inverseTransformation;
 
-
-
         public Transform3D RunRegistration(FilePathDescriptor microPathDescriptor, FilePathDescriptor macroPathDescriptor)
         {
             Debug.Log("Reading micro data.");

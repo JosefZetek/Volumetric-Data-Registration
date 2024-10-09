@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.IO;
 using MathNet.Numerics.LinearAlgebra;
 
@@ -132,16 +131,16 @@ namespace DataView
         {
             this.Data = new Data(filePathDescriptor.MHDFilePath);
 
-            XSpacing = this.Data.ElementSpacing[0];
-            YSpacing = this.Data.ElementSpacing[1];
-            ZSpacing = this.Data.ElementSpacing[2];
+            xSpacing = this.Data.ElementSpacing[0];
+            ySpacing = this.Data.ElementSpacing[1];
+            zSpacing = this.Data.ElementSpacing[2];
         }
 
         public VolumetricData(Data data)
         {
-            XSpacing = data.ElementSpacing[0];
-            YSpacing = data.ElementSpacing[1];
-            ZSpacing = data.ElementSpacing[2];
+            xSpacing = data.ElementSpacing[0];
+            ySpacing = data.ElementSpacing[1];
+            zSpacing = data.ElementSpacing[2];
             this.Data = data;
         }
 
@@ -384,11 +383,12 @@ namespace DataView
             return (value - MinValue) / (MaxValue - MinValue);
         }
 
-        public override int[] Measures { get => Data.DimSize; set => Data.DimSize = value; }
+        
+        public override int[] Measures { get => Data.DimSize; }
 
-        public override double XSpacing { get => xSpacing; set => xSpacing = value; }
-        public override double YSpacing { get => ySpacing; set => ySpacing = value; }
-        public override double ZSpacing { get => zSpacing; set => zSpacing = value; }
+        public override double XSpacing { get => xSpacing; }
+        public override double YSpacing { get => ySpacing; }
+        public override double ZSpacing { get => zSpacing; }
 
         internal Data Data { get => data; set => data = value; }
 
@@ -396,5 +396,7 @@ namespace DataView
 
         public override double MinValue { get => dataDistribution.MinValue; }
         public override double MaxValue { get => dataDistribution.MaxValue; }
+
+        
     }
 }

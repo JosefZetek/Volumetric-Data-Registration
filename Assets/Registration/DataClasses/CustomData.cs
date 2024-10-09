@@ -44,11 +44,11 @@ namespace DataView
             return 2;
         }
 
-        public override double XSpacing { get => xSpacing; set => xSpacing = value > 0 ? value : xSpacing; }
-        public override double YSpacing { get => ySpacing; set => ySpacing = value > 0 ? value : ySpacing; }
-        public override double ZSpacing { get => zSpacing; set => zSpacing = value > 0 ? value : zSpacing; }
+        public override double XSpacing { get => xSpacing; }
+        public override double YSpacing { get => ySpacing; }
+        public override double ZSpacing { get => zSpacing; }
 
-        public override int[] Measures { get => measures; set => measures = value.Length == 3 ? value : measures; }
+        public override int[] Measures { get => measures; }
 
         public override double MinValue => 0;
 
