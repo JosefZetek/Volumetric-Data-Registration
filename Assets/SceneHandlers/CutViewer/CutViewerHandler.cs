@@ -19,6 +19,8 @@ public class CutViewerHandler : MonoBehaviour
 
     private Image image;
 
+
+
     /// <summary>
     /// Creates a texture where 1 value in passed array is 1 pixel
     /// </summary>
@@ -27,7 +29,7 @@ public class CutViewerHandler : MonoBehaviour
     /// Data organized as follows [row][column], where [0][0] is bottom left corner.
     /// </param>
     /// <returns>Texture with values applied.</returns>
-    public Texture2D GetTextureSequentially(Color[][] values)
+    public Texture2D GetTexture(Color[][] values)
     {
         int height = values.Length;
         if (height == 0)
@@ -35,20 +37,11 @@ public class CutViewerHandler : MonoBehaviour
 
         int width = values[0].Length;
 
-
         Texture2D texture = new Texture2D(width, height);
         texture.filterMode = FilterMode.Point;
 
         for (int i = 0; i < values.Length; i++)
-        {
-            if (values[i].Length != width)
-                return null;
-
-            for (int j = 0; j < values[i].Length; j++)
-            {
-                texture.SetPixel(j, i, values[i][j]);
-            }
-        }
+            texture.SetPixels(0, i, values[i].Length, 1, values[i]);
 
         texture.Apply();
         return texture;
@@ -121,7 +114,8 @@ public class CutViewerHandler : MonoBehaviour
         else
             values = GetCutData(slider.value, dropdown.index, resolution);
 
-        image.image = GetTextureSequentially(values);
+        //image.image = GetTextureSequentially(values);
+        image.image = GetTexture(values);
     }
 
     private void ResetValues()

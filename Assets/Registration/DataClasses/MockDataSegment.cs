@@ -20,7 +20,7 @@ public class MockDataSegment : AMockObject
 
     public void TransformObject(Transform3D expectedTransformation)
     {
-        this.transformation = expectedTransformation.GetInverseTransformation();
+        this.transformation = expectedTransformation;
     }
 
     public override double GetValue(double x, double y, double z)
@@ -30,10 +30,10 @@ public class MockDataSegment : AMockObject
 
     public override double GetValue(Point3D p)
     {
-        Point3D currentPoint = p.ApplyRotationTranslation(transformation); //opposite order compared to registration algorithm
+        Point3D currentPoint = p.ApplyRotationTranslation(transformation);
 
         if (mockObject.PointWithinBounds(currentPoint))
-            return mockObject.GetValue(p);
+            return mockObject.GetValue(currentPoint);
 
         return OUT_OF_BOUNDS;
     }

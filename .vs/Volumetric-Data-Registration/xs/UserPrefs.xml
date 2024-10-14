@@ -2,51 +2,63 @@
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="f9c72bbe-4d56-4f69-8393-5dcf72c722f7" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SceneHandlers/CutViewer/CutViewerHandler.cs">
     <Files>
-      <File FileName="Assets/SceneHandlers/CutViewer/CutViewerHandler.cs" Line="1" Column="1" />
-      <File FileName="Assets/SceneHandlers/ObjectViewer/LoadData.cs" />
+      <File FileName="Assets/SceneHandlers/ObjectViewer/LoadData.cs" Line="1" Column="1" />
       <File FileName="Assets/Registration/DataClasses/DataSlicer.cs" />
       <File FileName="Assets/SceneHandlers/MainViewHandler.cs" Line="1" Column="1" />
       <File FileName="Assets/SceneHandlers/RegistrationView/RegistrationViewHandler.cs" />
-      <File FileName="Assets/UI Toolkit/CustomElements/NewBehaviourScript.cs" />
-      <File FileName="Assets/Registration/Other/FileSaver.cs" Line="69" Column="18" />
-      <File FileName="Assets/Registration/DataClasses/CustomData.cs" Line="5" Column="33" />
-      <File FileName="Assets/Registration/Main.cs" Line="14" Column="1" />
-      <File FileName="Assets/Registration/DataClasses/AData.cs" Line="3" Column="40" />
+      <File FileName="Assets/Registration/Other/FileSaver.cs" />
+      <File FileName="Assets/Registration/DataClasses/CustomData.cs" />
+      <File FileName="Assets/Registration/Main.cs" />
+      <File FileName="Assets/Registration/DataClasses/AData.cs" />
       <File FileName="Assets/Registration/DataClasses/Data.cs" />
-      <File FileName="Assets/Registration/DataClasses/VolumetricData.cs" Line="134" Column="16" />
+      <File FileName="Assets/Registration/DataClasses/VolumetricData.cs" />
       <File FileName="Assets/Registration/DataClasses/VolumetricDataDistribution.cs" />
       <File FileName="Assets/UI Toolkit/CutViewer.uxml" />
-      <File FileName="Assets/CutViewer.uxml" />
-      <File FileName="Assets/Registration/DataClasses/EllipsoidMockData.cs" Line="4" Column="39" />
-      <File FileName="Assets/Registration/DataClasses/MockDataSegment.cs" Line="36" Column="43" />
-      <File FileName="Assets/Registration/DataClasses/IMockObject.cs" Line="4" Column="23" />
-      <File FileName="Assets/SceneHandlers/ModelCreator/ModelCreatorHandler.cs" Line="18" Column="24" />
+      <File FileName="Assets/Registration/DataClasses/EllipsoidMockData.cs" Line="30" Column="29" />
+      <File FileName="Assets/Registration/DataClasses/MockDataSegment.cs" />
+      <File FileName="Assets/SceneHandlers/CutViewer/CutViewerHandler.cs" Line="69" Column="9" />
+      <File FileName="Assets/SceneHandlers/ModelCreator/ModelCreatorHandler.cs" Line="43" Column="71" />
+      <File FileName="Assets/UI Toolkit/CustomElements/RotationMatrixField.cs" Line="43" Column="10" />
+      <File FileName="Assets/UI Toolkit/CustomElements/TextCell.cs" Line="104" Column="48" />
+      <File FileName="Assets/SceneHandlers/GeneralScripts/FileDialog.cs" Line="10" Column="38" />
+      <File FileName="Assets/Registration/DataClasses/SmallObjectMock.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="Volumetric-Data-Registration">
+          <Node name="Volumetric-Data-Registration" expanded="True">
             <Node name="Assets" expanded="True">
               <Node name="Registration" expanded="True">
                 <Node name="DataClasses" expanded="True" />
-                <Node name="Other" expanded="True" />
               </Node>
               <Node name="SceneHandlers" expanded="True">
                 <Node name="CutViewer" expanded="True">
                   <Node name="CutViewerHandler.cs" selected="True" />
                 </Node>
+                <Node name="GeneralScripts" expanded="True" />
                 <Node name="ModelCreator" expanded="True" />
+                <Node name="ObjectViewer" expanded="True" />
+                <Node name="RegistrationView" expanded="True" />
+              </Node>
+              <Node name="UI Toolkit" expanded="True">
+                <Node name="CreationDialogs" expanded="True" />
+                <Node name="CustomElements" expanded="True" />
               </Node>
             </Node>
           </Node>
         </State>
       </Pad>
+      <Pad Id="MonoDevelop.UnitTesting.TestPad">
+        <State name="__root__">
+          <Node name="Unity" selected="True" />
+        </State>
+      </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="3f67dc1e-21ef-46cc-8f95-6f09c2fab062" />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

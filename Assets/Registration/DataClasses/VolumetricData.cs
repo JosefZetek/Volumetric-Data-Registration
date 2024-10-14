@@ -152,9 +152,9 @@ namespace DataView
         {
             using (BinaryReader br = new BinaryReader(new FileStream(filePathDescriptor.DataFilePath, FileMode.Open)))
             {
-                int width = Data.DimSize[0];
-                int depth = Data.DimSize[1];
-                int height = Data.DimSize[2];
+                int width = (int)(Data.DimSize[0] / Data.ElementSpacing[0]);
+                int depth = (int)(Data.DimSize[1] / Data.ElementSpacing[1]);
+                int height = (int)(Data.DimSize[2] / Data.ElementSpacing[2]);
 
                 VData = new int[height][,];
                 int c = 0;

@@ -1,0 +1,51 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 1; flex-direction: column; flex-wrap: wrap; -unity-text-align: upper-left; justify-content: center;">
+        <ui:VisualElement style="flex-grow: 1; height: 35px; width: 100%; background-color: rgb(255, 255, 255); white-space: normal; flex-direction: row; -unity-font-style: bold; font-size: 20px;">
+            <ui:Label tabindex="-1" text="Artificial Data Generator" parse-escape-sequences="true" display-tooltip-when-elided="true" style="height: 100%; -unity-text-align: middle-left; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; -unity-font-style: bold; color: rgb(0, 0, 0); padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; width: 50%; -unity-text-outline-color: rgb(106, 106, 106);" />
+            <ui:DropdownField label="Model" index="0" choices="Ellipsoid,Random Points Distance" name="modelSelection" style="width: 40%; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; -unity-text-align: middle-center; border-left-color: rgb(0, 0, 0); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-right-color: rgb(0, 0, 0);" />
+            <ui:Button text="Back" parse-escape-sequences="true" display-tooltip-when-elided="true" name="backButton" style="width: 10%; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; height: 100%;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="contentView" style="flex-grow: 1; height: 80%; width: 100%; align-items: flex-start; align-self: center; background-color: rgb(255, 255, 255); flex-direction: row;">
+            <ui:VisualElement style="flex-grow: 1; width: 50%; align-items: center; height: 100%;">
+                <ui:Label tabindex="-1" text="Macro Data" parse-escape-sequences="true" display-tooltip-when-elided="true" style="width: 100%; -unity-text-align: upper-center; -unity-font-style: bold;" />
+                <ui:Label tabindex="-1" text="Size" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold-and-italic;" />
+                <ui:TextField picking-mode="Ignore" label="Size X" value="10" keyboard-type="DecimalPad" name="macroSizeX" style="width: 100%; height: 30px; -unity-text-align: middle-center; font-size: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                <ui:TextField picking-mode="Ignore" label="Size Y" value="10" keyboard-type="DecimalPad" name="macroSizeY" style="width: 100%; height: 30px; -unity-text-align: middle-center; font-size: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                <ui:TextField picking-mode="Ignore" label="Size Z" value="10" keyboard-type="DecimalPad" name="macroSizeZ" style="width: 100%; height: 30px; -unity-text-align: middle-center; font-size: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                <ui:Label tabindex="-1" text="Spacing" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold-and-italic;" />
+                <ui:TextField picking-mode="Ignore" label="Spacing X" value="1" keyboard-type="DecimalPad" name="macroSpacingX" style="width: 100%; height: 30px; -unity-text-align: middle-center; font-size: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                <ui:TextField picking-mode="Ignore" label="Spacing Y" value="1" keyboard-type="DecimalPad" name="macroSpacingY" style="width: 100%; height: 31px; -unity-text-align: middle-center; font-size: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                <ui:TextField picking-mode="Ignore" label="Spacing Z" value="1" keyboard-type="DecimalPad" name="macroSpacingZ" style="width: 100%; height: 30px; -unity-text-align: middle-center; font-size: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                <ui:VisualElement style="flex-grow: 1; align-items: auto; justify-content: flex-end;" />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-grow: 1; width: 50%; align-items: center; height: 100%;">
+                <ui:Label tabindex="-1" text="Micro Data" parse-escape-sequences="true" display-tooltip-when-elided="true" style="width: 100%; -unity-text-align: upper-center; -unity-font-style: bold;" />
+                <ui:Label tabindex="-1" text="Size" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold-and-italic;" />
+                <ui:TextField picking-mode="Ignore" label="Size X" value="10" keyboard-type="DecimalPad" name="microSizeX" style="width: 100%; height: 30px; -unity-text-align: middle-center; font-size: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                <ui:TextField picking-mode="Ignore" label="Size Y" value="10" keyboard-type="DecimalPad" name="microSizeY" style="width: 100%; height: 30px; -unity-text-align: middle-center; font-size: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                <ui:TextField picking-mode="Ignore" label="Size Z" value="10" keyboard-type="DecimalPad" name="microSizeZ" style="width: 100%; height: 30px; -unity-text-align: middle-center; font-size: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                <ui:Label tabindex="-1" text="Spacing" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold-and-italic;" />
+                <ui:TextField picking-mode="Ignore" label="Spacing X" value="1" keyboard-type="DecimalPad" name="microSpacingX" style="width: 100%; height: 30px; -unity-text-align: middle-center; font-size: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                <ui:TextField picking-mode="Ignore" label="Spacing Y" value="1" keyboard-type="DecimalPad" name="microSpacingY" style="width: 100%; height: 31px; -unity-text-align: middle-center; font-size: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                <ui:TextField picking-mode="Ignore" label="Spacing Z" value="1" keyboard-type="DecimalPad" name="microSpacingZ" style="width: 100%; height: 30px; -unity-text-align: middle-center; font-size: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                <ui:Label tabindex="-1" text="Transformation" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold-and-italic;" />
+                <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
+                    <ui:VisualElement style="flex-grow: 1; align-items: center; justify-content: center;">
+                        <ui:TextField picking-mode="Ignore" label="Translation X" value="1" keyboard-type="DecimalPad" name="microTranslationX" style="width: 100%; height: 30px; -unity-text-align: middle-center; font-size: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                        <ui:TextField picking-mode="Ignore" label="Translation X" value="2" keyboard-type="DecimalPad" name="microTranslationY" style="width: 100%; height: 30px; -unity-text-align: middle-center; font-size: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                        <ui:TextField picking-mode="Ignore" label="Translation Z" value="0" keyboard-type="DecimalPad" name="microTranslationZ" max-length="-1" style="width: 100%; height: 30px; -unity-text-align: middle-center; font-size: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                    </ui:VisualElement>
+                    <ui:VisualElement style="flex-grow: 1; align-items: center; justify-content: center;">
+                        <ui:TextField picking-mode="Ignore" label="Rotation X" value="0" keyboard-type="DecimalPad" name="microRotationX" style="width: 100%; height: 30px; -unity-text-align: middle-center; font-size: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                        <ui:TextField picking-mode="Ignore" label="Rotation Y" value="0" keyboard-type="DecimalPad" name="microRotationY" style="width: 100%; height: 30px; -unity-text-align: middle-center; font-size: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                        <ui:TextField picking-mode="Ignore" label="Rotation Z" value="0" keyboard-type="DecimalPad" name="microRotationZ" style="width: 100%; height: 30px; -unity-text-align: middle-center; font-size: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement style="flex-grow: 1; align-items: auto; justify-content: center;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement style="flex-grow: 1; background-color: rgb(255, 255, 255); justify-content: center; height: 10%;">
+            <ui:Button text="Generate Pair" parse-escape-sequences="true" display-tooltip-when-elided="true" name="generatePairButton" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -59,7 +59,7 @@ public class FileSaver
         streamWriter.WriteLine("CenterOfRotation = 0 0 0");
         streamWriter.WriteLine("AnatomicalOrientation = RAI");
         streamWriter.WriteLine("ElementSpacing = {0} {1} {2}", d.XSpacing, d.YSpacing, d.ZSpacing);
-        streamWriter.WriteLine("DimSize = {0} {1} {2}", d.Measures[2], d.Measures[1], d.Measures[0]);
+        streamWriter.WriteLine("DimSize = {0} {1} {2}", d.Measures[0], d.Measures[1], d.Measures[2]);
         streamWriter.WriteLine("ElementType = MET_USHORT");
         streamWriter.WriteLine("ElementDataFile = " + fileName + ".raw");
 
@@ -74,11 +74,11 @@ public class FileSaver
 
         double currentValue;
 
-        for(double x = 0; x < maxX; x+=d.XSpacing)
+        for(double z = 0; z < maxZ; z+=d.ZSpacing)
         {
             for (double y = 0; y < maxY; y += d.YSpacing)
             {
-                for(double z = 0; z < maxZ; z+=d.ZSpacing)
+                for (double x = 0; x < maxX; x += d.XSpacing)
                 {
                     //USHORT is used, thus 2^16-1 is used for max value
                     currentValue = Math.Min(d.GetValue(x, y, z), Math.Pow(2, 16) - 1);

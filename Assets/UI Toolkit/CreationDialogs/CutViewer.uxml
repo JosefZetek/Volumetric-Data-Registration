@@ -1,0 +1,32 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 1; flex-direction: column; flex-wrap: wrap;">
+        <ui:VisualElement name="VisualElement" style="flex-grow: 1; height: 30%; background-color: rgb(255, 255, 255); align-items: center; justify-content: center; flex-direction: column;">
+            <ui:Label tabindex="-1" text="Ellipsoid Shape Object Setup" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; font-size: 24px; -unity-text-align: middle-center; align-items: auto;" />
+            <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
+                <ui:VisualElement name="parameterBox" style="flex-grow: 1; justify-content: center; align-items: center; width: 33%; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                    <ui:TextField picking-mode="Ignore" label="Parameter a" name="parameterA" style="-unity-text-align: middle-center; height: 30px; width: 100%;" />
+                    <ui:TextField picking-mode="Ignore" label="Parameter b" name="parameterB" style="-unity-text-align: middle-center; height: 30px; width: 100%;" />
+                    <ui:TextField picking-mode="Ignore" label="Parameter c" name="parameterC" style="-unity-text-align: middle-center; height: 30px; width: 100%;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="sizeBox" style="flex-grow: 1; justify-content: center; align-items: center; width: 33%; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                    <ui:TextField picking-mode="Ignore" label="Size X" name="sizeX" style="-unity-text-align: middle-center; height: 30px; width: 100%;" />
+                    <ui:TextField picking-mode="Ignore" label="Size Y" name="sizeY" style="-unity-text-align: middle-center; height: 30px; width: 100%;" />
+                    <ui:TextField picking-mode="Ignore" label="Size C" name="sizeZ" style="-unity-text-align: middle-center; height: 30px; width: 100%;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="spacingBox" style="flex-grow: 1; justify-content: center; align-items: center; width: 33%; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                    <ui:TextField picking-mode="Ignore" label="Spacing X" name="spacingX" style="-unity-text-align: middle-center; height: 30px; width: 100%;" />
+                    <ui:TextField picking-mode="Ignore" label="Spacing Y" name="spacingY" style="-unity-text-align: middle-center; height: 30px; width: 100%;" />
+                    <ui:TextField picking-mode="Ignore" label="Spacing Z" name="spacingZ" style="-unity-text-align: middle-center; height: 30px; width: 100%;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="VisualElement" style="flex-grow: 1; height: 70%; background-color: rgb(255, 255, 255); align-items: center; justify-content: center; flex-direction: column; width: 100%;">
+            <ui:Label tabindex="-1" text="Transformation Setup" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; font-size: 24px; -unity-text-align: middle-center; align-items: auto;" />
+            <ui:VisualElement style="flex-grow: 1; width: 50%;">
+                <ui:Slider label="Slider" high-value="100" />
+                <ui:Slider label="Slider" high-value="100" />
+                <ui:Slider label="Slider" high-value="100" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

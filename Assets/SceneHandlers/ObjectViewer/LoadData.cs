@@ -86,6 +86,8 @@ public class Loader : MonoBehaviour
             {
                 for (float k = 0; k < loadedData.Measures[2]; k += (float)loadedData.ZSpacing)
                 {
+
+                    Debug.Log("Loading value: " + i + "," + j + "," + k);
                     if (orderNumber == 0)
                         AddAnotherBatch(NUMBER_OF_VERTICES, batchNumber);
 

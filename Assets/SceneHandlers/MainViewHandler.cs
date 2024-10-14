@@ -4,7 +4,6 @@ using UnityEngine.SceneManagement;
 
 public class MainViewHandler : MonoBehaviour
 {
-
     private void OnEnable()
     {
         var uiDocument = GetComponent<UIDocument>();

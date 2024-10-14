@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 using DataView;
 
 public class EllipsoidMockData : AMockObject
@@ -66,6 +67,7 @@ public class EllipsoidMockData : AMockObject
 
     public override double GetValue(double x, double y, double z)
     {
+
         double currentValue = Math.Pow(x, 2) / Math.Pow(a, 2) + Math.Pow(y, 2) / Math.Pow(b, 2) + Math.Pow(z, 2) / Math.Pow(c, 2);
         if (currentValue <= 1)
             return currentValue * 4000;
