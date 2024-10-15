@@ -5,6 +5,8 @@ using DataView;
 public class FileSaver
 {
 
+    private const int DIMENSIONS = 3;
+
     private BinaryWriter binaryWriter;
     private StreamWriter streamWriter;
 
@@ -23,8 +25,8 @@ public class FileSaver
         if (d.Measures == null)
             throw new ArgumentException("Measures are not specified");
 
-        if (d.Measures.Length != 3)
-            throw new ArgumentException("Data need to be 3 dimensional");
+        if (d.Measures.Length != DIMENSIONS)
+            throw new ArgumentException("Data need to be " + DIMENSIONS + " dimensional");
 
         if (d.Measures[0] <= 0 || d.Measures[1] <= 0 || d.Measures[2] <= 0)
             throw new ArgumentException("None of the dimensions can be negative or zero");
@@ -68,20 +70,19 @@ public class FileSaver
 
     private void MakeBinaryFile()
     {
-        int maxX = d.Measures[0];
-        int maxY = d.Measures[1];
-        int maxZ = d.Measures[2];
 
         double currentValue;
 
-        for(double z = 0; z < maxZ; z+=d.ZSpacing)
+        double currentX = 0, currentY = 0, currentZ = 0;
+
+        for(int numberZ = 0; numberZ < d.Measures[2]; numberZ++, currentZ += d.ZSpacing)
         {
-            for (double y = 0; y < maxY; y += d.YSpacing)
+            for (int numberY = 0; numberY < d.Measures[1]; numberY++, currentY += d.YSpacing)
             {
-                for (double x = 0; x < maxX; x += d.XSpacing)
+                for (int numberX = 0; numberX < d.Measures[0]; numberX++, currentX += d.XSpacing)
                 {
                     //USHORT is used, thus 2^16-1 is used for max value
-                    currentValue = Math.Min(d.GetValue(x, y, z), Math.Pow(2, 16) - 1);
+                    currentValue = Math.Min(d.GetValue(currentX, currentY, currentZ), Math.Pow(2, 16) - 1);
                     binaryWriter.Write((ushort)currentValue);
                 }
             }

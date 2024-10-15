@@ -34,11 +34,11 @@ namespace DataView
             Vector<double> firstTransformationResult;
             Vector<double> secondTransformationResult;
 
-            for(double x = 0; x < data.Measures[0]; x += data.XSpacing)
+            for(double x = 0; x <= data.MaxValueX; x += data.XSpacing)
             {
-                for (double y = 0; y < data.Measures[1]; y += data.YSpacing)
+                for (double y = 0; y <= data.MaxValueY; y += data.YSpacing)
                 {
-                    for(double z = 0; z < data.Measures[2]; z += data.ZSpacing)
+                    for(double z = 0; z <= data.MaxValueZ; z += data.ZSpacing)
                     {
                         GetVector(out currentVector, x, y, z);
 

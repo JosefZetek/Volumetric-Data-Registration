@@ -56,9 +56,9 @@ namespace DataView
 		private Point3D GenerateRandomPoint()
 		{
 			return new Point3D(
-				random.NextDouble() * d.Measures[0],
-				random.NextDouble() * d.Measures[1],
-				random.NextDouble() * d.Measures[2]
+				random.NextDouble() * d.MaxValueX,
+				random.NextDouble() * d.MaxValueY,
+				random.NextDouble() * d.MaxValueZ
 			);
 		}
 	}

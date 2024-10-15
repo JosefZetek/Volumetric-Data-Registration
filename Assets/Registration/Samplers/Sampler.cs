@@ -2,32 +2,38 @@
 
 namespace DataView
 {
+    /// <summary>
+    /// Sampler class generating random number of points
+    /// </summary>
     public class Sampler : ISampler
     {
-        //private int rSphere = 5; //Included in config
+        private Random r;
 
-        private int rSphere;
+        public Sampler(int seed)
+        {
+            this.r = new Random(seed);
+        }
+
+        public Sampler()
+        {
+            this.r = new Random();
+        }
 
         public Point3D[] Sample(AData d, int count)
         {
             Point3D[] points = new Point3D[count];
+            
 
-            int[] measures = d.Measures;
-            Random r = new Random();
             for (int i = 0; i < count; i++)
             {
-                double x = GetRandomDouble(rSphere, measures[0]* d.XSpacing - rSphere, r) ;
-                double y = GetRandomDouble(rSphere, measures[1]* d.YSpacing - rSphere, r) ;
-                double z = GetRandomDouble(rSphere, measures[2]* d.ZSpacing - rSphere, r) ;
+
+                double x = r.NextDouble() * d.MaxValueX;
+                double y = r.NextDouble() * d.MaxValueY;
+                double z = r.NextDouble() * d.MaxValueZ;
 
                 points[i] = new Point3D(x, y, z);
             }
             return points;
-        }
-
-        private double GetRandomDouble(double minimum, double maximum, Random r)
-        { 
-            return r.NextDouble() * (maximum - minimum) + minimum;
         }
     }
 }

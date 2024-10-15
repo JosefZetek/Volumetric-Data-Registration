@@ -52,9 +52,9 @@ public class PointDistanceMock : AMockObject
         for (int i  = 0; i<minDimension; i++)
         {
             generatedPoint = new Point3D(
-                random.NextDouble() * (measures[0] - 1),
-                random.NextDouble() * (measures[1] - 1),
-                random.NextDouble() * (measures[2] - 1)
+                random.NextDouble() * MaxValueX,
+                random.NextDouble() * MaxValueY,
+                random.NextDouble() * MaxValueZ
             );
 
             randomPoints.Add(generatedPoint);
@@ -65,11 +65,11 @@ public class PointDistanceMock : AMockObject
     {
         Point3D currentPoint;
         double currentValue;
-        for (double x = 0; x < measures[0]; x += spacings[0])
+        for (double x = 0; x <= MaxValueX; x += spacings[0])
         {
-            for (double y = 0; y < measures[1]; y += spacings[1])
+            for (double y = 0; y <= MaxValueY; y += spacings[1])
             {
-                for (double z = 0; z < measures[1]; z += spacings[1])
+                for (double z = 0; z <= MaxValueZ; z += spacings[1])
                 {
                     currentPoint = new Point3D(x, y, z);
 

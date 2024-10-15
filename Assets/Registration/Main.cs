@@ -41,7 +41,7 @@ namespace DataView
             Debug.Log("Reading macro data.");
             this.macroData = macroData;
 
-            ISampler s = new SamplerIdentical(iDataMicro, this.macroData, 1, 0.1);
+            ISampler s = new SamplerFake(iDataMicro, this.macroData, 1, 0.1);
             IFeatureComputer fc = new FeatureComputerISOSurfaceCurvature();
 
             IMatcher matcher = new Matcher();
@@ -78,15 +78,7 @@ namespace DataView
                     transformations.Add(transformation);
                 }
                 catch { continue; }
-                //Debug.Log(e.Message);
-                //Console.WriteLine(e.Message);
-
             }
-
-            //for (int i = 0; i < transformations.Count; i++)
-            //{
-            //    Debug.Log(transformations[i]);
-            //}
 
             DensityStructure densityStructure = new DensityStructure(transformations.ToArray());
 

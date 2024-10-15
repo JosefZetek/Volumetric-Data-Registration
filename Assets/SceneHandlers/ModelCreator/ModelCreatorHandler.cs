@@ -54,7 +54,7 @@ public class NewMonoBehaviour : MonoBehaviour
         Debug.Log("Spacing: " + spacingX + ";" + spacingY + ";" + spacingZ);
 
         if (dropdown.index == 0)
-            return new EllipsoidMockData(Math.Min(3, sizeX / 2), Math.Min(4, sizeY / 2), Math.Min(5, sizeZ / 2), new int[] { sizeX, sizeY, sizeZ }, new int[] { spacingX, spacingY, spacingZ });
+            return new EllipsoidMockData((sizeX*spacingX) / 2, (sizeY*spacingY) / 3, (sizeZ*spacingZ) / 4, new int[] { sizeX, sizeY, sizeZ }, new int[] { spacingX, spacingY, spacingZ });
         else if (dropdown.index == 1)
             return new PointDistanceMock(new int[] { sizeX, sizeY, sizeZ }, new int[] { spacingX, spacingY, spacingZ });
 

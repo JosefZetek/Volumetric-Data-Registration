@@ -7,7 +7,7 @@ namespace DataView
     /// <summary>
     /// This sampler outputs identical points for both micro and macro data
     /// </summary>
-    public class SamplerIdentical : ISampler
+    public class SamplerFake : ISampler
 	{
         private Random random;
         private List<Point3D> points;
@@ -24,7 +24,7 @@ namespace DataView
         /// <param name="microData"></param>
         /// <param name="macroData"></param>
         /// <param name="percentage">Percentage is a value between 0 and 1</param>
-		public SamplerIdentical(AData microData, AData macroData, double percentage, double randomIncrement)
+		public SamplerFake(AData microData, AData macroData, double percentage, double randomIncrement)
 		{
             int seed = 100;
             this.random = new Random(seed);
@@ -32,12 +32,12 @@ namespace DataView
             this.percentage = Math.Min(Math.Max(0, percentage), 1);
             this.randomIncrement = randomIncrement; 
 
-            double maxX = Math.Min(microData.Measures[0] - microData.XSpacing, macroData.Measures[0] - macroData.XSpacing);
-            double maxY = Math.Min(microData.Measures[1] - microData.YSpacing, macroData.Measures[1] - macroData.YSpacing);
-            double maxZ = Math.Min(microData.Measures[2] - microData.ZSpacing, macroData.Measures[2] - macroData.ZSpacing);
+            double maxX = Math.Min(microData.MaxValueX, macroData.MaxValueX);
+            double maxY = Math.Min(microData.MaxValueY, macroData.MaxValueY);
+            double maxZ = Math.Min(microData.MaxValueZ, macroData.MaxValueZ);
 
             //Subtracting 1 since that is the radius for calculating rotation
-            maxBounds = new Point3D(Math.Max(0, maxX - 1), Math.Max(0, maxY - 1), Math.Max(0, maxZ - 1));
+            maxBounds = new Point3D(maxX, maxY, maxZ);
 		}
 
         public Point3D[] Sample(AData d, int count)

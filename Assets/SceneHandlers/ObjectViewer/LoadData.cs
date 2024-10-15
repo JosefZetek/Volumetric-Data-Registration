@@ -37,9 +37,9 @@ public class Loader : MonoBehaviour
     /// <returns>Returns number of vertices in VolumetricData instance</returns>
     private int GetNumberOfVertices(AData volumetricData)
     {
-        int NUMBER_OF_VERTICES_X = (int)(volumetricData.Measures[0] / volumetricData.XSpacing);
-        int NUMBER_OF_VERTICES_Y = (int)(volumetricData.Measures[1] / volumetricData.YSpacing);
-        int NUMBER_OF_VERTICES_Z = (int)(volumetricData.Measures[2] / volumetricData.ZSpacing);
+        int NUMBER_OF_VERTICES_X = volumetricData.Measures[0];
+        int NUMBER_OF_VERTICES_Y = volumetricData.Measures[1];
+        int NUMBER_OF_VERTICES_Z = volumetricData.Measures[2];
 
         int NUMBER_OF_VERTICES = NUMBER_OF_VERTICES_X * NUMBER_OF_VERTICES_Y * NUMBER_OF_VERTICES_Z;
 
@@ -80,14 +80,12 @@ public class Loader : MonoBehaviour
         int orderNumber = 0;
 
 
-        for (float i = 0; i < loadedData.Measures[0]; i += (float)loadedData.XSpacing)
+        for (float i = 0; i <= loadedData.MaxValueX; i += (float)loadedData.XSpacing)
         {
-            for (float j = 0; j < loadedData.Measures[1]; j += (float)loadedData.YSpacing)
+            for (float j = 0; j <= loadedData.MaxValueY; j += (float)loadedData.YSpacing)
             {
-                for (float k = 0; k < loadedData.Measures[2]; k += (float)loadedData.ZSpacing)
+                for (float k = 0; k <= loadedData.MaxValueZ; k += (float)loadedData.ZSpacing)
                 {
-
-                    Debug.Log("Loading value: " + i + "," + j + "," + k);
                     if (orderNumber == 0)
                         AddAnotherBatch(NUMBER_OF_VERTICES, batchNumber);
 

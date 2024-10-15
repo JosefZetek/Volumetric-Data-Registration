@@ -152,9 +152,9 @@ namespace DataView
         {
             using (BinaryReader br = new BinaryReader(new FileStream(filePathDescriptor.DataFilePath, FileMode.Open)))
             {
-                int width = (int)(Data.DimSize[0] / Data.ElementSpacing[0]);
-                int depth = (int)(Data.DimSize[1] / Data.ElementSpacing[1]);
-                int height = (int)(Data.DimSize[2] / Data.ElementSpacing[2]);
+                int width = Data.DimSize[0];
+                int depth = Data.DimSize[1];
+                int height = Data.DimSize[2];
 
                 VData = new int[height][,];
                 int c = 0;
@@ -219,87 +219,74 @@ namespace DataView
         {
             point = point.ApplyTranslationRotation(transformation);
 
-            if (point.X < 0 || point.Y < 0 || point.Z < 0)
+            if (!PointWithinBounds(point))
                 throw new ArgumentException("This value is not within bounds");
 
-            int xLDC = (int)(point.X / xSpacing); // coordinates of left down corner of the rectangle in the array in which the pixel is situated
-            int yLDC = (int)(point.Y / ySpacing);
-            int zLDC = (int)(point.Z / zSpacing);
+            // coordinates of left down corner of the rectangle in the array in which the pixel is situated
+            int xIndexLower = ConstrainIndex((int)(point.X / XSpacing), Data.DimSize[0] - 1);
+            int yIndexLower = ConstrainIndex((int)(point.Y / YSpacing), Data.DimSize[1] - 1);
+            int zIndexLower = ConstrainIndex((int)(point.Z / ZSpacing), Data.DimSize[2] - 1);
 
+            int zIndexHigher = ConstrainIndex(zIndexLower + 1, Data.DimSize[2] - 1);
 
-            if (!IndicesWithinBounds(xLDC, yLDC, zLDC))
-                throw new ArgumentException("This value is not within bounds");
-            
-            int zRDC = zLDC + 1;
-            if (zLDC == this.Data.DimSize[2] - 1)
-            {
-                zRDC = zLDC;
-            }
+            double interpolatedXYLowerZ = InterpolationXYPlane(point.X, point.Y, zIndexLower, xIndexLower, yIndexLower);
+            double interpolatedXYHigherZ = InterpolationXYPlane(point.X, point.Y, zIndexHigher, xIndexLower, yIndexLower);
 
-            double valueA = Interpolation2DReal(point.X, point.Y, zLDC, xLDC, yLDC);
-            double valueB = Interpolation2DReal(point.X, point.Y, zRDC, xLDC, yLDC);
-
-            return InterpolationReal(valueA, valueB, point.Z, zLDC, ZSpacing);            
+            return InterpolationReal(interpolatedXYLowerZ, interpolatedXYHigherZ, point.Z, zIndexLower*ZSpacing, ZSpacing);
         }
 
-        private bool IndicesWithinBounds(double x, double y, double z)
+        /// <summary>
+        /// Method constrain given index for array to satisfy
+        ///  index >= 0 && index <= maxIndex
+        /// </summary>
+        /// <param name="currentIndex">Current index</param>
+        /// <param name="maxIndex">Maximum index</param>
+        /// <returns></returns>
+        private int ConstrainIndex(int currentIndex, int maxIndex)
         {
-            return (x < Data.DimSize[0] && y < Data.DimSize[1] && z < Data.DimSize[2] && x >= 0 && y >= 0 && z >= 0);
+            return Math.Max(Math.Min(currentIndex, maxIndex), 0);
         }
 
-        public double GetSampledValue(double x, double y, double z)
+        /// <summary>
+        /// 1D Interpolation between valueA and valueB
+        /// </summary>
+        /// <param name="valueA">The value at the closest sampled coordinate that is smaller</param>
+        /// <param name="valueB">The value at the closest sampled coordinate that is higher</param>
+        /// <param name="interpolationCoordinate">Interpolated point's X/Y/Z coordinate<param>
+        /// <param name="aPosition">Position of A (coordinates)</param>
+        /// <param name="spacing">Spacing between A and B</param>
+        /// <returns>Returns interpolated value</returns>
+        private double InterpolationReal(double valueA, double valueB, double interpolationCoordinate, double aPosition, double spacing)
         {
-            double xOrder = x / xSpacing;
-            double yOrder = y / ySpacing;
-            double zOrder = z / zSpacing;
-
-            int xIndex = (int)xOrder; // coordinates of left down corner of the rectangle in the array in which the pixel is situated
-            int yIndex = (int)yOrder;
-            int zIndex = (int)zOrder;
-
-            if (xOrder > xIndex || yOrder > yIndex || zOrder > zIndex)
-                throw new ArgumentException("Value at given point was not specifically sampled (use GetValue) instead to get interpolated result");
-
-            if (xIndex > Data.DimSize[0] || yIndex > Data.DimSize[1] || zIndex > Data.DimSize[2] || xIndex < 0 || yIndex < 0 || zIndex < 0)
-                throw new ArgumentException("Value is out of bounds");
-
-            return VData[zIndex][xIndex, yIndex];
+            double ratio = (interpolationCoordinate - aPosition) / spacing;
+            return ratio * valueB + (1 - ratio) * valueA;
         }
 
-        private double InterpolationReal(double valueA, double valueB, double coordinateOfPixel, int indexOfA, double spacing)
+        /// <summary>
+        /// Interpolation for X,Y plane
+        /// </summary>
+        /// <param name="xInterpolationCoordinate">Interpolated point's X coordinate</param>
+        /// <param name="yInterpolationCoordinate">Interpolated point's Y coordinate</param>
+        /// <param name="zIndex">Z index - constant (higher or lower zIndex)</param>
+        /// <param name="xIndexLower">Lower X index</param>
+        /// <param name="yIndexLower">Lower Y index</param>
+        /// <returns>Returns interpolated value at given X, Y coordinates</returns>
+        private double InterpolationXYPlane(double xInterpolationCoordinate, double yInterpolationCoordinate, int zIndex, int xIndexLower, int yIndexLower)
         {
-            double d = coordinateOfPixel - indexOfA * spacing; //TODO positive/zero?
-            double r = d / spacing;
-            return r * valueB + (1 - r) * valueA;
-        }
+            int xIndexHigher = ConstrainIndex(xIndexLower + 1, Data.DimSize[0] - 1);
+            int yIndexHigher = ConstrainIndex(yIndexLower + 1, Data.DimSize[1] - 1);
 
-        private double Interpolation2DReal(double pixelX, double pixelY, int indexLDCZ, int xLDC, int yLDC)
-        {
-            int xRDC = xLDC + 1;
-            int yRDC = yLDC + 1;
+            int valueA = VData[zIndex][xIndexLower, yIndexLower];
+            int valueB = VData[zIndex][xIndexHigher, yIndexLower];
 
-            if (xLDC == this.Data.DimSize[0] - 1)
-            {
-                xRDC = xLDC;
-            }
+            double interpolationLowerY = InterpolationReal(valueA, valueB, xInterpolationCoordinate, xIndexLower*XSpacing, XSpacing);
 
-            if (yLDC == this.Data.DimSize[1] - 1)
-            {
-                yRDC = yLDC;
-            }
+            int valueC = VData[zIndex][xIndexLower, yIndexHigher];
+            int valueD = VData[zIndex][xIndexHigher, yIndexHigher];
 
-            int valueA = VData[indexLDCZ][xLDC, yLDC];
-            int valueB = VData[indexLDCZ][xRDC, yLDC];
+            double interpolationHigherY = InterpolationReal(valueC, valueD, xInterpolationCoordinate, xIndexLower*XSpacing, XSpacing);
 
-
-            double helpValueA = InterpolationReal(valueA, valueB, pixelX, xLDC, XSpacing);
-
-            int valueC = VData[indexLDCZ][xLDC, yRDC];
-            int valueD = VData[indexLDCZ][xRDC, yRDC];
-
-            double helpValueB = InterpolationReal(valueC, valueD, pixelX, xLDC, XSpacing);
-
-            return InterpolationReal(helpValueA, helpValueB, pixelY, yLDC, YSpacing);
+            return InterpolationReal(interpolationLowerY, interpolationHigherY, yInterpolationCoordinate, yIndexLower*YSpacing, YSpacing);
         }
 
         public int GetMax()
@@ -377,12 +364,6 @@ namespace DataView
         {
             return this.dataDistribution.GetDistributionPercentage(value);
         }
-
-        private double NormalizeValue(double value)
-        {
-            return (value - MinValue) / (MaxValue - MinValue);
-        }
-
         
         public override int[] Measures { get => Data.DimSize; }
 

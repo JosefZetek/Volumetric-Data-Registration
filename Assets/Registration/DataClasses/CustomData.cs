@@ -17,8 +17,7 @@ namespace DataView
 
         public override double GetValue(double x, double y, double z)
         {
-
-            if (x >= Measures[0] || y >= Measures[1] || z >= Measures[2])
+            if (!PointWithinBounds(new Point3D(x, y, z)))
                 throw new ArgumentException("Out of bounds");
 
             double roundedX = ThirdsDivision(x);

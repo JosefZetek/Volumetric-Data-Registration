@@ -183,33 +183,13 @@ namespace DataView
                     for (double z = zBounds.MinCoordinate; z <= zBounds.MaxCoordinate; z += spacing)
                     {
                         Point3D point = new Point3D(x + p.X, y + p.Y, z + p.Z);
-                        if (IsWithinBounds(data, point))
+                        if (data.PointWithinBounds(point))
                             points.Add(point);
                     }
                 }
             }
 
             return points;
-        }
-
-        /// <summary>
-        /// This method tests if the point is within the bounds of an object provided as a parameter data
-        /// </summary>
-        /// <param name="data">Data instance for the object</param>
-        /// <param name="p">Point tested</param>
-        /// <returns>Returns true if point is within the bounds, false otherwise.</returns>
-        private static bool IsWithinBounds(AData data, Point3D p)
-        {
-            if (p.X < 0 || p.X > (data.Measures[0] - data.XSpacing))
-                return false;
-
-            if (p.Y < 0 || p.Y > (data.Measures[1] - data.YSpacing))
-                return false;
-
-            if (p.Z < 0 || p.Z > (data.Measures[2] - data.ZSpacing))
-                return false;
-
-            return true;
         }
 
 

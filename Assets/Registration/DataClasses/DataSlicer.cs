@@ -26,7 +26,7 @@ namespace DataView
             /* Constraining t to be within range */
             t = Math.Min(Math.Max(0, t), 1);
 
-            double cutPosition = t * (data.Measures[axis] - 1);
+            double cutPosition = t * data.Bounds[axis];
 
             Color[][] cutData = new Color[resolution.Height][];
             double[] coordinates = new double[DIMENSIONS];
@@ -41,12 +41,12 @@ namespace DataView
             {
                 cutData[i] = new Color[resolution.Width];
 
-                double secondDimensionProgress = ((double)i / ((double)resolution.Height - 1)) * (data.Measures[secondVariableIndex] - 1);
+                double secondDimensionProgress = ((double)i / ((double)resolution.Height - 1)) * data.Bounds[secondVariableIndex];
                 coordinates[secondVariableIndex] = secondDimensionProgress;
 
                 for (int j = 0; j < resolution.Width; j++)
                 {
-                    double firstDimensionProgress = ((double)j / ((double)resolution.Width - 1)) * (data.Measures[firstVariableIndex] - 1);
+                    double firstDimensionProgress = ((double)j / ((double)resolution.Width - 1)) * data.Bounds[firstVariableIndex];
                     coordinates[firstVariableIndex] = firstDimensionProgress;
 
                     currentNormalizedValue = (float)data.GetNormalizedValue(coordinates[0], coordinates[1], coordinates[2]);
@@ -75,7 +75,7 @@ namespace DataView
             /* Constraining t to be within range */
             t = Math.Min(Math.Max(0, t), 1);
 
-            double cutPosition = t * (data.Measures[axis] - 1);
+            double cutPosition = t * data.Bounds[axis];
 
             Color[][] cutData = new Color[resolution.Height][];
             double[] coordinates = new double[DIMENSIONS];
@@ -90,12 +90,12 @@ namespace DataView
             {
                 cutData[i] = new Color[resolution.Width];
 
-                double secondDimensionProgress = ((double)i / ((double)resolution.Height - 1)) * (data.Measures[secondVariableIndex] - 1);
+                double secondDimensionProgress = ((double)i / ((double)resolution.Height - 1)) * data.Bounds[secondVariableIndex];
                 coordinates[secondVariableIndex] = secondDimensionProgress;
 
                 for (int j = 0; j < resolution.Width; j++)
                 {
-                    double firstDimensionProgress = ((double)j / ((double)resolution.Width - 1)) * (data.Measures[firstVariableIndex] - 1);
+                    double firstDimensionProgress = ((double)j / ((double)resolution.Width - 1)) * data.Bounds[firstVariableIndex];
                     coordinates[firstVariableIndex] = firstDimensionProgress;
 
 

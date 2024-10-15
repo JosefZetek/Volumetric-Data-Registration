@@ -33,25 +33,21 @@ namespace DataView
         /// <param name="microData">Instance of IData for Micro Data</param>
         public TransformationDistance(AData microData)
         {
-            int sizeX = microData.Measures[0];
-            int sizeY = microData.Measures[1];
-            int sizeZ = microData.Measures[2];
-
-            numberOfVertices = (int)(sizeX / microData.XSpacing * sizeY / microData.YSpacing * sizeZ / microData.ZSpacing);
+            numberOfVertices = microData.Measures[0] * microData.Measures[1] * microData.Measures[2];
 
             centerPoint = Vector<double>.Build.DenseOfArray(new double[]
             {
-                (sizeX - microData.XSpacing) / 2.0,
-                (sizeY - microData.YSpacing) / 2.0,
-                (sizeZ - microData.ZSpacing) / 2.0
+                microData.MaxValueX / 2.0,
+                microData.MaxValueY / 2.0,
+                microData.MaxValueZ / 2.0
             });
 
 
-            for (double x = 0; x < sizeX; x += microData.XSpacing)
+            for (double x = 0; x <= microData.MaxValueX; x += microData.XSpacing)
             {
-                for (double y = 0; y < sizeY; y += microData.YSpacing)
+                for (double y = 0; y < microData.MaxValueY; y += microData.YSpacing)
                 {
-                    for (double z = 0; z < sizeZ; z += microData.ZSpacing)
+                    for (double z = 0; z < microData.MaxValueZ; z += microData.ZSpacing)
                     {
                         Vector<double> currentVertex = Vector<double>.Build.DenseOfArray(new double[] { x, y, z });
                         currentVertex -= centerPoint;

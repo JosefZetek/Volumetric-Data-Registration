@@ -66,11 +66,6 @@ public class RegistrationViewHandler : MonoBehaviour
         registrationPreview.Clear();
 
         Button buttonCutPreview = new Button();
-        //Button buttonObjectPreview = new Button();
-        //buttonObjectPreview.text = "Object preview";
-        //buttonObjectPreview.style.height = new Length(50, LengthUnit.Percent);
-        //buttonObjectPreview.style.width = new Length(20, LengthUnit.Percent);
-        //registrationPreview.Add(buttonObjectPreview);
 
         buttonCutPreview.text = "Slicer preview";
         buttonCutPreview.style.height = new Length(50, LengthUnit.Percent);

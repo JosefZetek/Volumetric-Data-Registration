@@ -60,7 +60,7 @@ namespace DataView
                 Point3D offsetPointZ = new Point3D(currentPoint.X, currentPoint.Y, currentPoint.Z + epsilon);
 
 
-                if (OutOfBounds(offsetPointX.X, offsetPointY.Y, offsetPointZ.Z))
+                if (!data.PointWithinBounds(currentPoint.X + epsilon, currentPoint.Y + epsilon, currentPoint.Z + epsilon))
                     break;
 
 
@@ -91,7 +91,7 @@ namespace DataView
 				if (FunctionConverges(dx, convergenceValue) && FunctionConverges(dy, convergenceValue) && FunctionConverges(dz, convergenceValue))
 					break;
 
-                if (OutOfBounds(newX, newY, newZ))
+                if (!data.PointWithinBounds(newX, newY, newZ))
                     break;
 
                 currentPoint.X = newX;
@@ -126,20 +126,6 @@ namespace DataView
 		{
 			return (previousDerivative < currentDerivative);
 		}
-
-		private bool OutOfBounds(double x, double y, double z)
-		{
-			if (data.Measures[0] <= x)
-				return true;
-
-            if (data.Measures[1] <= y)
-                return true;
-
-            if (data.Measures[2] <= z)
-                return true;
-
-			return (x < 0 || y < 0 || z < 0);
-        }
 	}
 }
 
