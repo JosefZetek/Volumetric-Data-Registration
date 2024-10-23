@@ -63,16 +63,8 @@ namespace DataView
         /// <returns>Returns transformed point</returns>
         public Point3D ApplyRotationTranslation(Transform3D transformation)
         {
-            //Console.WriteLine("Rotating point using: " + transformation.RotationMatrix);
-            //Console.WriteLine("Translating point using: " + transformation.TranslationVector);
-
-            //Console.WriteLine("Before transformation: {0}", ToString());
             Point3D resultPoint = Rotate(transformation.RotationMatrix);
-
-            //Console.WriteLine("Point after applying rotation: {0}", resultPoint);
-            resultPoint = resultPoint.Translate(transformation.TranslationVector);
-            //Console.WriteLine("Point after applying translation: {0}", resultPoint);
-            return resultPoint;
+            return resultPoint.Translate(transformation.TranslationVector);
         }
 
         /// <summary>

@@ -71,7 +71,8 @@ public class CutViewerHandler : MonoBehaviour
         cutPreview = rootVisualElement.Q<VisualElement>("cutPreview");
 
         this.image = new Image();
-        this.image.scaleMode = ScaleMode.StretchToFill;
+        //this.image.scaleMode = ScaleMode.StretchToFill;
+        //this.image.scaleMode = ScaleMode.ScaleToFit;
 
         image.style.width = new StyleLength(Length.Percent(100));
         image.style.height = new StyleLength(Length.Percent(100));
@@ -106,7 +107,7 @@ public class CutViewerHandler : MonoBehaviour
             return;
 
         Color[][] values;
-        CutResolution resolution = new CutResolution(500, 200);
+        CutResolution resolution = new CutResolution(500, 500);
 
 
         if (microData != null)
@@ -114,7 +115,6 @@ public class CutViewerHandler : MonoBehaviour
         else
             values = GetCutData(slider.value, dropdown.index, resolution);
 
-        //image.image = GetTextureSequentially(values);
         image.image = GetTexture(values);
     }
 

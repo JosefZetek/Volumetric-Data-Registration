@@ -5,8 +5,9 @@ using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
 using System;
 
-public class NewMonoBehaviour : MonoBehaviour
+public class ModelCreatorHandler : MonoBehaviour
 {
+    private System.Random random = new System.Random();
     private VisualElement rootVisualElement;
     private DropdownField dropdown;
 
@@ -46,17 +47,17 @@ public class NewMonoBehaviour : MonoBehaviour
         int sizeY = int.Parse(rootVisualElement.Q<TextField>("macroSizeY").text);
         int sizeZ = int.Parse(rootVisualElement.Q<TextField>("macroSizeZ").text);
 
-        int spacingX = int.Parse(rootVisualElement.Q<TextField>("macroSpacingX").text);
-        int spacingY = int.Parse(rootVisualElement.Q<TextField>("macroSpacingY").text);
-        int spacingZ = int.Parse(rootVisualElement.Q<TextField>("macroSpacingZ").text);
+        double spacingX = double.Parse(rootVisualElement.Q<TextField>("macroSpacingX").text);
+        double spacingY = double.Parse(rootVisualElement.Q<TextField>("macroSpacingY").text);
+        double spacingZ = double.Parse(rootVisualElement.Q<TextField>("macroSpacingZ").text);
 
         Debug.Log("Size: " + sizeX + ";" + sizeY + ";" + sizeZ);
         Debug.Log("Spacing: " + spacingX + ";" + spacingY + ";" + spacingZ);
 
         if (dropdown.index == 0)
-            return new EllipsoidMockData((sizeX*spacingX) / 2, (sizeY*spacingY) / 3, (sizeZ*spacingZ) / 4, new int[] { sizeX, sizeY, sizeZ }, new int[] { spacingX, spacingY, spacingZ });
+            return new EllipsoidMockData((int)((sizeX-1)*spacingX), (int)((sizeY-1)*spacingY), (int)((sizeZ-1)*spacingZ), new int[] { sizeX, sizeY, sizeZ }, new double[] { spacingX, spacingY, spacingZ });
         else if (dropdown.index == 1)
-            return new PointDistanceMock(new int[] { sizeX, sizeY, sizeZ }, new int[] { spacingX, spacingY, spacingZ });
+            return new PointDistanceMock(new int[] { sizeX, sizeY, sizeZ }, new double[] { spacingX, spacingY, spacingZ });
 
         throw new ArgumentException("Dropdown index not implemented");
     }
@@ -105,7 +106,7 @@ public class NewMonoBehaviour : MonoBehaviour
         Vector<double> translationVector = Vector<double>.Build.Dense(3);
         Matrix<double> rotationMatrix = Matrix<double>.Build.DenseIdentity(3);
         int[] Measures = new int[3];
-        int[] Spacings = new int[3];
+        double [] Spacings = new double[3];
 
         try
         {
@@ -113,9 +114,9 @@ public class NewMonoBehaviour : MonoBehaviour
             int sizeY = int.Parse(rootVisualElement.Q<TextField>("microSizeY").text);
             int sizeZ = int.Parse(rootVisualElement.Q<TextField>("microSizeZ").text);
 
-            int spacingX = int.Parse(rootVisualElement.Q<TextField>("microSpacingX").text);
-            int spacingY = int.Parse(rootVisualElement.Q<TextField>("microSpacingY").text);
-            int spacingZ = int.Parse(rootVisualElement.Q<TextField>("microSpacingZ").text);
+            double spacingX = double.Parse(rootVisualElement.Q<TextField>("microSpacingX").text);
+            double spacingY = double.Parse(rootVisualElement.Q<TextField>("microSpacingY").text);
+            double spacingZ = double.Parse(rootVisualElement.Q<TextField>("microSpacingZ").text);
 
             double translationX = double.Parse(rootVisualElement.Q<TextField>("microTranslationX").text);
             double translationY = double.Parse(rootVisualElement.Q<TextField>("microTranslationY").text);
@@ -129,7 +130,7 @@ public class NewMonoBehaviour : MonoBehaviour
             rotationMatrix = GenerateRotationMatrix(rotationX, rotationY, rotationZ);
 
             Measures = new int[] { sizeX, sizeY, sizeZ };
-            Spacings = new int[] { spacingX, spacingY, spacingZ };
+            Spacings = new double[] { spacingX, spacingY, spacingZ };
         }
         catch
         {

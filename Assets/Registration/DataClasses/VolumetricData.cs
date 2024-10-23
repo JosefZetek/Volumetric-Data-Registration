@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using MathNet.Numerics.LinearAlgebra;
+using UnityEngine;
 
 namespace DataView
 {
@@ -83,11 +84,11 @@ namespace DataView
         {
             Matrix<double> covarianceMatrix = Matrix<double>.Build.Dense(3, 3);
 
-            for (double x = 0; x < data.DimSize[0]; x += XSpacing)
+            for (double x = 0; x <= MaxValueX; x += XSpacing)
             {
-                for (double y = 0; y < data.DimSize[1]; y += YSpacing)
+                for (double y = 0; y <= MaxValueY; y += YSpacing)
                 {
-                    for (double z = 0; z < data.DimSize[2]; z += ZSpacing)
+                    for (double z = 0; z <= MaxValueZ; z += ZSpacing)
                         AddOuterProduct(covarianceMatrix, x - translationVector[0], y - translationVector[1], z - translationVector[2]);
                 }
             }

@@ -5,12 +5,12 @@ namespace DataView
 {
 	public class DataSlicer
 	{
-		private AData data;
+		private AData referenceData;
         private const int DIMENSIONS = 3;
 
 		public DataSlicer(AData data)
 		{
-			this.data = data;
+			this.referenceData = data;
 		}
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace DataView
             /* Constraining t to be within range */
             t = Math.Min(Math.Max(0, t), 1);
 
-            double cutPosition = t * data.Bounds[axis];
+            double cutPosition = t * referenceData.Bounds[axis];
 
             Color[][] cutData = new Color[resolution.Height][];
             double[] coordinates = new double[DIMENSIONS];
@@ -41,15 +41,15 @@ namespace DataView
             {
                 cutData[i] = new Color[resolution.Width];
 
-                double secondDimensionProgress = ((double)i / ((double)resolution.Height - 1)) * data.Bounds[secondVariableIndex];
+                double secondDimensionProgress = ((double)i / ((double)resolution.Height - 1)) * referenceData.Bounds[secondVariableIndex];
                 coordinates[secondVariableIndex] = secondDimensionProgress;
 
                 for (int j = 0; j < resolution.Width; j++)
                 {
-                    double firstDimensionProgress = ((double)j / ((double)resolution.Width - 1)) * data.Bounds[firstVariableIndex];
+                    double firstDimensionProgress = ((double)j / ((double)resolution.Width - 1)) * referenceData.Bounds[firstVariableIndex];
                     coordinates[firstVariableIndex] = firstDimensionProgress;
 
-                    currentNormalizedValue = (float)data.GetNormalizedValue(coordinates[0], coordinates[1], coordinates[2]);
+                    currentNormalizedValue = (float)referenceData.GetNormalizedValue(coordinates[0], coordinates[1], coordinates[2]);
                     cutData[i][j] = new Color(currentNormalizedValue, currentNormalizedValue, currentNormalizedValue);
                 }
             }
@@ -75,7 +75,7 @@ namespace DataView
             /* Constraining t to be within range */
             t = Math.Min(Math.Max(0, t), 1);
 
-            double cutPosition = t * data.Bounds[axis];
+            double cutPosition = t * referenceData.Bounds[axis];
 
             Color[][] cutData = new Color[resolution.Height][];
             double[] coordinates = new double[DIMENSIONS];
@@ -90,12 +90,12 @@ namespace DataView
             {
                 cutData[i] = new Color[resolution.Width];
 
-                double secondDimensionProgress = ((double)i / ((double)resolution.Height - 1)) * data.Bounds[secondVariableIndex];
+                double secondDimensionProgress = ((double)i / ((double)resolution.Height - 1)) * referenceData.Bounds[secondVariableIndex];
                 coordinates[secondVariableIndex] = secondDimensionProgress;
 
                 for (int j = 0; j < resolution.Width; j++)
                 {
-                    double firstDimensionProgress = ((double)j / ((double)resolution.Width - 1)) * data.Bounds[firstVariableIndex];
+                    double firstDimensionProgress = ((double)j / ((double)resolution.Width - 1)) * referenceData.Bounds[firstVariableIndex];
                     coordinates[firstVariableIndex] = firstDimensionProgress;
 
 
@@ -104,18 +104,26 @@ namespace DataView
 
                     if (microData.PointWithinBounds(microDataPoint))
                     {
-                        currentNormalizedValue = (float)microData.GetNormalizedValue(microDataPoint);
+                        //currentNormalizedValue = (float)microData.GetNormalizedValue(microDataPoint);
+                        currentNormalizedValue = NormalizeValue(microData.GetValue(microDataPoint));
                         cutData[i][j] = new Color(0, currentNormalizedValue, 0);
                     }
                     else
                     {
-                        currentNormalizedValue = (float)data.GetNormalizedValue(coordinates[0], coordinates[1], coordinates[2]);
+                        /* If micro point isnt within bounds, macro point is used */
+                        currentNormalizedValue = (float)referenceData.GetNormalizedValue(coordinates[0], coordinates[1], coordinates[2]);
                         cutData[i][j] = new Color(currentNormalizedValue, currentNormalizedValue, currentNormalizedValue);
                     }
                 }
             }
 
             return cutData;
+        }
+
+        private float NormalizeValue(double value)
+        {
+            float normalizedValue = (float)((value - this.referenceData.MinValue) / (this.referenceData.MaxValue - this.referenceData.MinValue));
+            return Math.Max(Math.Min(normalizedValue, 1), 0);
         }
     }
 }

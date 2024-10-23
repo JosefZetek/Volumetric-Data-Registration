@@ -10,7 +10,7 @@ public class PointDistanceMock : AMockObject
 	private const int DIMENSIONS = 3;
 
     private int[] measures;
-    private int[] spacings;
+    private double[] spacings;
 
     public override int[] Measures { get => measures; }
 
@@ -31,12 +31,8 @@ public class PointDistanceMock : AMockObject
     /// <param name="c"></param>
     /// <param name="Measures"></param>
     /// <param name="Spacings"></param>
-    public PointDistanceMock(int[] Measures, int[] Spacings)
+    public PointDistanceMock(int[] Measures, double[] Spacings)
 	{
-
-        ParameterIntegrityCheck(Measures, "Measures");
-        ParameterIntegrityCheck(Spacings, "Spacings");
-
         this.measures = Measures;
         this.spacings = Spacings;
 
@@ -134,15 +130,6 @@ public class PointDistanceMock : AMockObject
         }
 
         return minValue;
-    }
-
-    private void ParameterIntegrityCheck(int[] parameter, string parameterName)
-    {
-        if (parameter.Length != DIMENSIONS)
-            throw new ArgumentException(parameterName + " should have length = " + DIMENSIONS);
-
-        if (!CheckArrayPositiveValues(parameter))
-            throw new ArgumentException(parameterName + " array should contain values higher than 0");
     }
 
     /// <summary>

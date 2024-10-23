@@ -3,17 +3,17 @@ using DataView;
 
 public class MockDataSegment : AMockObject
 {
-    private const int OUT_OF_BOUNDS = 10000;
+    private const int OUT_OF_BOUNDS = 5000;
 
-    private AMockObject mockObject;
+    private AMockObject referenceObject;
     private Transform3D transformation;
 
     private int[] measures;
-    private int[] spacings;
+    private double[] spacings;
 
-	public MockDataSegment(AMockObject mockObject, int[] measures, int[] spacings)
+	public MockDataSegment(AMockObject referenceObject, int[] measures, double[] spacings)
 	{
-        this.mockObject = mockObject;
+        this.referenceObject = referenceObject;
         this.measures = measures;
         this.spacings = spacings;
 	}
@@ -31,9 +31,10 @@ public class MockDataSegment : AMockObject
     public override double GetValue(Point3D p)
     {
         Point3D currentPoint = p.ApplyRotationTranslation(transformation);
+        //Debug.Log("Bod micro: " + p + " odpovida na macro: " + currentPoint);
 
-        if (mockObject.PointWithinBounds(currentPoint))
-            return mockObject.GetValue(currentPoint);
+        if (referenceObject.PointWithinBounds(currentPoint))
+            return referenceObject.GetValue(currentPoint);
 
         return OUT_OF_BOUNDS;
     }

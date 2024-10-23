@@ -73,12 +73,14 @@ public class FileSaver
 
         double currentValue;
 
-        double currentX = 0, currentY = 0, currentZ = 0;
+        double currentX, currentY, currentZ = 0;
 
         for(int numberZ = 0; numberZ < d.Measures[2]; numberZ++, currentZ += d.ZSpacing)
         {
+            currentY = 0;
             for (int numberY = 0; numberY < d.Measures[1]; numberY++, currentY += d.YSpacing)
             {
+                currentX = 0;
                 for (int numberX = 0; numberX < d.Measures[0]; numberX++, currentX += d.XSpacing)
                 {
                     //USHORT is used, thus 2^16-1 is used for max value
