@@ -6,9 +6,10 @@
         <ui:VisualElement style="flex-grow: 1; height: 90%; align-items: center; justify-content: center;">
             <ui:VisualElement style="flex-grow: 1; width: 50%; height: auto; align-self: center; justify-content: center;">
                 <ui:Button text="Run Registration" parse-escape-sequences="true" display-tooltip-when-elided="true" name="runRegistration" />
-                <ui:Button text="Create Object" parse-escape-sequences="true" display-tooltip-when-elided="true" name="createObject" />
                 <ui:Button text="Object Viewer" parse-escape-sequences="true" display-tooltip-when-elided="true" name="objectViewer" />
                 <ui:Button text="Slicer" parse-escape-sequences="true" display-tooltip-when-elided="true" name="slicer" />
+                <ui:Button text="Generate Test Data" parse-escape-sequences="true" display-tooltip-when-elided="true" name="testDataGenerator" />
+                <ui:Button text="Create Object" parse-escape-sequences="true" display-tooltip-when-elided="true" name="createObject" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

@@ -89,7 +89,7 @@ public class CutViewerHandler : MonoBehaviour
 
     private void LoadObject()
     {
-        FilePathDescriptor filePathDescriptor = FileDialog.GetFilePath();
+        FilePathDescriptor filePathDescriptor = DataFileDialog.GetFilePath();
         if (filePathDescriptor == null)
             return;
 

@@ -120,7 +120,7 @@ public class Loader : MonoBehaviour
 
         rootVisualElement.Q<Button>("loadObjectButton").clicked += () =>
         {
-            FilePathDescriptor filePathDescriptor = FileDialog.GetFilePath();
+            FilePathDescriptor filePathDescriptor = DataFileDialog.GetFilePath();
             if (filePathDescriptor == null)
                 return;
             LoadData(filePathDescriptor);

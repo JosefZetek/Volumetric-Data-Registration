@@ -33,7 +33,7 @@ public class RegistrationViewHandler : MonoBehaviour
 
         microDataLoadButton.clicked += () =>
         {
-            FilePathDescriptor file = FileDialog.GetFilePath();
+            FilePathDescriptor file = DataFileDialog.GetFilePath();
             if (file == null)
                 return;
 
@@ -45,7 +45,7 @@ public class RegistrationViewHandler : MonoBehaviour
 
         macroDataLoadButton.clicked += () =>
         {
-            FilePathDescriptor file = FileDialog.GetFilePath();
+            FilePathDescriptor file = DataFileDialog.GetFilePath();
             if (file == null)
                 return;
 

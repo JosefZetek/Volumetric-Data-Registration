@@ -13,7 +13,13 @@ public class FileSaver
     private string fileName;
     private AMockObject d;
 
-
+    /// <summary>
+    /// Class saves artificial data to a given directory
+    /// </summary>
+    /// <param name="directory">Directory where data are going to be saved</param>
+    /// <param name="fileName">Name of a file (without extension)</param>
+    /// <param name="d">Data to be saved</param>
+    /// <exception cref="ArgumentException"></exception>
     public FileSaver(string directory, string fileName, AMockObject d)
     {
         this.fileName = fileName;
