@@ -40,7 +40,7 @@ namespace DataView
 
 		private Transform3D TransformationsDensityFilter(double threshold, double spreadParameter)
 		{
-			if (threshold > 1)
+			if (threshold > 2)
 				throw new Exception("There is no pair of close transformations.");
 
             double radius = Math.Log(threshold);
@@ -54,7 +54,7 @@ namespace DataView
 				List<Transform3D> result = FindPointsWithinRadius(transformations[i], radius);
 				double currentDensity = 0;
 
-				double exponent = 0;
+				double exponent;
                 //Density is calculated like SUM of e^(-(spreadParameter * distance)^2) for all close transformations
                 foreach (Transform3D currentTransformation in result)
 				{

@@ -66,7 +66,6 @@ public class DataGenerationHandler : MonoBehaviour
         string directory = DataFileDialog.GetDirectory();
         if (directory == null)
             return string.Empty;
-        directory += "/";
 
         if (!EditorUtility.DisplayDialog("File Replacement Warning",
             string.Format("Files having name in format\n<fileMacro/fileMicro>_<number>.<mhd/raw/txt>\nwhere <number> = 1 - {0}\nwill get replaced.", 1 + (pairsNumber - 1)),

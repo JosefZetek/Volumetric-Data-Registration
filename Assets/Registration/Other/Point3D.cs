@@ -163,5 +163,15 @@ namespace DataView
         {
             return new Point3D(a.Coordinates - b.Coordinates);
         }
+
+        public static Point3D operator *(double a, Point3D b)
+        {
+            return new Point3D(b.coordinates * a);
+        }
+
+        public static Point3D operator /(double a, Point3D b)
+        {
+            return new Point3D(b.coordinates / a);
+        }
     }
 }

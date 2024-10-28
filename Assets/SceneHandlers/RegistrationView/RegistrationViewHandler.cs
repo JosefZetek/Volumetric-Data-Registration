@@ -70,12 +70,10 @@ public class RegistrationViewHandler : MonoBehaviour
         buttonCutPreview.text = "Slicer preview";
         buttonCutPreview.style.height = new Length(50, LengthUnit.Percent);
         buttonCutPreview.style.width = new Length(20, LengthUnit.Percent);
+
         buttonCutPreview.clicked += () =>
         {
-            CutViewerHandler.microData = microData;
-            CutViewerHandler.macroData = macroData;
-            CutViewerHandler.transformation = transformation;
-
+            CutViewerHandler.SetDataSlicer(microData, macroData, transformation);
             SceneManager.LoadScene("CutViewer");
         };
 
@@ -98,7 +96,5 @@ public class RegistrationViewHandler : MonoBehaviour
         Debug.Log("Transformation: " + finalTransformation);
 
         ShowRegistrationFinishedView(microData, macroData, finalTransformation);
-
-        //ShowRegistrationFinishedView();
     }
 }

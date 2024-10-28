@@ -9,17 +9,28 @@ public class CutViewerHandler : MonoBehaviour
     private DropdownField dropdown;
     private VisualElement cutPreview;
 
-    private DataSlicer dataSlicer;
-
-    public static Transform3D transformation;
-    public static AData microData;
-    public static AData macroData;
-
-    //private CustomData customData;
-
+    private static IDataSlicer dataSlicer;
     private Image image;
 
+    /// <summary>
+    /// Sets slicer for data that aligns microData onto macroData
+    /// </summary>
+    /// <param name="microData">Micro data</param>
+    /// <param name="macroData">Macro data</param>
+    /// <param name="transformation">Expected transformation that aligns microData onto macroData by applying Rx+t</param>
+    public static void SetDataSlicer(AData microData, AData macroData, Transform3D transformation)
+    {
+        dataSlicer = new TransformedDataSlicer(macroData, microData, transformation);
+    }
 
+    /// <summary>
+    /// Sets slicer for data to display passed data
+    /// </summary>
+    /// <param name="data">Data to be displayed</param>
+    public static void SetDataSlicer(AData data)
+    {
+        dataSlicer = new DataSlicer(data);
+    }
 
     /// <summary>
     /// Creates a texture where 1 value in passed array is 1 pixel
@@ -47,16 +58,9 @@ public class CutViewerHandler : MonoBehaviour
         return texture;
     }
 
-    public Color[][] GetCutData(double sliderValue, int axis, CutResolution resolution)
-    {
-        return dataSlicer.Cut(sliderValue, axis, resolution);
-    }
-
-    public Color[][] GetTransformedCut(double sliderValue, int axis, CutResolution resolution)
-    {
-        return dataSlicer.TransformationCut(sliderValue, axis, microData, transformation, resolution);
-    }
-
+    /// <summary>
+    /// Method sets event handlers for UI components
+    /// </summary>
     void OnEnable()
     {
         var uiDocument = GetComponent<UIDocument>();
@@ -81,10 +85,6 @@ public class CutViewerHandler : MonoBehaviour
 
         rootVisualElement.Q<Button>("backButton").clicked += () => SceneManager.LoadScene("MainView");
         rootVisualElement.Q<Button>("loadButton").clicked += () => LoadObject();
-
-        if (macroData != null)
-            this.dataSlicer = new DataSlicer(macroData);
-
     }
 
     private void LoadObject()
@@ -96,7 +96,7 @@ public class CutViewerHandler : MonoBehaviour
         ResetValues();
 
         AData volumetricData = new VolumetricData(filePathDescriptor);
-        this.dataSlicer = new DataSlicer(volumetricData);
+        dataSlicer = new DataSlicer(volumetricData);
 
         UpdateImage();
     }
@@ -109,20 +109,13 @@ public class CutViewerHandler : MonoBehaviour
         Color[][] values;
         CutResolution resolution = new CutResolution(500, 500);
 
-
-        if (microData != null)
-            values = GetTransformedCut(slider.value, dropdown.index, resolution);
-        else
-            values = GetCutData(slider.value, dropdown.index, resolution);
-
+        values = dataSlicer.Cut(slider.value, dropdown.index, resolution);
         image.image = GetTexture(values);
     }
 
     private void ResetValues()
     {
-        microData = null;
-        macroData = null;
-        transformation = null;
+        dataSlicer = null;
     }
 
     private void OnDestroy()

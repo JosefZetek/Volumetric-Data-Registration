@@ -43,10 +43,7 @@ namespace DataView
         /// </summary>
         private void InitializeTransformation()
         {
-            this.transformation = new Transform3D(
-                Matrix<double>.Build.DenseIdentity(3),
-                Vector<double>.Build.Dense(3)
-            );
+            this.transformation = new Transform3D();
         }
 
         /// <summary>

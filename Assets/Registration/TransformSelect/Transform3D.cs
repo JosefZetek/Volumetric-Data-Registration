@@ -25,6 +25,15 @@ namespace DataView
             TranslationVector = translationVector;
         }
 
+        /// <summary>
+        /// Creates neutral transformation - identity rotation matrix, zero translation vector
+        /// </summary>
+        public Transform3D()
+        {
+            RotationMatrix = Matrix<double>.Build.DenseIdentity(3);
+            TranslationVector = Vector<double>.Build.Dense(3);
+        }
+
         public Matrix<double> RotationMatrix { get => rotationMatrix; set => rotationMatrix = value; }
         public Vector<double> TranslationVector { get => translationVector; set => translationVector = value; }
 

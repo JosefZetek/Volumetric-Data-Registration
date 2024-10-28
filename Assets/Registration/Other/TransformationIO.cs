@@ -41,51 +41,174 @@ public class TransformationIO
 
     public static Transform3D FetchTransformation(string path)
     {
+        StreamReader streamReader = new StreamReader(path);
+        Matrix<double> matrix;
+        Vector<double> vector;
 
-        return new Transform3D(Matrix<double>.Build.DenseIdentity(3), Vector<double>.Build.Dense(3));
+        TransformationFetcher tf = new TransformationFetcher(streamReader);
+
+        matrix = tf.FetchMatrix();
+        vector = tf.FetchVector();
+
+        if (matrix == null || vector == null)
+            return null;
+
+        return new Transform3D(matrix, vector);
     }
 
-    class StreamAutomaton
+    class TransformationFetcher
     {
-        private Regex regex;
-        private string remainingBuffer;
+        private const int MATRIX_DIMENSION = 2;
+        private const int VECTOR_DIMENSION = 1;
 
-        public StreamAutomaton(string pattern)
+        private StreamReader reader;
+
+        public TransformationFetcher(StreamReader reader)
         {
-            // Initialize the regex with a given pattern
-            regex = new Regex(pattern, RegexOptions.Compiled);
-            remainingBuffer = string.Empty;
+            this.reader = reader;
         }
 
-        public void ProcessChunk(string chunk)
+        public Matrix<double> FetchMatrix()
         {
-            // Combine remaining part from the last chunk with the new chunk
-            string combined = remainingBuffer + chunk;
+            Matrix<double> fetchedMatrix = FetchMatrixDimensions();
+            if (fetchedMatrix == null)
+                return null;
 
-            // Find all matches in the current combined text
-            MatchCollection matches = regex.Matches(combined);
+            if(!FetchMatrixValues(fetchedMatrix))
+                return null;
 
-            foreach (System.Text.RegularExpressions.Match match in matches)
+            return fetchedMatrix;
+        }
+
+        public Vector<double> FetchVector()
+        {
+            Vector<double> fetchedVector = FetchVectorDimensions();
+            if (fetchedVector == null)
+                return null;
+
+            if (!FetchVectorValues(fetchedVector))
+                return null;
+
+            return fetchedVector;
+        }
+
+        private bool FetchMatrixValues(Matrix<double> fetchedMatrix)
+        {
+            Regex regexPattern = new Regex("(-?\\d+([,\\.]\\d+)?)");
+            string line;
+            int numbersParsed = 0;
+
+
+            MatchCollection matches;
+
+            while (!reader.EndOfStream)
             {
-                Console.WriteLine($"Match found: {match.Value}");
+                line = reader.ReadLine();
+                matches = regexPattern.Matches(line);
+
+                foreach (System.Text.RegularExpressions.Match match in matches)
+                {
+
+                    if (!double.TryParse(match.Value.Replace(",", "."), out double parsedNumber))
+                        continue;
+
+                    fetchedMatrix[numbersParsed / fetchedMatrix.RowCount, numbersParsed % fetchedMatrix.ColumnCount] = parsedNumber;
+                    numbersParsed++;
+
+                    if (numbersParsed >= (fetchedMatrix.RowCount * fetchedMatrix.ColumnCount))
+                        return true;
+                }
             }
 
-            // Save any remaining unmatched text that might be a partial match at the end
-            remainingBuffer = GetRemainingBuffer(combined);
+            return false;
         }
 
-        private string GetRemainingBuffer(string text)
+        private Matrix<double> FetchMatrixDimensions()
         {
-            // Get the text that wasn't matched (could be part of the next chunk)
-            System.Text.RegularExpressions.Match lastMatch = regex.Match(text, text.Length - 1);
-            if (lastMatch.Success && lastMatch.Index + lastMatch.Length == text.Length)
+            Regex regexPattern = new Regex("R\\s+(\\d+)x(\\d+)");
+            while (!reader.EndOfStream)
             {
-                return lastMatch.Value;
+                string line = reader.ReadLine();
+                System.Text.RegularExpressions.Match match = regexPattern.Match(line);
+
+                if (!match.Success)
+                    continue;
+
+                if (match.Groups.Count != (MATRIX_DIMENSION+1))
+                    continue;
+
+                int rowCount;
+                int columnCount;
+
+                if (!int.TryParse(match.Groups[1].Value, out columnCount))
+                    continue;
+
+                if (!int.TryParse(match.Groups[2].Value, out rowCount))
+                    continue;
+
+                return Matrix<double>.Build.Dense(rowCount, columnCount);
             }
 
-            // If no partial match at the end, clear the remaining buffer
-            return string.Empty;
+            return null;
         }
+
+        private Vector<double> FetchVectorDimensions()
+        {
+            Regex regexPattern = new Regex("t\\s+(\\d+)");
+            while (!reader.EndOfStream)
+            {
+                string line = reader.ReadLine();
+                System.Text.RegularExpressions.Match match = regexPattern.Match(line);
+
+                if (!match.Success)
+                    continue;
+
+                if (match.Groups.Count != (VECTOR_DIMENSION + 1))
+                    continue;
+
+                int vectorCount;
+
+                if (!int.TryParse(match.Groups[1].Value, out vectorCount))
+                    continue;
+
+                return Vector<double>.Build.Dense(vectorCount);
+            }
+
+            return null;
+        }
+
+        private bool FetchVectorValues(Vector<double> fetchedVector)
+        {
+            Regex regexPattern = new Regex("(-?\\d+([,\\.]\\d+)?)");
+            string line;
+            int numbersParsed = 0;
+
+
+            MatchCollection matches;
+
+            while (!reader.EndOfStream)
+            {
+                line = reader.ReadLine();
+                matches = regexPattern.Matches(line);
+
+                foreach (System.Text.RegularExpressions.Match match in matches)
+                {
+
+                    if (!double.TryParse(match.Value.Replace(",", "."), out double parsedNumber))
+                        continue;
+
+                    fetchedVector[numbersParsed] = parsedNumber;
+                    numbersParsed++;
+
+                    if (numbersParsed >= fetchedVector.Count)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        
     }
 }
 

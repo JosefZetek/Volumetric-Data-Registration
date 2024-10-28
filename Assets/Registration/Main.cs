@@ -28,8 +28,8 @@ namespace DataView
 
             //----------------------------------------PARAMETERS----------------------------------------------
 
-            const int NUMBER_OF_POINTS_MICRO = 1_000;
-            const int NUMBER_OF_POINTS_MACRO = 1_000;
+            const int NUMBER_OF_POINTS_MICRO = 10_000;
+            const int NUMBER_OF_POINTS_MACRO = 10_000;
 
             const double THRESHOLD = 10; //percentage - top 10% best matches should be kept
 
@@ -49,9 +49,9 @@ namespace DataView
 
             //----------------------------------------FEATURE VECTOR CALCULATION------------------------------------------------
 
-            Console.WriteLine("Computing micro feature vectors.");
+            Debug.Log("Computing micro feature vectors.");
             List<FeatureVector> featureVectorsMicro = CalculateFeatureVectors(s, fc, iDataMicro, NUMBER_OF_POINTS_MICRO);
-            Console.WriteLine("Computing macro feature vectors.");
+            Debug.Log("Computing macro feature vectors.");
             List<FeatureVector> featureVectorsMacro = CalculateFeatureVectors(s, fc, this.macroData, NUMBER_OF_POINTS_MACRO);
 
             //----------------------------------------SETUP TRANSFORMATION METRICS------------------------------------------------
@@ -60,12 +60,12 @@ namespace DataView
             Transform3D.SetTransformationDistance(transformationDistance);
 
             //----------------------------------------MATCHES-------------------------------------------------
-            Console.WriteLine("Matching.");
+            Debug.Log("Matching.");
             Match[] matches = matcher.Match(featureVectorsMicro.ToArray(), featureVectorsMacro.ToArray(), THRESHOLD);
 
             //------------------------------------GET TRANSFORMATION -----------------------------------------
 
-            Console.WriteLine("Computing transformations.\n");
+            Debug.Log("Computing transformations.\n");
 
             List<Transform3D> transformations = new List<Transform3D>();
 
@@ -76,6 +76,7 @@ namespace DataView
                 {
                     Transform3D transformation = transformer.GetTransformation(matches[i], iDataMicro, this.macroData);
                     transformations.Add(transformation);
+                    Debug.Log("Candidate for transformation: " + transformation);
                 }
                 catch { continue; }
             }
@@ -94,13 +95,13 @@ namespace DataView
 
         private static List<FeatureVector> CalculateFeatureVectors(ISampler sampler, IFeatureComputer featureComputer, AData data, int NUMBER_OF_POINTS)
         {
-            Console.WriteLine("Sampling.");
+            Debug.Log("Sampling.");
             Point3D[] pointsMicro = sampler.Sample(data, NUMBER_OF_POINTS);
 
 
             List<FeatureVector> featureVectors = new List<FeatureVector>();
 
-            Console.WriteLine("Computing micro feature vectors.");
+            Debug.Log("Computing micro feature vectors.");
             for (int i = 0; i < pointsMicro.Length; i++)
             {
                 try { featureVectors.Add(featureComputer.ComputeFeatureVector(data, pointsMicro[i])); }

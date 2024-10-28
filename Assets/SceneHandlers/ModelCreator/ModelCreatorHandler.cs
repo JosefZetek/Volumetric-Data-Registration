@@ -4,10 +4,10 @@ using MathNet.Numerics.LinearAlgebra;
 using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
 using System;
+using UnityEngine.Profiling;
 
 public class ModelCreatorHandler : MonoBehaviour
 {
-    private System.Random random = new System.Random();
     private VisualElement rootVisualElement;
     private DropdownField dropdown;
 
@@ -32,12 +32,7 @@ public class ModelCreatorHandler : MonoBehaviour
         VolumetricData microData = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/mockMicro.mhd", "/Users/pepazetek/Desktop/mockMicro.raw"));
         VolumetricData macroData = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/mockMacro.mhd", "/Users/pepazetek/Desktop/mockMacro.raw"));
 
-        Debug.Log("Transformation: " + transformation);
-
-        CutViewerHandler.microData = microData;
-        CutViewerHandler.macroData = macroData;
-        CutViewerHandler.transformation = transformation;
-
+        CutViewerHandler.SetDataSlicer(microData, macroData, transformation);
         SceneManager.LoadScene("CutViewer");
     }
 
@@ -69,7 +64,11 @@ public class ModelCreatorHandler : MonoBehaviour
         AMockObject microObject = null;
         try
         {
-            macroObject = InitMacro();
+            //macroObject = InitMacro();
+            Profiler.BeginSample("Load data");
+            //macroObject = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Documents/CT/Zkouska/P01_c_DICOM-8bit-lowres_130926_liver-29-8-12-C_1x.mhd", "/Users/pepazetek/Documents/CT/Zkouska/P01_c_DICOM-8bit-lowres_130926_liver-29-8-12-C_1x.raw"));
+            macroObject = new EllipsoidMockData(180, 150, 120, new int[] { 200, 200, 200 }, new double[] { 1, 1, 1 });
+            Profiler.EndSample();
         }
         catch
         {
@@ -89,12 +88,17 @@ public class ModelCreatorHandler : MonoBehaviour
         
         //SmallMockObject smallMockObject = new SmallMockObject();
 
-
+        Profiler.BeginSample("Saving data");
+        
         FileSaver fileSaver = new FileSaver("/Users/pepazetek/Desktop/", "mockMacro", macroObject);
         fileSaver.MakeFiles();
 
         fileSaver = new FileSaver("/Users/pepazetek/Desktop/", "mockMicro", microObject);
         fileSaver.MakeFiles();
+
+        Profiler.EndSample();
+
+        TransformationIO.ExportTransformation("/users/pepazetek/Desktop/mockTransformation.txt", transformation);
 
         Debug.Log("Saved");
 
@@ -110,6 +114,11 @@ public class ModelCreatorHandler : MonoBehaviour
 
         try
         {
+            int sizeX = macroData.Measures[0], sizeY = macroData.Measures[1], sizeZ = macroData.Measures[2];
+            double spacingX = macroData.XSpacing, spacingY = macroData.YSpacing, spacingZ = macroData.ZSpacing;
+            
+
+            /*
             int sizeX = int.Parse(rootVisualElement.Q<TextField>("microSizeX").text);
             int sizeY = int.Parse(rootVisualElement.Q<TextField>("microSizeY").text);
             int sizeZ = int.Parse(rootVisualElement.Q<TextField>("microSizeZ").text);
@@ -117,6 +126,7 @@ public class ModelCreatorHandler : MonoBehaviour
             double spacingX = double.Parse(rootVisualElement.Q<TextField>("microSpacingX").text);
             double spacingY = double.Parse(rootVisualElement.Q<TextField>("microSpacingY").text);
             double spacingZ = double.Parse(rootVisualElement.Q<TextField>("microSpacingZ").text);
+            */
 
             double translationX = double.Parse(rootVisualElement.Q<TextField>("microTranslationX").text);
             double translationY = double.Parse(rootVisualElement.Q<TextField>("microTranslationY").text);
@@ -129,7 +139,7 @@ public class ModelCreatorHandler : MonoBehaviour
             translationVector = Vector<double>.Build.DenseOfArray(new double[] { translationX, translationY, translationZ });
             rotationMatrix = GenerateRotationMatrix(rotationX, rotationY, rotationZ);
 
-            Measures = new int[] { sizeX, sizeY, sizeZ };
+            Measures = new int[] { sizeX/2, sizeY/2, sizeZ/2 };
             Spacings = new double[] { spacingX, spacingY, spacingZ };
         }
         catch

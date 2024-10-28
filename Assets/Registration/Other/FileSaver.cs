@@ -76,26 +76,76 @@ public class FileSaver
 
     private void MakeBinaryFile()
     {
-
-        double currentValue;
-
+        ushort currentValue;
         double currentX, currentY, currentZ = 0;
+        int numberX = 0, numberY = 0, numberZ = 0;
 
-        for(int numberZ = 0; numberZ < d.Measures[2]; numberZ++, currentZ += d.ZSpacing)
+        const int BYTES_PER_POINT = 2;
+
+
+        //byte[] binaryData = new byte[binaryDataCapacity];
+        byte[] buffer = GetDataBuffer(d.Measures[0], d.Measures[1], d.Measures[2], numberX, numberY, numberZ, BYTES_PER_POINT);
+        int index = 0;
+
+        for (numberZ = 0; numberZ < d.Measures[2]; numberZ++, currentZ += d.ZSpacing)
         {
             currentY = 0;
-            for (int numberY = 0; numberY < d.Measures[1]; numberY++, currentY += d.YSpacing)
+            for (numberY = 0; numberY < d.Measures[1]; numberY++, currentY += d.YSpacing)
             {
                 currentX = 0;
-                for (int numberX = 0; numberX < d.Measures[0]; numberX++, currentX += d.XSpacing)
+                for (numberX = 0; numberX < d.Measures[0]; numberX++, currentX += d.XSpacing)
                 {
                     //USHORT is used, thus 2^16-1 is used for max value
-                    currentValue = Math.Min(d.GetValue(currentX, currentY, currentZ), Math.Pow(2, 16) - 1);
+                    currentValue = (ushort)Math.Min(d.GetValue(currentX, currentY, currentZ), ushort.MaxValue);
+
                     binaryWriter.Write((ushort)currentValue);
+
+                    // Convert ushort to bytes and add to buffer
+                    buffer[index++] = (byte)(currentValue & 0xFF);
+                    buffer[index++] = (byte)((currentValue >> 8) & 0xFF);
+
+                    if (index != buffer.Length)
+                        continue;
+
+                    binaryWriter.Write(buffer);
+                    buffer = GetDataBuffer(d.Measures[0], d.Measures[1], d.Measures[2], numberX, numberY, numberZ, BYTES_PER_POINT);
+                    index = 0;
                 }
             }
         }
 
         binaryWriter.Close();
+    }
+
+    /// <summary>
+    /// Method calculates highest possible buffer size for data to be saved
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="z"></param>
+    /// <param name="remainingFirst"></param>
+    /// <param name="remainingY"></param>
+    /// <param name="BYTES_PER_POINT"></param>
+    /// <returns>Returns buffer for data to save</returns>
+    private byte[] GetDataBuffer(int dimensionX, int dimensionY, int dimensionZ, int currentX, int currentY, int currentZ, int BYTES_PER_POINT)
+    {
+        int binaryDataCapacity;
+        int remainingSpace;
+        int remainingArea;
+        try
+        {
+            remainingSpace = checked((dimensionZ - 1 - currentZ) * dimensionX * dimensionY); /* Points in the space reduced by Z */
+            remainingArea = checked(dimensionX - 1 - currentX); /* Points remaining in current line */
+            remainingArea += checked((dimensionY - 1 - currentY) * dimensionX); /* Point remaining in other lines */
+
+            binaryDataCapacity = checked(BYTES_PER_POINT * (remainingSpace + remainingArea));
+        }
+        catch (OverflowException)
+        {
+            /* Round to nearest smallest multiple of bytes per point */
+            binaryDataCapacity = int.MaxValue - int.MaxValue % BYTES_PER_POINT;
+        }
+
+        return new byte[binaryDataCapacity];
     }
 }

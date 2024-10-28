@@ -23,4 +23,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/DataGeneration.unity
     guid: 4a24555fea80b452f88c5164914278d5
+  - enabled: 1
+    path: Assets/Scenes/TestResultVisualizer.unity
+    guid: bd545046008d84c9fa5bbd5b5323d552
   m_configObjects: {}

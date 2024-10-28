@@ -12,15 +12,41 @@ class DataFileDialog
 
     public static FilePathDescriptor GetFilePath()
     {
-        string metadataPath = EditorUtility.OpenFilePanel("Select metadata file descriptor for input object.", string.Empty, "mhd");
-        if (metadataPath.Length == 0 && !ShowDialogBox("Meatadata file descriptor was not selected.", "Would you like to continue"))
+        return GetFilePath(string.Empty);
+    }
+
+    public static FilePathDescriptor GetFilePath(string description)
+    {
+        string metadataPath = EditorUtility.OpenFilePanel("Select " + description + " metadata file descriptor for input object.", string.Empty, "mhd");
+        if (metadataPath.Length == 0 && !ShowDialogBox("Metadata file descriptor was not selected.", "Would you like to continue"))
             return null;
 
-        string dataPath = EditorUtility.OpenFilePanel("Select data file with input object.", metadataPath, "raw");
+        string dataPath = EditorUtility.OpenFilePanel("Select " + description + " data file with input object.", metadataPath, "raw");
         if (dataPath.Length == 0 && !ShowDialogBox("Data file with input object was not selected.", "Would you like to continue"))
             return null;
 
         return new FilePathDescriptor(metadataPath, dataPath);
+    }
+
+    public static string GetFile(string extension)
+    {
+        string filePath = string.Empty;
+        bool loadingFile = true;
+        while (loadingFile)
+        {
+        filePath = EditorUtility.OpenFilePanel("Select transformation file", string.Empty, "txt");
+        if (filePath.Length != 0)
+            {
+                loadingFile = false;
+                continue;
+            }
+
+            if (!ShowDialogBox("Meatadata file descriptor was not selected.", "Would you like to continue"))
+                return null;
+        }
+            
+
+        return filePath;
     }
 
     public static string GetDirectory()
@@ -29,6 +55,6 @@ class DataFileDialog
         if (directoryPath.Length == 0 && !EditorUtility.DisplayDialog("Directory was not selected.", "Please, choose operation", "Select different folder", "Cancel"))
             return null;
 
-        return directoryPath;
+        return directoryPath + "/";
     }
 }
