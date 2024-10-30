@@ -112,7 +112,7 @@ public class TransformationIO
                     if (!double.TryParse(match.Value.Replace(",", "."), out double parsedNumber))
                         continue;
 
-                    fetchedMatrix[numbersParsed / fetchedMatrix.RowCount, numbersParsed % fetchedMatrix.ColumnCount] = parsedNumber;
+                    fetchedMatrix[numbersParsed % fetchedMatrix.ColumnCount, numbersParsed / fetchedMatrix.RowCount] = parsedNumber;
                     numbersParsed++;
 
                     if (numbersParsed >= (fetchedMatrix.RowCount * fetchedMatrix.ColumnCount))

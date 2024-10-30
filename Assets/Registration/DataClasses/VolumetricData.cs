@@ -25,7 +25,7 @@ namespace DataView
         /// <summary>
         /// This transformation modifies the implementation of GetValue by moving centroid to origin
         /// </summary>
-        private Transform3D transformation;
+        private Transform3D transformation = null;
 
         /// <summary>
         /// Initializes the spacings between points, loads the data using Read method
@@ -35,15 +35,6 @@ namespace DataView
         {
             LoadMetadata(filePathDescriptor);
             ReadData(filePathDescriptor);
-            InitializeTransformation();
-        }
-
-        /// <summary>
-        /// Sets the transformation to have no effect
-        /// </summary>
-        private void InitializeTransformation()
-        {
-            this.transformation = new Transform3D();
         }
 
         /// <summary>
@@ -52,7 +43,7 @@ namespace DataView
         /// <returns>Returns transformation, that modifies this data</returns>
         public Transform3D GetTransformation()
         {
-            return new Transform3D(this.transformation.RotationMatrix, this.transformation.TranslationVector);
+            return (transformation == null) ? new Transform3D() : new Transform3D(this.transformation.RotationMatrix, this.transformation.TranslationVector);
         }
 
         /// <summary>
@@ -215,10 +206,13 @@ namespace DataView
 
         public override double GetValue(Point3D point)
         {
-            point = point.ApplyTranslationRotation(transformation);
+            if(transformation != null)
+                point = point.ApplyTranslationRotation(transformation);
 
+            /*
             if (!PointWithinBounds(point))
                 throw new ArgumentException("This value is not within bounds");
+            */
 
             // coordinates of left down corner of the rectangle in the array in which the pixel is situated
             int xIndexLower = ConstrainIndex((int)(point.X / XSpacing), Data.DimSize[0] - 1);

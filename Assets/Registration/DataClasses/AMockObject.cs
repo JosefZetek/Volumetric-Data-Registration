@@ -46,19 +46,51 @@ public abstract class AMockObject
     /// </summary>
     public double[] Bounds { get => new double[] { MaxValueX, MaxValueY, MaxValueZ }; }
 
+
+    private double? _maxValueX;
+    private double? _maxValueY;
+    private double? _maxValueZ;
+
+
     /// <summary>
     /// Max coordinate (inclusive) in X axis
     /// </summary>
-    public double MaxValueX { get => XSpacing * (Measures[0] - 1); }
+    public double MaxValueX
+    {
+        get
+        {
+            if (_maxValueX == null)
+                _maxValueX = XSpacing * (Measures[0] - 1);
+            return _maxValueX.Value;
+        }
+    }
+
 
     /// <summary>
     /// Max coordinate (inclusive) in Y axis
     /// </summary>
-    public double MaxValueY { get => YSpacing * (Measures[1] - 1); }
+    public double MaxValueY
+    {
+        get
+        {
+            if (_maxValueY == null)
+                _maxValueY = YSpacing * (Measures[1] - 1);
+            return _maxValueY.Value;
+        }
+    }
 
     /// <summary>
     /// Max coordinate (inclusive) in Z axis
     /// </summary>
-    public double MaxValueZ { get => ZSpacing * (Measures[2] - 1); }
+    public double MaxValueZ
+    {
+        get
+        {
+            if (_maxValueZ == null)
+                _maxValueZ = ZSpacing * (Measures[2] - 1);
+            return _maxValueZ.Value;
+        }
+    }
+
 }
 

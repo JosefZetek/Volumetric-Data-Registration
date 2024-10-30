@@ -99,7 +99,7 @@ public class FileSaver
                     currentValue = (ushort)Math.Min(d.GetValue(currentX, currentY, currentZ), ushort.MaxValue);
 
                     binaryWriter.Write((ushort)currentValue);
-
+                    /*
                     // Convert ushort to bytes and add to buffer
                     buffer[index++] = (byte)(currentValue & 0xFF);
                     buffer[index++] = (byte)((currentValue >> 8) & 0xFF);
@@ -110,6 +110,7 @@ public class FileSaver
                     binaryWriter.Write(buffer);
                     buffer = GetDataBuffer(d.Measures[0], d.Measures[1], d.Measures[2], numberX, numberY, numberZ, BYTES_PER_POINT);
                     index = 0;
+                    */
                 }
             }
         }
