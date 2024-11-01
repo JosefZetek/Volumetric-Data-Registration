@@ -49,7 +49,7 @@ namespace DataView
         /// <summary>
         /// This method translates the object to the origin.
         /// </summary>
-        public void CenterObjectAroundOrigin()
+        private void CenterObjectAroundOrigin()
         {
             Vector<double> translationVector = GetCenteringTranslation();
             Matrix<double> rotationMatrix = Matrix<double>.Build.DenseIdentity(3);

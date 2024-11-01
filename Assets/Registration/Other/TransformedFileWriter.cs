@@ -1,7 +1,9 @@
-using System;
+﻿using System;
 using System.IO;
+using DataView;
+using MathNet.Numerics.LinearAlgebra;
 
-public class FileSaver
+public class TransformedFileSaver
 {
 
     private const int DIMENSIONS = 3;
@@ -10,31 +12,46 @@ public class FileSaver
     private StreamWriter streamWriter;
 
     private string fileName;
-    private AMockObject d;
+
+    private AMockObject sourceObject;
+    private Transform3D transformation;
+
+    private int[] Measures;
+    private double[] Spacing;
+
+    private Vector<double> baseXTransformed, baseYTransformed, baseZTransformed;
+
+    private const int OUT_OF_BOUNDS = 5000;
 
     /// <summary>
     /// Class saves artificial data to a given directory
     /// </summary>
     /// <param name="directory">Directory where data are going to be saved</param>
     /// <param name="fileName">Name of a file (without extension)</param>
-    /// <param name="d">Data to be saved</param>
+    /// <param name="sourceObject">Data to be saved</param>
     /// <exception cref="ArgumentException"></exception>
-    public FileSaver(string directory, string fileName, AMockObject d)
+    public TransformedFileSaver(string directory, string fileName, AMockObject sourceObject, Transform3D transformation, int[] Measures, double[] Spacing)
     {
         this.fileName = fileName;
-        this.d = d;
+        this.sourceObject = sourceObject;
+        this.transformation = transformation;
+        this.Measures = Measures;
+        this.Spacing = Spacing;
 
-        if (d == null)
+        if (sourceObject == null)
             throw new ArgumentException("No data were passed");
 
-        if (d.Measures == null)
+        if (sourceObject.Measures == null)
             throw new ArgumentException("Measures are not specified");
 
-        if (d.Measures.Length != DIMENSIONS)
+        if (sourceObject.Measures.Length != DIMENSIONS)
             throw new ArgumentException("Data need to be " + DIMENSIONS + " dimensional");
 
-        if (d.Measures[0] <= 0 || d.Measures[1] <= 0 || d.Measures[2] <= 0)
+        if (sourceObject.Measures[0] <= 0 || sourceObject.Measures[1] <= 0 || sourceObject.Measures[2] <= 0)
             throw new ArgumentException("None of the dimensions can be negative or zero");
+
+        if (transformation == null)
+            this.transformation = new Transform3D();
 
         try
         {
@@ -46,6 +63,8 @@ public class FileSaver
 
     public void MakeFiles()
     {
+        InitializeBases();
+
         try
         {
             MakeBinaryFile();
@@ -65,36 +84,63 @@ public class FileSaver
         streamWriter.WriteLine("Offset = 0 0 0");
         streamWriter.WriteLine("CenterOfRotation = 0 0 0");
         streamWriter.WriteLine("AnatomicalOrientation = RAI");
-        streamWriter.WriteLine("ElementSpacing = {0} {1} {2}", d.XSpacing, d.YSpacing, d.ZSpacing);
-        streamWriter.WriteLine("DimSize = {0} {1} {2}", d.Measures[0], d.Measures[1], d.Measures[2]);
+        streamWriter.WriteLine("ElementSpacing = {0} {1} {2}", Spacing[0], Spacing[1], Spacing[2]);
+        streamWriter.WriteLine("DimSize = {0} {1} {2}", Measures[0], Measures[1], Measures[2]);
         streamWriter.WriteLine("ElementType = MET_USHORT");
         streamWriter.WriteLine("ElementDataFile = " + fileName + ".raw");
 
         streamWriter.Close();
     }
 
+    private void InitializeBases()
+    {
+        this.baseXTransformed = new Point3D(1, 0, 0)
+            .Rotate(transformation.RotationMatrix)
+            .Coordinates;
+        this.baseYTransformed = new Point3D(0, 1, 0)
+            .Rotate(transformation.RotationMatrix)
+            .Coordinates;
+        this.baseZTransformed = new Point3D(0, 0, 1)
+            .Rotate(transformation.RotationMatrix)
+            .Coordinates;
+    }
+
+    private Vector<double> GetCurrentCoordinates(double x, double y, double z)
+    {
+        return x * baseXTransformed + y * baseYTransformed + z * baseZTransformed + transformation.TranslationVector;
+    }
+
     private void MakeBinaryFile()
     {
         ushort currentValue;
-        double currentX, currentY, currentZ = 0;
+
+        Vector<double> currentCoordinates;
+
         int numberX = 0, numberY = 0, numberZ = 0;
 
         const int BYTES_PER_POINT = 2;
 
-        byte[] buffer = GetDataBuffer(d.Measures[0], d.Measures[1], d.Measures[2], numberX, numberY, numberZ, BYTES_PER_POINT);
+        byte[] buffer = GetDataBuffer(Measures[0], Measures[1], Measures[2], numberX, numberY, numberZ, BYTES_PER_POINT);
         int index = 0;
 
-        for (numberZ = 0; numberZ < d.Measures[2]; numberZ++, currentZ += d.ZSpacing)
+        for (numberZ = 0; numberZ < Measures[2]; numberZ++)
         {
-            currentY = 0;
-            for (numberY = 0; numberY < d.Measures[1]; numberY++, currentY += d.YSpacing)
+            for (numberY = 0; numberY < Measures[1]; numberY++)
             {
-                currentX = 0;
-                for (numberX = 0; numberX < d.Measures[0]; numberX++, currentX += d.XSpacing)
+                currentCoordinates = GetCurrentCoordinates(0, numberY * Spacing[1], numberZ * Spacing[2]);
+
+                for (numberX = 0; numberX < Measures[0]; numberX++, currentCoordinates += Spacing[0] * baseXTransformed)
                 {
                     //USHORT is used, thus 2^16-1 is used for max value
-                    currentValue = (ushort)Math.Min(d.GetValue(currentX, currentY, currentZ), ushort.MaxValue);
-                    
+                    if (sourceObject.PointWithinBounds(currentCoordinates[0], currentCoordinates[1], currentCoordinates[2]))
+                        currentValue = (ushort)Math.Min(
+                            sourceObject.GetValue(currentCoordinates[0], currentCoordinates[1], currentCoordinates[2]),
+                            ushort.MaxValue
+                        );
+
+                    else
+                        currentValue = OUT_OF_BOUNDS;
+
                     // Convert ushort to bytes and add to buffer
                     buffer[index++] = (byte)(currentValue & 0xFF);
                     buffer[index++] = (byte)((currentValue >> 8) & 0xFF);
@@ -103,7 +149,7 @@ public class FileSaver
                         continue;
 
                     binaryWriter.Write(buffer);
-                    buffer = GetDataBuffer(d.Measures[0], d.Measures[1], d.Measures[2], numberX, numberY, numberZ, BYTES_PER_POINT);
+                    buffer = GetDataBuffer(Measures[0], Measures[1], Measures[2], numberX, numberY, numberZ, BYTES_PER_POINT);
                     index = 0;
                 }
             }

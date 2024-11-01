@@ -1,47 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DataView
+﻿namespace DataView
 {
     /// <summary>
     /// 
     /// </summary>
     public class Match
     {
-        private FeatureVector f1;
-        private FeatureVector f2;
+        private FeatureVector microFeatureVector;
+        private FeatureVector macroFeatureVector;
         private double similarity;
 
+        /// <summary>
+        /// Invalid match
+        /// </summary>
+        /// <param name="f1"></param>
         public Match(FeatureVector f1)
         {
-            this.F1 = f1;
-            this.F2 = new FeatureVector();
+            this.microFeatureVector = f1;
+            this.macroFeatureVector = new FeatureVector();
             this.Similarity = 0;
         }
 
         /// <summary>
-        /// 
+        /// Creation of valid match
         /// </summary>
-        /// <param name="f1"></param>
-        /// <param name="f2"></param>
-        /// <param name="similarity"></param>
-        public Match(FeatureVector f1, FeatureVector f2, double similarity)
+        /// <param name="microFeatureVector">Micro feature vector</param>
+        /// <param name="macroFeatureVector">Macro feature vector</param>
+        /// <param name="similarity">Similarity of feature vectors</param>
+        public Match(FeatureVector microFeatureVector, FeatureVector macroFeatureVector, double similarity)
         {
-            this.F1 = f1;
-            this.F2 = f2;
+            this.microFeatureVector = microFeatureVector;
+            this.macroFeatureVector = macroFeatureVector;
             this.Similarity = similarity;
         }
 
+        public FeatureVector microFV { get => microFeatureVector; }
+        public FeatureVector macroFV { get => macroFeatureVector; }
         public double Similarity { get => similarity; set => similarity = value; }
-        internal FeatureVector F1 { get => f1; set => f1 = value; }
-        internal FeatureVector F2 { get => f2; set => f2 = value; }
 
         public override string ToString()
         {
-            return "f1: " + F1.ToString() + " f2: " + F2.ToString() + " s: " + Similarity;
+            return "f1: " + microFeatureVector.ToString() + " f2: " + macroFeatureVector.ToString() + " s: " + similarity;
         }
     }
 }

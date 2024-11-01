@@ -9,10 +9,8 @@ namespace DataView
 
         public Transform3D GetTransformation(Match m, AData dataMicro, AData dataMacro)
         {
-            //int count = 1_000;
-
-            Point3D pMicro = m.F1.Point.Copy();
-            Point3D pMacro = m.F2.Point.Copy();
+            Point3D pMicro = m.microFV.Point.Copy();
+            Point3D pMacro = m.macroFV.Point.Copy();
 
             Vector<double> translationVector = Vector<double>.Build.Dense(3);
             Matrix<double> rotationMatrix;

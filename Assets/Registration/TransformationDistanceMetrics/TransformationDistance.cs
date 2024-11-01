@@ -30,7 +30,7 @@ namespace DataView
         /// <summary>
         /// Constructor initializes precomputed values for the given data
         /// </summary>
-        /// <param name="microData">Instance of IData for Micro Data</param>
+        /// <param name="microData">Instance of AData on which the result transformation is going to be applied</param>
         public TransformationDistance(AData microData)
         {
             numberOfVertices = microData.Measures[0] * microData.Measures[1] * microData.Measures[2];

@@ -67,65 +67,27 @@ public class MainViewHandler : MonoBehaviour
 
     private void Start()
     {
-        //AMockObject macroObject = new EllipsoidMockData(180, 150, 120, new int[] { 200, 200, 200 }, new double[] { 1, 1, 1 });
-        VolumetricData macroObject = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/HEAD/P01_HEAD_5_0_H31S_0004.mhd", "/Users/pepazetek/Desktop/Tests/HEAD/P01_HEAD_5_0_H31S_0004.raw"));
-        //VolumetricData microObject = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/HEAD/micro_HEAD.mhd", "/Users/pepazetek/Desktop/Tests/HEAD/micro_HEAD.raw"));
+        VolumetricData macroObject = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/TEST7/macroData.mhd", "/Users/pepazetek/Desktop/Tests/TEST7/macroData.raw"));
+        Transform3D expectedTransformation = new Transform3D(GetRotationMatrix(0, 0, Math.PI / 5.0), GetTranslationVector(2, 0.1, 0));
 
-        Transform3D transformation = new Transform3D(GetRotationMatrix(Math.PI / 8.0, 0, 0), GetTranslationVector(macroObject.MaxValueX / 2, macroObject.MaxValueY / 2, macroObject.MaxValueZ / 2));
-        //Transform3D transformation2 = TransformationIO.FetchTransformation("/Users/pepazetek/Desktop/Tests/HEAD/micro_HEAD_transformation.txt");
+        MockDataSegment mockDataSegment = new MockDataSegment(macroObject, macroObject.Measures, new double[] { macroObject.XSpacing, macroObject.YSpacing, macroObject.ZSpacing });
+        mockDataSegment.TransformObject(expectedTransformation);
 
-        //UnityEngine.Debug.Log(transformation);
-        //UnityEngine.Debug.Log(transformation2);
-         CreatePair(macroObject, transformation);
-        /*
-        int[] measures = new int[]
-        {
-            macroObject.Measures[0] / 2,
-            macroObject.Measures[1] / 2,
-            macroObject.Measures[2] / 2,
-        };
-
-        double[] spacing = new double[]
-        {
-            1,1,1
-        };
-        MockDataSegment microObject = new MockDataSegment(macroObject, measures, spacing);
-        microObject.TransformObject(transformation);
-        */
-
-        /*
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
-
-        FileSaver fileSaver = new FileSaver("/Users/pepazetek/Desktop/", "mockMacro_HEAD", macroObject);
-        fileSaver.MakeFiles();
-        stopwatch.Stop();
-        UnityEngine.Debug.Log("Macro saving: " + stopwatch.ElapsedMilliseconds);
-
-        stopwatch = new Stopwatch();
-        stopwatch.Start();
-
-        fileSaver = new FileSaver("/Users/pepazetek/Desktop/", "mockMicro_HEAD", microObject);
-        fileSaver.MakeFiles();
-        stopwatch.Stop();
-        UnityEngine.Debug.Log("Micro saving: " + stopwatch.ElapsedMilliseconds);
-        */
-
-        // TransformationIO.ExportTransformation("/Users/pepazetek/Desktop/mockMicro_HEAD_transformation", transformation);
-        //Debug.Log(TransformationIO.FetchTransformation("/Users/pepazetek/Desktop/TestData/Micro_1.txt"));
-
-
-        /*
-        CheckTransformation(
-            new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/45ZMacro.mhd", "/Users/pepazetek/Desktop/45ZMacro.raw")),
-            new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/rotated45ZMicro.mhd", "/Users/pepazetek/Desktop/rotated45ZMicro.raw")),
-            transformation
+        TransformedFileSaver transformedFileSaver = new TransformedFileSaver(
+            "/Users/pepazetek/Desktop/Tests/",
+            "microData",
+            macroObject,
+            expectedTransformation,
+            macroObject.Measures,
+            new double[] { macroObject.XSpacing, macroObject.YSpacing, macroObject.ZSpacing }
         );
-        */
 
+        transformedFileSaver.MakeFiles();
+        TransformationIO.ExportTransformation("/Users/pepazetek/Desktop/Tests/TEST7/transformation", expectedTransformation);
 
-        //CutViewerHandler.SetDataSlicer(microObject, macroObject, transformation);
-        //SceneManager.LoadScene("CutViewer");
+        
+        //RegistrationLauncher registrationLauncher = new RegistrationLauncher(expectedTransformation);
+        //Transform3D resultTransformation = registrationLauncher.RunRegistration(microObject, macroObject);
 
     }
 
@@ -142,10 +104,10 @@ public class MainViewHandler : MonoBehaviour
 
         mockDataSegment.TransformObject(transformation);
 
-        FileSaver fileSaver = new FileSaver("/Users/pepazetek/Desktop/Tests/HEAD/", "micro_HEAD", mockDataSegment);
+        FileSaver fileSaver = new FileSaver("/Users/pepazetek/Desktop/Tests/TEST3/", "micro", mockDataSegment);
         fileSaver.MakeFiles();
 
-        TransformationIO.ExportTransformation("/Users/pepazetek/Desktop/Tests/HEAD/micro_HEAD_transformation", transformation);
+        TransformationIO.ExportTransformation("/Users/pepazetek/Desktop/Tests/TEST3/micro_transformation", transformation);
     }
 
     private Vector<double> GetTranslationVector(double x, double y, double z)

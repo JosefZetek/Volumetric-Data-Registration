@@ -48,12 +48,6 @@ namespace DataView
 
             return cutData;
         }
-
-        private float NormalizeValue(double value)
-        {
-            float normalizedValue = (float)((value - this.referenceData.MinValue) / (this.referenceData.MaxValue - this.referenceData.MinValue));
-            return Math.Max(Math.Min(normalizedValue, 1), 0);
-        }
     }
 }
 

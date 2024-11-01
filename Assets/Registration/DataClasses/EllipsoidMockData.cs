@@ -55,7 +55,7 @@ public class EllipsoidMockData : AMockObject
 
     public override double GetValue(double x, double y, double z)
     {
-        double currentValue = Math.Pow(x, 2) / Math.Pow(a, 2) + Math.Pow(y, 2) / Math.Pow(b, 2) + Math.Pow(z, 2) / Math.Pow(c, 2);
+        double currentValue = (x * x) / (a * a) + (y * y) / (b * b) + (z * z) / (c * c);
         if (currentValue <= 1)
             return currentValue * 4000;
 

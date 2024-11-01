@@ -84,14 +84,17 @@ public class RegistrationViewHandler : MonoBehaviour
     {
         registrationStateLabel.text = "STARTED";
         registrationStateLabel.style.fontSize = 100;
-        RegistrationLauncher registrationLauncher = new RegistrationLauncher();
 
         Debug.Log("Loading micro data");
         VolumetricData microData = new VolumetricData(microDataPath);
         Debug.Log("Loading macro data");
         VolumetricData macroData = new VolumetricData(macroDataPath);
 
-        Transform3D tr = registrationLauncher.RunRegistration(microData, macroData);
+        RegistrationLauncher registrationLauncher = new RegistrationLauncher(microData, macroData);
+
+        
+
+        Transform3D tr = registrationLauncher.RunRegistration();
         Transform3D finalTransformation = registrationLauncher.RevertCenteringTransformation(tr);
         Debug.Log("Transformation: " + finalTransformation);
 

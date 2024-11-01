@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using MathNet.Numerics.LinearAlgebra;
 
 namespace DataView
 {
@@ -9,79 +7,71 @@ namespace DataView
     /// </summary>
     public class SamplerFake : ISampler
 	{
+        private AData microData, macroData;
+
         private Random random;
-        private List<Point3D> points;
-        private double percentage;
+        private Point3D[] samePointArray;
 
         private double randomIncrement;
-        private bool isMicro = true;
 
-        Point3D maxBounds;
+        private Transform3D expectedTransformation;
+
+        private bool arrayFilled = false;
+
         /// <summary>
-        /// 
+        /// Constructor for fake sampler, generating given amount of same points
         /// </summary>
-        /// <param name="seed"></param>
-        /// <param name="microData"></param>
-        /// <param name="macroData"></param>
-        /// <param name="percentage">Percentage is a value between 0 and 1</param>
-		public SamplerFake(AData microData, AData macroData, double percentage, double randomIncrement)
+        /// <param name="microData">Instance of micro data</param>
+        /// <param name="macroData">Instance of macro data</param>
+        /// <param name="samePointsCount">Number of same points</param>
+        /// <param name="randomIncrement">Max difference for same points in each of the axis</param>
+        /// <param name="expectedTransformation">Transformation aligning micro data onto macro data</param>
+		public SamplerFake(AData microData, AData macroData, int samePointsCount, double randomIncrement, Transform3D expectedTransformation)
 		{
-            int seed = 100;
-            this.random = new Random(seed);
-            this.points = new List<Point3D>();
-            this.percentage = Math.Min(Math.Max(0, percentage), 1);
-            this.randomIncrement = randomIncrement; 
+            this.microData = microData;
+            this.macroData = macroData;
 
-            double maxX = Math.Min(microData.MaxValueX, macroData.MaxValueX);
-            double maxY = Math.Min(microData.MaxValueY, macroData.MaxValueY);
-            double maxZ = Math.Min(microData.MaxValueZ, macroData.MaxValueZ);
+            this.randomIncrement = randomIncrement;
 
-            //Subtracting 1 since that is the radius for calculating rotation
-            maxBounds = new Point3D(maxX, maxY, maxZ);
+            this.expectedTransformation = expectedTransformation;
+            samePointArray = new Point3D[Math.Max(0, samePointsCount)];
+            InitializeDefaultValues();
 		}
+
+        private void InitializeDefaultValues()
+        {
+            int seed = 100;
+            random = new Random(seed);
+        }
+
+        private void FindSamePoints()
+        {
+            if (arrayFilled)
+                return;
+
+            /* Generating amount of same points */
+            for (int i = 0; i < samePointArray.Length; i++)
+                samePointArray[i] = new Point3D(
+                    microData.MaxValueX * random.NextDouble(),
+                    microData.MaxValueY * random.NextDouble(),
+                    microData.MaxValueZ * random.NextDouble()
+                );
+
+            arrayFilled = true;
+        }
 
         public Point3D[] Sample(AData d, int count)
         {
-            int numberOfSamePoints = (int)(count * percentage);
-            GenerateSamePoints(numberOfSamePoints);
+            FindSamePoints();
 
-            Point3D[] sampledPoints = new Point3D[count];
+            if (d == microData)
+                return GenerateMicroPoints(count);
 
-            Transform3D transformation = new Transform3D(
-                Matrix<double>.Build.DenseIdentity(3),
-                Vector<double>.Build.Dense(3)
-            );
-
-            if(isMicro)
-            {
-                VolumetricData volumetricData = (VolumetricData)d;
-                transformation = volumetricData.GetTransformation().GetInverseTransformation();
-                isMicro = !isMicro;
-            }
-
-            Point3D currentPoint;
-            /* Common points for both micro and macro data are modified with random increments*/
-            for (int i = 0; i < numberOfSamePoints; i++)
-            {
-                currentPoint = new Point3D(points[i].X, points[i].Y, points[i].Z);
-                sampledPoints[i] = currentPoint.ApplyRotationTranslation(transformation);
-
-                Console.WriteLine("sampled point: " + sampledPoints[i]);
+            return GenerateMacroPoints(count);
                 
-                currentPoint.X += random.NextDouble() * randomIncrement;
-                currentPoint.Y += random.NextDouble() * randomIncrement;
-                currentPoint.Z += random.NextDouble() * randomIncrement;
-                
-            }
-
-            for(int i = numberOfSamePoints; i < count; i++)
-            {
-                currentPoint = new Point3D(random.NextDouble() * maxBounds.X, random.NextDouble() * maxBounds.Y, random.NextDouble() * maxBounds.Z);
-                sampledPoints[i] = currentPoint.ApplyTranslationRotation(transformation);
-            }
-
             //ShuffleArray(sampledPoints);
-            return sampledPoints;
+            
+
         }
 
         private void ShuffleArray(Point3D[] point)
@@ -95,12 +85,70 @@ namespace DataView
             }
         }
 
-        private void GenerateSamePoints(int count)
+        private Point3D ShiftPointRandomly(Point3D point)
         {
-            while(points.Count < count)
-            {
-                points.Add(new Point3D(random.NextDouble() * maxBounds.X, random.NextDouble() * maxBounds.Y, random.NextDouble() * maxBounds.Z));
-            }
+            return new Point3D(
+                point.X + random.NextDouble() * randomIncrement,
+                point.Y + random.NextDouble() * randomIncrement,
+                point.Z + random.NextDouble() * randomIncrement
+            );
+        }
+
+        /// <summary>
+        /// Transforms a given micro-level point to a corresponding macro-level point 
+        /// aligned with a specific target transformation.
+        /// </summary>
+        /// <param name="point">The micro-level point to transform for alignment with the macro-level coordinate system.</param>
+        /// <returns>The corresponding macro-level point after applying the expected transformation.</returns>
+        private Point3D ConvertPointToMacro(Point3D point)
+        {
+            return point.ApplyRotationTranslation(expectedTransformation);
+        }
+
+        private Point3D[] GenerateMicroPoints(int count)
+        {
+            Point3D[] resultArray = new Point3D[count];
+
+            int numberOfSamePoints = Math.Min(samePointArray.Length, count);
+
+            /* Same point generation */
+            for (int i = 0; i < numberOfSamePoints; i++)
+                resultArray[i] = ShiftPointRandomly(samePointArray[i]);
+
+            int numberOfComplements = count - numberOfSamePoints;
+
+            /* Rest of the points generation */
+            for (int i = 0; i < numberOfComplements; i++)
+                resultArray[i + numberOfSamePoints] = new Point3D(
+                    microData.MaxValueX * random.NextDouble(),
+                    microData.MaxValueY * random.NextDouble(),
+                    microData.MaxValueZ * random.NextDouble()
+                );
+
+            return resultArray;
+        }
+
+        private Point3D[] GenerateMacroPoints(int count)
+        {
+            Point3D[] resultArray = new Point3D[count];
+
+            int numberOfSamePoints = Math.Min(samePointArray.Length, count);
+
+            /* Same point generation */
+            for (int i = 0; i < numberOfSamePoints; i++)
+                resultArray[i] = ShiftPointRandomly(ConvertPointToMacro(samePointArray[i]));
+
+            int numberOfComplements = count - numberOfSamePoints;
+
+            /* Rest of the points generation */
+            for (int i = 0; i < numberOfComplements; i++)
+                resultArray[i + numberOfSamePoints] = new Point3D(
+                    macroData.MaxValueX * random.NextDouble(),
+                    macroData.MaxValueY * random.NextDouble(),
+                    macroData.MaxValueZ * random.NextDouble()
+                );
+
+            return resultArray;
         }
     }
 }
