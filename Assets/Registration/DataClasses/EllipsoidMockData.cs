@@ -1,10 +1,10 @@
 ﻿using System;
 using UnityEngine;
 using DataView;
+using MathNet.Numerics.LinearAlgebra;
 
 public class EllipsoidMockData : AMockObject
 {
-
 	private const int DIMENSIONS = 3;
 	private int a;
 	private int b;

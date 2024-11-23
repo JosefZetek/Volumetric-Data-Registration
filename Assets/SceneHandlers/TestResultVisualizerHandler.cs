@@ -1,8 +1,9 @@
-using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using DataView;
 using UnityEngine.UIElements;
+using System.Diagnostics;
+using MathNet.Numerics.LinearAlgebra;
 
 /// <summary>
 /// Lets user choose directory where these data are expected:
@@ -11,113 +12,138 @@ using UnityEngine.UIElements;
 /// </summary>
 public class TestResultVisualizerHandler : MonoBehaviour
 {
+    BarChart barChart;
+
     // Start is called before the first frame update
     void RunTests()
     {
-        /*
-        string directory = DataFileDialog.GetDirectory();
+        IRegistrationLauncher registrationLauncher = new FakeRegistrationLauncher();
 
-        if (string.IsNullOrEmpty(directory))
+        int order = 1;
+        string directory = "/Users/pepazetek/Desktop/Tests/";
+        string currentDirectory;
+
+        while(Directory.Exists(directory + "TEST" + order))
         {
-            Debug.Log("Directory not entered");
-            SceneManager.LoadScene("MainView");
-            return;
+            currentDirectory = directory + "TEST" + order + "/";
+
+
+            if (!FilesFound(currentDirectory, "macroData"))
+            {
+                order++;
+                continue;
+            }
+
+            RunTestsWithinDirectory(
+                currentDirectory,
+                new VolumetricData(GetFilePathDescriptor("macroData", currentDirectory)),
+                registrationLauncher
+            );
+
+            order++;
         }
-
-
-        VolumetricData macroData = GetMacroFilePathDescriptor(directory);
-        if(macroData == null)
-        {
-            Debug.Log("Macro files not found.");
-            SceneManager.LoadScene("MainView");
-            return;
-        }
-
-
-        List<TestDataUnit> testFiles = FindTestFiles(directory);
-
-        if (testFiles.Count == 0)
-        {
-            Debug.Log("Files are not located inside the folder");
-            SceneManager.LoadScene("MainView");
-            return;
-        }
-
-        NaiveTransformationDistance naiveTransformationDistance;
-        RegistrationLauncher registrationLauncher = new RegistrationLauncher();
+    }
+    private void RunTestsWithinDirectory(string directory, AData macroData, IRegistrationLauncher registrationLauncher)
+    {
         Transform3D calculatedTransformation;
+        AData microData;
 
-        VolumetricData microData;
+        int order = 1;
+        string currentMicroFile;
+        double currentTransformationDistance;
 
-        for (int i = 0; i < testFiles.Count; i++)
+
+        while (true)
         {
-            microData = new VolumetricData(testFiles[i].GetFilePathDescriptor());
+            currentMicroFile = "microData" + (order++);
 
+            if (!FilesFound(directory, currentMicroFile) || !TransformationFileFound(directory, currentMicroFile))
+                break;
+
+            microData = new VolumetricData(GetFilePathDescriptor(currentMicroFile, directory));
             calculatedTransformation = registrationLauncher.RunRegistration(microData, macroData);
-            calculatedTransformation = registrationLauncher.RevertCenteringTransformation(calculatedTransformation);
 
+            UnityEngine.Debug.Log("Registration done for image: " + currentMicroFile);
 
-            naiveTransformationDistance = new NaiveTransformationDistance(microData);
-            Debug.Log("Distance T1: " + naiveTransformationDistance.GetSqrtTransformationDistance(calculatedTransformation, testFiles[i].GetTransformation()));
+            currentTransformationDistance = GetTransformationDistanceNaive(
+                microData,
+                calculatedTransformation,
+                TransformationIO.FetchTransformation(Path.Combine(directory, currentMicroFile + ".txt"))
+            );
+
+            this.barChart.AddColumn(currentTransformationDistance);
         }
-        */
+    }
+
+    private double GetTransformationDistanceNaive(AData microData, Transform3D calculatedTransformation, Transform3D expectedTransformation)
+    {
+        NaiveTransformationDistance naiveTransformationDistance = new NaiveTransformationDistance(microData);
+        return naiveTransformationDistance.GetTransformationsDistance(calculatedTransformation, expectedTransformation);
+    }
+
+    private double GetTransformationDistance(AData microData, Transform3D calculatedTransformation, Transform3D expectedTransformation)
+    {
+        //Calculate predifined values
+        ITransformationDistance transformationDistance = new TransformationDistanceSeven(microData);
+        Transform3D.SetTransformationDistance(transformationDistance);
+
+        //Construct evaluable transformations
+        //TransformationChaining transformationChaining = new TransformationChaining();
+
+        return calculatedTransformation.DistanceTo(expectedTransformation);
+
+        //Transform3D calculatedTransform = transformationChaining
+        //    .ChainRotationMatrix(calculatedTransformation.RotationMatrix)
+        //    .ChainTranslationVector(calculatedTransformation.TranslationVector)
+        //    .ChainTranslationVector(CalculateCenteredTransformation(calculatedTransformation, microData))
+        //    .Build();
+
+        //Transform3D expectedTransform = transformationChaining
+        //    .ChainRotationMatrix(expectedTransformation.RotationMatrix)
+        //    .ChainTranslationVector(expectedTransformation.TranslationVector)
+        //    .ChainTranslationVector(CalculateCenteredTransformation(expectedTransformation, microData))
+        //    .Build();
+
+        //return calculatedTransform.DistanceTo(expectedTransform);
+    }
+
+    private Vector<double> CalculateCenteredTransformation(Transform3D transformation, AData data)
+    {
+        Vector<double> inverseTranslationVector = data.GetInverseCenteringTransformation();
+
+        Vector<double> revertingVector = Vector<double>.Build.DenseOfArray(new double[]
+        {
+            transformation.RotationMatrix.Row(0).DotProduct(inverseTranslationVector),
+            transformation.RotationMatrix.Row(1).DotProduct(inverseTranslationVector),
+            transformation.RotationMatrix.Row(2).DotProduct(inverseTranslationVector)
+        });
+
+        return -revertingVector;
+    }
+
+    
+
+    private void Start()
+    {
+        Stopwatch stopwatch = new Stopwatch();
+
+        stopwatch.Start();
+        RunTests();
+        stopwatch.Stop();
+        UnityEngine.Debug.Log($"Execution Time: {stopwatch.Elapsed.TotalSeconds} s");
     }
 
     private void OnEnable()
     {
         var uiDocument = GetComponent<UIDocument>();
         var rootVisualElement = uiDocument.rootVisualElement;
-
         rootVisualElement.style.backgroundColor = Color.white;
-        var barChart = new BarChart(0);
-        barChart.AddColumn(10);
-        barChart.AddColumn(20);
-        barChart.AddColumn(15);
 
+        this.barChart = new BarChart(0);
         rootVisualElement.Add(barChart);
+
         barChart.style.width = new StyleLength(new Length(100, LengthUnit.Percent));
         barChart.style.height = new StyleLength(new Length(100, LengthUnit.Percent));
-
-    }
-
-
-    private VolumetricData GetMacroFilePathDescriptor(string directory)
-    {
-        string macroDataName = "MacroData";
-
-        if (!FilesFound(directory, macroDataName))
-            return null;
-
-        return new VolumetricData(
-            new FilePathDescriptor(
-                directory + macroDataName + ".mhd",
-                directory + macroDataName + ".raw"
-            )
-        );
-    }
-
-
-private List<TestDataUnit> FindTestFiles(string directory)
-    {
-        List<TestDataUnit> fetchedFiles = new List<TestDataUnit>();
-        int order = 1;
-
-        bool fetchingFiles = true;
-
-        string currentMicroFile;
-        while(fetchingFiles)
-        {
-            currentMicroFile = "Micro_" + (order++);
-            if (!FilesFound(directory, currentMicroFile) || !TransformationFileFound(directory, currentMicroFile))
-            {
-                fetchingFiles = false;
-                continue;
-            }
-
-            fetchedFiles.Add(new TestDataUnit(currentMicroFile, directory));
-        }
-
-        return fetchedFiles;
     }
 
     private bool FilesFound(string directory, string fileName)
@@ -135,28 +161,8 @@ private List<TestDataUnit> FindTestFiles(string directory)
         return File.Exists(transformationFile);
     }
 
-    /// <summary>
-    /// Class providing path to file as well as its transformation
-    /// </summary>
-    private class TestDataUnit
+    private FilePathDescriptor GetFilePathDescriptor(string fileName, string directory)
     {
-        private FilePathDescriptor filePathDescriptor;
-        private Transform3D transformation;
-
-        public TestDataUnit(string fileName, string directory)
-        {
-            this.filePathDescriptor = new FilePathDescriptor(Path.Combine(directory, fileName + ".mhd"), Path.Combine(directory, fileName + ".raw"));
-            this.transformation = TransformationIO.FetchTransformation(Path.Combine((directory), fileName + ".txt"));
-        }
-
-        public FilePathDescriptor GetFilePathDescriptor()
-        {
-            return this.filePathDescriptor;
-        }
-
-        public Transform3D GetTransformation()
-        {
-            return this.transformation;
-        }
+        return new FilePathDescriptor(Path.Combine(directory, fileName + ".mhd"), Path.Combine(directory, fileName + ".raw"));
     }
 }

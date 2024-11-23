@@ -25,7 +25,7 @@ namespace DataView
         /// <summary>
         /// This transformation modifies the implementation of GetValue by moving centroid to origin
         /// </summary>
-        private Transform3D transformation = null;
+        private Vector<double> translationVector = null;
 
         /// <summary>
         /// Initializes the spacings between points, loads the data using Read method
@@ -35,85 +35,32 @@ namespace DataView
         {
             LoadMetadata(filePathDescriptor);
             ReadData(filePathDescriptor);
-        }
-
-        /// <summary>
-        /// This method returns transformation, thats been applied onto this object
-        /// </summary>
-        /// <returns>Returns transformation, that modifies this data</returns>
-        public Transform3D GetTransformation()
-        {
-            return (transformation == null) ? new Transform3D() : new Transform3D(this.transformation.RotationMatrix, this.transformation.TranslationVector);
+            this.translationVector = Vector<double>.Build.Dense(3);
         }
 
         /// <summary>
         /// This method translates the object to the origin.
         /// </summary>
-        private void CenterObjectAroundOrigin()
+        public override void CenterObject()
         {
-            Vector<double> translationVector = GetCenteringTranslation();
-            Matrix<double> rotationMatrix = Matrix<double>.Build.DenseIdentity(3);
-            //Matrix<double> rotationMatrix = GetCenteringRotation(translationVector);
-
-            this.transformation = new Transform3D(
-                rotationMatrix,
-                translationVector
-            );
-        }
-
-        private Vector<double> GetCenteringTranslation()
-        {
-            return Vector<double>.Build.DenseOfArray(new double[] {
-                data.DimSize[0]/2.0, data.DimSize[1]/2.0, data.DimSize[2]/2.0
+            //Translation aligns objects center to center of coordinate system
+            Vector<double> translationVector = Vector<double>.Build.DenseOfArray(new double[] {
+                data.DimSize[0] * XSpacing / 2,
+                data.DimSize[1] * YSpacing / 2,
+                data.DimSize[2] * ZSpacing / 2
             });
+
+            this.translationVector = translationVector;
         }
 
-        private Matrix<double> GetCenteringRotation(Vector<double> translationVector)
+        public override Vector<double> GetCenteringTransformation()
         {
-            Matrix<double> covarianceMatrix = Matrix<double>.Build.Dense(3, 3);
-
-            for (double x = 0; x <= MaxValueX; x += XSpacing)
-            {
-                for (double y = 0; y <= MaxValueY; y += YSpacing)
-                {
-                    for (double z = 0; z <= MaxValueZ; z += ZSpacing)
-                        AddOuterProduct(covarianceMatrix, x - translationVector[0], y - translationVector[1], z - translationVector[2]);
-                }
-            }
-
-            var evd = covarianceMatrix.Evd();
-
-            //EigenVectors is the rotation matrix
-            return evd.EigenVectors;
+            return this.translationVector;
         }
 
-        /// <summary>
-        /// Modifies given matrix by adding outer product of vector [x,y,z]
-        /// </summary>
-        /// <param name="matrix">Matrix that gets modified</param>
-        private void AddOuterProduct(Matrix<double> matrix, double x, double y, double z)
+        public override Vector<double> GetInverseCenteringTransformation()
         {
-            if (matrix.ColumnCount != 3 || matrix.RowCount != 3)
-                throw new ArgumentException("");
-
-            //Diagonals squares
-            matrix[0, 0] += x * x;
-            matrix[1, 1] += y * y;
-            matrix[2, 2] += z * z;
-
-
-            double multipliedXY = x * y;
-            double multipliedXZ = x * z;
-            double multipliedYZ = y * z;
-
-            matrix[1, 0] += multipliedXY;
-            matrix[0, 1] += multipliedXY;
-
-            matrix[2, 0] += multipliedXZ;
-            matrix[0, 2] += multipliedXZ;
-
-            matrix[2, 1] += multipliedYZ;
-            matrix[1, 2] += multipliedYZ;
+            return -this.translationVector;
         }
 
         private void LoadMetadata(FilePathDescriptor filePathDescriptor)
@@ -206,8 +153,8 @@ namespace DataView
 
         public override double GetValue(Point3D point)
         {
-            if(transformation != null)
-                point = point.ApplyTranslationRotation(transformation);
+            if (translationVector != null)
+                point = point.Translate(translationVector);
 
             /*
             if (!PointWithinBounds(point))
@@ -356,7 +303,7 @@ namespace DataView
         {
             return this.dataDistribution.GetDistributionPercentage(value);
         }
-        
+
         public override int[] Measures { get => Data.DimSize; }
 
         public override double XSpacing { get => xSpacing; }

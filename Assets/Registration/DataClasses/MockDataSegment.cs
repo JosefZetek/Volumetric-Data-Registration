@@ -1,4 +1,5 @@
 ﻿using DataView;
+using MathNet.Numerics.LinearAlgebra;
 
 public class MockDataSegment : AMockObject
 {

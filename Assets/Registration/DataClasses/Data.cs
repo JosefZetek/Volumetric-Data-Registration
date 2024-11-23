@@ -56,13 +56,13 @@ namespace DataView
                 {
                     if (newLine.Contains("ElementSpacing"))
                     {
-                        regex = new Regex(@"\b\d+(?:[.,]\d+)?\b"); //Pattern for searching decimal and whole numbers within the string
+                        regex = new Regex(@"(\d+([,.]\d+)?)"); //Pattern for searching decimal and whole numbers within the string
                         matches = regex.Matches(newLine);
 
                         elementSpacing = new double[matches.Count];
 
                         for(int i = 0; i<elementSpacing.Length; i++)
-                            ElementSpacing[i] = GetDouble(matches[i].ToString(), -1234);
+                            ElementSpacing[i] = GetDouble(matches[i].ToString().Replace(",", "."), -1234);
                     }
 
                     else if (newLine.Contains("DimSize"))
@@ -111,6 +111,9 @@ namespace DataView
         {
             // Try parsing in the current culture
             if (!double.TryParse(value, NumberStyles.Any, CultureInfo.CurrentCulture, out double result) &&
+
+                !double.TryParse(value, NumberStyles.Any, CultureInfo.GetCultureInfo("cs-CZ"), out result) &&
+
                 // Then try in US english
                 !double.TryParse(value, NumberStyles.Any, CultureInfo.GetCultureInfo("en-US"), out result) &&
                 // Then in neutral language

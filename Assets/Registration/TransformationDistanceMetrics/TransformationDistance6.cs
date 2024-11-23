@@ -1,5 +1,6 @@
 ﻿using System;
 using MathNet.Numerics.LinearAlgebra;
+using UnityEngine;
 
 namespace DataView
 {
@@ -14,7 +15,7 @@ namespace DataView
     /// vq*t1^T*t1 - 2*vq*t1^T*t2 + vq*t2^T*t2 - black part
     /// diag(- 2*R1^T*R2) . diag(Σ(from i = 1 to vq)qi*qi^T), where . denotes Dot Product
     /// </summary>
-    public class TransformationDistance : ITransformationDistance
+    public class TransformationDistanceSix : ITransformationDistance
 	{
         private int numberOfVertices = 0;
 
@@ -31,7 +32,7 @@ namespace DataView
         /// Constructor initializes precomputed values for the given data
         /// </summary>
         /// <param name="microData">Instance of AData on which the result transformation is going to be applied</param>
-        public TransformationDistance(AData microData)
+        public TransformationDistanceSix(AData microData)
         {
             numberOfVertices = microData.Measures[0] * microData.Measures[1] * microData.Measures[2];
 
@@ -53,7 +54,6 @@ namespace DataView
                         currentVertex -= centerPoint;
 
                         dotProductSum += DotProduct(currentVertex, currentVertex);
-
                         sumOfMultipliedVertices += MultiplyVectors(currentVertex, currentVertex);
                     }
                 }
@@ -140,27 +140,38 @@ namespace DataView
         /// <exception cref="ArgumentException">Throws exception if either of the matrices is not rotation matrix.</exception>
         public double GetTransformationsDistance(Transform3D transformation1, Transform3D transformation2)
         {
-            Matrix<double> rotationMatrix1 = transformation1.RotationMatrix;
-            Matrix<double> rotationMatrix2 = transformation2.RotationMatrix;
-
-            Vector<double> translationVector1 = transformation1.TranslationVector;
-            Vector<double> translationVector2 = transformation2.TranslationVector;
-
-            /*
-            if (!IsRotationMatrix(rotationMatrix1) || !IsRotationMatrix(rotationMatrix2))
-                throw new ArgumentException("Matrix isn't rotation matrix");
-            */
+            TransformationChaining transformationChaining = new TransformationChaining();
 
 
-            //The centroid of the object was translated to the origin, thus the translation
-            //relative to the current state is the opposite of the translation vector applied to
-            //shift centroid to origin rotated using the rotation matrix
-            translationVector1 += rotationMatrix1.Multiply(centerPoint);
-            translationVector2 += rotationMatrix2.Multiply(centerPoint);
+            Transform3D transformation1Chained = transformationChaining
+                .ChainTranslationVector(centerPoint)
+                .ChainRotationMatrix(transformation1.RotationMatrix)
+                .ChainTranslationVector(transformation1.TranslationVector)
+                .Build();
+
+            transformationChaining.Clear();
+
+            Transform3D transformation2Chained = transformationChaining
+                .ChainTranslationVector(centerPoint)
+                .ChainRotationMatrix(transformation2.RotationMatrix)
+                .ChainTranslationVector(transformation2.TranslationVector)
+                .Build();
+
+
+
+
+            //Matrix<double> rotationMatrix1 = transformation1.RotationMatrix;
+            //Matrix<double> rotationMatrix2 = transformation2.RotationMatrix;
+
+            //Vector<double> translationVector1 = transformation1.TranslationVector;
+            //Vector<double> translationVector2 = transformation2.TranslationVector;
+
+            //translationVector1 += rotationMatrix1.Multiply(centerPoint);
+            //translationVector2 += rotationMatrix2.Multiply(centerPoint);
 
             double redPart = calculateRedPart();
-            double blackPart = calculateBlackPart(translationVector1, translationVector2);
-            double pinkPart = calculatePinkPart(rotationMatrix1, rotationMatrix2);
+            double blackPart = calculateBlackPart(transformation1Chained.TranslationVector, transformation2Chained.TranslationVector);
+            double pinkPart = calculatePinkPart(transformation1Chained.RotationMatrix, transformation2Chained.RotationMatrix);
 
             double result = redPart;
             result += blackPart;

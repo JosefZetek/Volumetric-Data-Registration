@@ -1,10 +1,9 @@
-using UnityEngine;
+using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
 using DataView;
 using MathNet.Numerics.LinearAlgebra;
 using System;
-using System.Diagnostics;
 
 public class MainViewHandler : MonoBehaviour
 {
@@ -67,33 +66,63 @@ public class MainViewHandler : MonoBehaviour
 
     private void Start()
     {
-        VolumetricData macroObject = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/TEST7/macroData.mhd", "/Users/pepazetek/Desktop/Tests/TEST7/macroData.raw"));
-        Transform3D expectedTransformation = new Transform3D(GetRotationMatrix(0, 0, Math.PI / 5.0), GetTranslationVector(2, 0.1, 0));
+        //AData volumetricData = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/ellipsoid.mhd", "/Users/pepazetek/Desktop/ellipsoid.raw"));
+        //System.Random random = new System.Random(20);
 
-        MockDataSegment mockDataSegment = new MockDataSegment(macroObject, macroObject.Measures, new double[] { macroObject.XSpacing, macroObject.YSpacing, macroObject.ZSpacing });
-        mockDataSegment.TransformObject(expectedTransformation);
+        //Transform3D transformation1 = GetRandomTransformation(random);
+        //Transform3D transformation2 = GetRandomTransformation(random);
 
-        TransformedFileSaver transformedFileSaver = new TransformedFileSaver(
-            "/Users/pepazetek/Desktop/Tests/",
-            "microData",
-            macroObject,
-            expectedTransformation,
-            macroObject.Measures,
-            new double[] { macroObject.XSpacing, macroObject.YSpacing, macroObject.ZSpacing }
+        //Debug.Log($"Transformation 1 {transformation1}");
+        //Debug.Log($"Transformation 2 {transformation2}");
+
+        //TransformationDistanceFirst first = new TransformationDistanceFirst(volumetricData);
+        //TransformationDistanceSecond second = new TransformationDistanceSecond(volumetricData);
+        //TransformationDistanceThree third = new TransformationDistanceThree(volumetricData);
+        //TransformationDistanceFour fourth = new TransformationDistanceFour(volumetricData);
+        //TransformationDistanceFive fifth = new TransformationDistanceFive(volumetricData);
+        //TransformationDistanceSeven seventh = new TransformationDistanceSeven(volumetricData);
+
+        //Vector<double> vectorOfDistances = Vector<double>.Build.DenseOfArray(new double[]
+        //{
+        //    first.GetTransformationsDistance(transformation1, transformation2),
+        //    second.GetTransformationsDistance(transformation1, transformation2),
+        //    third.GetTransformationsDistance(transformation1, transformation2),
+        //    fourth.GetTransformationsDistance(transformation1, transformation2),
+        //    fifth.GetTransformationsDistance(transformation1, transformation2),
+        //    seventh.GetTransformationsDistance(transformation1, transformation2)
+        //});
+
+        //    double reference = vectorOfDistances[0];
+
+        //    vectorOfDistances -= reference;
+
+        //    Debug.Log(vectorOfDistances);
+    }
+
+    private Transform3D GetRandomTransformation(System.Random random)
+    {
+        return new Transform3D(
+            GetRotationMatrix(
+                random.NextDouble() * 2 * Math.PI,
+                random.NextDouble() * 2 * Math.PI,
+                random.NextDouble() * 2 * Math.PI
+            ),
+            GetTranslationVector(
+                random.NextDouble() * 40 + 20,
+                random.NextDouble() * 40 + 20,
+                random.NextDouble() * 40 + 20
+            )
         );
+    }
 
-        transformedFileSaver.MakeFiles();
-        TransformationIO.ExportTransformation("/Users/pepazetek/Desktop/Tests/TEST7/transformation", expectedTransformation);
-
-        
-        //RegistrationLauncher registrationLauncher = new RegistrationLauncher(expectedTransformation);
-        //Transform3D resultTransformation = registrationLauncher.RunRegistration(microObject, macroObject);
-
+    private double GenerateRandomDouble(System.Random random, double minValue, double maxValue)
+    {
+        return random.NextDouble() * (maxValue - minValue) + minValue;
     }
 
 
 
-    
+
 
     private void CreatePair(AMockObject referenceObject, Transform3D transformation)
     {

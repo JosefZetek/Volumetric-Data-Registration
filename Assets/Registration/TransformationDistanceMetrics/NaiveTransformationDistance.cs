@@ -1,5 +1,6 @@
 ﻿using System;
 using MathNet.Numerics.LinearAlgebra;
+using UnityEngine;
 
 namespace DataView
 {
@@ -30,17 +31,19 @@ namespace DataView
         public double GetTransformationsDistance(Transform3D transformation1, Transform3D transformation2)
         {
             double distanceSquared = 0;
+            //double currentValue;
+
             Vector<double> currentVector;
             Vector<double> firstTransformationResult;
             Vector<double> secondTransformationResult;
 
-            for(double x = 0; x <= data.MaxValueX; x += data.XSpacing)
+            for (double xIndex = 0; xIndex < data.Measures[0]; xIndex++)
             {
-                for (double y = 0; y <= data.MaxValueY; y += data.YSpacing)
+                for (int yIndex = 0; yIndex < data.Measures[1]; yIndex++)
                 {
-                    for(double z = 0; z <= data.MaxValueZ; z += data.ZSpacing)
+                    for (int zIndex = 0; zIndex < data.Measures[2]; zIndex++)
                     {
-                        GetVector(out currentVector, x, y, z);
+                        currentVector = GetVector(xIndex * data.XSpacing, yIndex * data.YSpacing, zIndex * data.ZSpacing);
 
                         firstTransformationResult = transformation1.RotationMatrix.Multiply(currentVector);
                         firstTransformationResult += transformation1.TranslationVector;
@@ -48,7 +51,7 @@ namespace DataView
                         secondTransformationResult = transformation2.RotationMatrix.Multiply(currentVector);
                         secondTransformationResult += transformation2.TranslationVector;
 
-                        distanceSquared += (firstTransformationResult - secondTransformationResult).L2Norm();
+                        distanceSquared += Math.Pow((firstTransformationResult - secondTransformationResult).L2Norm(), 2);
                     }
                 }
             }
@@ -56,9 +59,9 @@ namespace DataView
             return distanceSquared;
         }
 
-        private void GetVector(out Vector<double> currentVector, double x, double y, double z)
+        private Vector<double> GetVector(double x, double y, double z)
         {
-            currentVector = Vector<double>.Build.DenseOfArray(new double[]
+            return Vector<double>.Build.DenseOfArray(new double[]
             {
                 x, y, z
             });

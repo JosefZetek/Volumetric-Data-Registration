@@ -1,4 +1,6 @@
-﻿namespace DataView
+﻿using MathNet.Numerics.LinearAlgebra;
+
+namespace DataView
 {
     public abstract class AData : AMockObject
     {
@@ -22,5 +24,13 @@
         {
             return (GetValue(x, y, z) - MinValue) / (MaxValue - MinValue);
         }
+
+        /// <summary>
+        /// Translates the object so that its center is aligned with origin
+        /// </summary>
+        public abstract void CenterObject();
+
+        public abstract Vector<double> GetCenteringTransformation();
+        public abstract Vector<double> GetInverseCenteringTransformation();
     }
 }
