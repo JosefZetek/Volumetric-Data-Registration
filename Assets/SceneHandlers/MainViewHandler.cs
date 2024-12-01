@@ -64,39 +64,40 @@ public class MainViewHandler : MonoBehaviour
         };
     }
 
+
+    private void RegistrationTest()
+    {
+        AData macroData = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/TEST2/macroData.mhd", "/Users/pepazetek/Desktop/Tests/TEST2/macroData.raw"));
+        AData microData = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/TEST2/microData5.mhd", "/Users/pepazetek/Desktop/Tests/TEST2/microData5.raw"));
+
+        Transform3D transformation = TransformationIO.FetchTransformation("/Users/pepazetek/Desktop/Tests/TEST2/microData5.txt");
+
+        Debug.Log($"Loaded transformation: {transformation}");
+
+        RegistrationLauncher.expectedTransformation = transformation;
+        RegistrationLauncher registrationLauncher = new RegistrationLauncher();
+        Transform3D resultTransformation = registrationLauncher.RunRegistration(microData, macroData);
+
+        Debug.Log($"Result transformation {resultTransformation}");
+        Debug.Log($"Distance: {transformation.DistanceTo(resultTransformation)}");
+
+        CutViewerHandler.SetDataSlicer(microData, macroData, resultTransformation);
+        SceneManager.LoadScene("CutViewer");
+    }
+
+
     private void Start()
     {
-        //AData volumetricData = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/ellipsoid.mhd", "/Users/pepazetek/Desktop/ellipsoid.raw"));
-        //System.Random random = new System.Random(20);
+        //RegistrationTest();
+    }
 
-        //Transform3D transformation1 = GetRandomTransformation(random);
-        //Transform3D transformation2 = GetRandomTransformation(random);
-
-        //Debug.Log($"Transformation 1 {transformation1}");
-        //Debug.Log($"Transformation 2 {transformation2}");
-
-        //TransformationDistanceFirst first = new TransformationDistanceFirst(volumetricData);
-        //TransformationDistanceSecond second = new TransformationDistanceSecond(volumetricData);
-        //TransformationDistanceThree third = new TransformationDistanceThree(volumetricData);
-        //TransformationDistanceFour fourth = new TransformationDistanceFour(volumetricData);
-        //TransformationDistanceFive fifth = new TransformationDistanceFive(volumetricData);
-        //TransformationDistanceSeven seventh = new TransformationDistanceSeven(volumetricData);
-
-        //Vector<double> vectorOfDistances = Vector<double>.Build.DenseOfArray(new double[]
-        //{
-        //    first.GetTransformationsDistance(transformation1, transformation2),
-        //    second.GetTransformationsDistance(transformation1, transformation2),
-        //    third.GetTransformationsDistance(transformation1, transformation2),
-        //    fourth.GetTransformationsDistance(transformation1, transformation2),
-        //    fifth.GetTransformationsDistance(transformation1, transformation2),
-        //    seventh.GetTransformationsDistance(transformation1, transformation2)
-        //});
-
-        //    double reference = vectorOfDistances[0];
-
-        //    vectorOfDistances -= reference;
-
-        //    Debug.Log(vectorOfDistances);
+    private Point3D GetRandomPoint(System.Random random)
+    {
+        return new Point3D(
+            random.NextDouble() * 50,
+            random.NextDouble() * 50,
+            random.NextDouble() * 50
+        );
     }
 
     private Transform3D GetRandomTransformation(System.Random random)

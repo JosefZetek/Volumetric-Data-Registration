@@ -17,7 +17,7 @@ public class TestResultVisualizerHandler : MonoBehaviour
     // Start is called before the first frame update
     void RunTests()
     {
-        IRegistrationLauncher registrationLauncher = new FakeRegistrationLauncher();
+        IRegistrationLauncher registrationLauncher = new RegistrationLauncher();
 
         int order = 1;
         string directory = "/Users/pepazetek/Desktop/Tests/";
@@ -65,7 +65,7 @@ public class TestResultVisualizerHandler : MonoBehaviour
 
             UnityEngine.Debug.Log("Registration done for image: " + currentMicroFile);
 
-            currentTransformationDistance = GetTransformationDistanceNaive(
+            currentTransformationDistance = GetTransformationDistance(
                 microData,
                 calculatedTransformation,
                 TransformationIO.FetchTransformation(Path.Combine(directory, currentMicroFile + ".txt"))
@@ -87,41 +87,8 @@ public class TestResultVisualizerHandler : MonoBehaviour
         ITransformationDistance transformationDistance = new TransformationDistanceSeven(microData);
         Transform3D.SetTransformationDistance(transformationDistance);
 
-        //Construct evaluable transformations
-        //TransformationChaining transformationChaining = new TransformationChaining();
-
         return calculatedTransformation.DistanceTo(expectedTransformation);
-
-        //Transform3D calculatedTransform = transformationChaining
-        //    .ChainRotationMatrix(calculatedTransformation.RotationMatrix)
-        //    .ChainTranslationVector(calculatedTransformation.TranslationVector)
-        //    .ChainTranslationVector(CalculateCenteredTransformation(calculatedTransformation, microData))
-        //    .Build();
-
-        //Transform3D expectedTransform = transformationChaining
-        //    .ChainRotationMatrix(expectedTransformation.RotationMatrix)
-        //    .ChainTranslationVector(expectedTransformation.TranslationVector)
-        //    .ChainTranslationVector(CalculateCenteredTransformation(expectedTransformation, microData))
-        //    .Build();
-
-        //return calculatedTransform.DistanceTo(expectedTransform);
     }
-
-    private Vector<double> CalculateCenteredTransformation(Transform3D transformation, AData data)
-    {
-        Vector<double> inverseTranslationVector = data.GetInverseCenteringTransformation();
-
-        Vector<double> revertingVector = Vector<double>.Build.DenseOfArray(new double[]
-        {
-            transformation.RotationMatrix.Row(0).DotProduct(inverseTranslationVector),
-            transformation.RotationMatrix.Row(1).DotProduct(inverseTranslationVector),
-            transformation.RotationMatrix.Row(2).DotProduct(inverseTranslationVector)
-        });
-
-        return -revertingVector;
-    }
-
-    
 
     private void Start()
     {

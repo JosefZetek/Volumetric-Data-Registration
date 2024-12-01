@@ -23,11 +23,6 @@ namespace DataView
         private VolumetricDataDistribution dataDistribution;
 
         /// <summary>
-        /// This transformation modifies the implementation of GetValue by moving centroid to origin
-        /// </summary>
-        private Vector<double> translationVector = null;
-
-        /// <summary>
         /// Initializes the spacings between points, loads the data using Read method
         /// </summary>
         /// <param name="dataFileName">Path to metadata (mhd) file</param>
@@ -35,32 +30,6 @@ namespace DataView
         {
             LoadMetadata(filePathDescriptor);
             ReadData(filePathDescriptor);
-            this.translationVector = Vector<double>.Build.Dense(3);
-        }
-
-        /// <summary>
-        /// This method translates the object to the origin.
-        /// </summary>
-        public override void CenterObject()
-        {
-            //Translation aligns objects center to center of coordinate system
-            Vector<double> translationVector = Vector<double>.Build.DenseOfArray(new double[] {
-                data.DimSize[0] * XSpacing / 2,
-                data.DimSize[1] * YSpacing / 2,
-                data.DimSize[2] * ZSpacing / 2
-            });
-
-            this.translationVector = translationVector;
-        }
-
-        public override Vector<double> GetCenteringTransformation()
-        {
-            return this.translationVector;
-        }
-
-        public override Vector<double> GetInverseCenteringTransformation()
-        {
-            return -this.translationVector;
         }
 
         private void LoadMetadata(FilePathDescriptor filePathDescriptor)
@@ -153,13 +122,6 @@ namespace DataView
 
         public override double GetValue(Point3D point)
         {
-            if (translationVector != null)
-                point = point.Translate(translationVector);
-
-            /*
-            if (!PointWithinBounds(point))
-                throw new ArgumentException("This value is not within bounds");
-            */
 
             // coordinates of left down corner of the rectangle in the array in which the pixel is situated
             int xIndexLower = ConstrainIndex((int)(point.X / XSpacing), Data.DimSize[0] - 1);

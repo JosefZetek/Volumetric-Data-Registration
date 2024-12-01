@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace DataView
 {
     public class RegistrationLauncher : IRegistrationLauncher
     {
-        private Transform3D inverseTransformation;
-        //private Transform3D expectedTransformation;
-
         /* Registration blocks */
         private ISampler sampler;
         private IFeatureComputer featureComputer;
@@ -19,10 +17,12 @@ namespace DataView
         private int NUMBER_OF_POINTS_MACRO;
         private double THRESHOLD;
 
+        public static Transform3D expectedTransformation = null;
+
         public RegistrationLauncher()
         {
-            this.NUMBER_OF_POINTS_MICRO = 10_000;
-            this.NUMBER_OF_POINTS_MACRO = 10_000;
+            this.NUMBER_OF_POINTS_MICRO = 1_000;
+            this.NUMBER_OF_POINTS_MACRO = 1_000;
             this.THRESHOLD = 10;
 
             InitializeRegistrationModules();
@@ -49,7 +49,7 @@ namespace DataView
         private void InitializeRegistrationModules()
         {
             this.sampler = new Sampler();
-            this.featureComputer = new FeatureComputerISOSurfaceCurvature();
+            this.featureComputer = new FeatureComputerPCA();
             this.matcher = new Matcher();
             this.transformer = new Transformer3D();
         }
@@ -64,28 +64,48 @@ namespace DataView
             //Sets Locale to US
             //Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
 
-            //----------------------------------------PARAMETERS----------------------------------------------
-
-
-            //((VolumetricData)(iDataMicro)).CenterObjectAroundOrigin();
-            //this.inverseTransformation = new Transform3D(Matrix<double>.Build.DenseIdentity(3), Vector<double>.Build.Dense(3));
-
-            microData.CenterObject();
+            //----------------------------------------PARAMETERS---------------------------------------------- 
 
             //----------------------------------------FEATURE VECTOR CALCULATION------------------------------------------------
 
-            Debug.Log("Computing micro feature vectors.");
-            List<FeatureVector> featureVectorsMicro = CalculateFeatureVectors(sampler, featureComputer, microData, NUMBER_OF_POINTS_MICRO);
-            Debug.Log("Computing macro feature vectors.");
-            List<FeatureVector> featureVectorsMacro = CalculateFeatureVectors(sampler, featureComputer, macroData, NUMBER_OF_POINTS_MACRO);
+            //Debug.Log("Computing micro feature vectors.");
+            //List<FeatureVector> featureVectorsMicro = CalculateFeatureVectors(sampler, featureComputer, microData, NUMBER_OF_POINTS_MICRO);
+            //Debug.Log("Computing macro feature vectors.");
+            //List<FeatureVector> featureVectorsMacro = CalculateFeatureVectors(sampler, featureComputer, macroData, NUMBER_OF_POINTS_MACRO);
+
+            //Debug.Log($"Number of feature vectors micro: {featureVectorsMicro.Count}");
+            //Debug.Log($"Number of feature vectors macro: {featureVectorsMacro.Count}");
+
+
+            System.Random random = new System.Random();
+            FeatureVector[] featureVectorsMicro = FeatureVectorsMicroData(microData, random, NUMBER_OF_POINTS_MICRO);
+            FeatureVector[] featureVectorsMacro = FeatureVectorsMacroData(featureVectorsMicro);
+
+            //CheckValidity(featureVectorsMicro, featureVectorsMacro);
 
             //----------------------------------------SETUP TRANSFORMATION METRICS------------------------------------------------
-            ITransformationDistance transformationDistance = new TransformationDistanceSix(microData);
+            ITransformationDistance transformationDistance = new TransformationDistanceSeven(microData);
             Transform3D.SetTransformationDistance(transformationDistance);
 
             //----------------------------------------MATCHES-------------------------------------------------
             Debug.Log("Matching.");
-            Match[] matches = matcher.Match(featureVectorsMicro.ToArray(), featureVectorsMacro.ToArray(), THRESHOLD);
+            Match[] matches = matcher.Match(featureVectorsMicro, featureVectorsMacro, THRESHOLD);
+            //Match[] matches = CreateFakeMatches(microData, Math.Min(NUMBER_OF_POINTS_MACRO, NUMBER_OF_POINTS_MICRO));
+
+            //Match testMatch = new Match(
+            //    featureVectorsMicro[0],
+            //    featureVectorsMacro[0],
+            //    1
+            //);
+
+            //Debug.Log($"Test match: {testMatch}");
+
+            //Debug.Log(testMatch
+            //    .microFV
+            //    .Point
+            //    .ApplyRotationTranslation(expectedTransformation)
+            //    .Distance(matches[0].macroFV.Point)
+            //);
 
             //PrintRealDistances(matches);
 
@@ -93,30 +113,10 @@ namespace DataView
 
             Debug.Log("Computing transformations.\n");
 
-            List<Transform3D> transformations = new List<Transform3D>();
-
-            for (int i = 0; i < matches.Length; i++)
-            {
-                //Calculate transformation and if the transformation doesnt exist, it will skip it and print out the error message
-                try
-                {
-                    Transform3D transformation = transformer.GetTransformation(matches[i], microData, macroData);
-                    transformations.Add(transformation);
-                    Debug.Log("Candidate for transformation: " + transformation);
-                }
-                catch { continue; }
-            }
-
-            DensityStructure densityStructure = new DensityStructure(transformations.ToArray());
+            Transform3D[] transformations = CalculateTransformations(microData, macroData, matches);
+            DensityStructure densityStructure = new DensityStructure(transformations);
 
             Transform3D tr = densityStructure.FindBestTransformation(0.5, 50);
-            return tr;
-        }
-
-        public Transform3D RevertCenteringTransformation(Transform3D tr)
-        {
-            Transform3D finalTransformation = tr.ChainWithTransformation(inverseTransformation);
-            //return finalTransformation;
             return tr;
         }
 
@@ -124,7 +124,6 @@ namespace DataView
         {
             Debug.Log("Sampling.");
             Point3D[] pointsMicro = sampler.Sample(data, NUMBER_OF_POINTS);
-
 
             List<FeatureVector> featureVectors = new List<FeatureVector>();
 
@@ -138,43 +137,137 @@ namespace DataView
             return featureVectors;
         }
 
-        //private void PrintRealDistances(Match[] matches)
-        //{
-        //    if (expectedTransformation == null)
-        //    {
-        //        Debug.Log("Expected transformation not specified.");
-        //        return;
-        //    }
+        private Transform3D[] CalculateTransformations(AData microData, AData macroData, Match[] matches)
+        {
+            List<Transform3D> transformations = new List<Transform3D>();
 
-        //    for (int i = 0; i<matches.Length; i++)
-        //        Debug.Log(matches[i]
-        //            .microFV
-        //            .Point
-        //            .ApplyRotationTranslation(expectedTransformation)
-        //            .Distance(matches[i].macroFV.Point)
-        //        );
-        //}
+            for (int i = 0; i < matches.Length; i++)
+            {
+                //Calculate transformation and if the transformation doesnt exist, it will skip it and print out the error message
+                try
+                {
+                    Transform3D transformation = transformer.GetTransformation(matches[i], microData, macroData);
+                    transformations.Add(transformation);
+                    //Debug.Log("Candidate for transformation: " + transformation);
+                    Debug.Log($"Candidate's distance from correct transformation: {transformation.DistanceTo(expectedTransformation)}");
+                }
+                catch { continue; }
+            }
 
-        //private Match[] CreateFakeMatches()
-        //{
-        //    int NUMBER_OF_POINTS = Math.Min(NUMBER_OF_POINTS_MACRO, NUMBER_OF_POINTS_MICRO);
+            return transformations.ToArray();
+        }
 
-        //    Match[] matches = new Match[NUMBER_OF_POINTS];
+        private void PrintRealDistances(Match[] matches)
+        {
+            if (expectedTransformation == null)
+            {
+                Debug.Log("Expected transformation not specified.");
+                return;
+            }
 
-        //    Point3D[] microPoints = this.sampler.Sample(microData, NUMBER_OF_POINTS);
-        //    Point3D[] macroPoints = this.sampler.Sample(microData, NUMBER_OF_POINTS);
+            for (int i = 0; i < matches.Length; i++)
+                Debug.Log(matches[i]
+                    .microFV
+                    .Point
+                    .ApplyRotationTranslation(expectedTransformation)
+                    .Distance(matches[i].macroFV.Point)
+                );
+        }
 
-        //    for (int i = 0; i<NUMBER_OF_POINTS; i++)
-        //        matches[i] = new Match(
-        //            new FeatureVector(microPoints[i], new double[] { }),
-        //            new FeatureVector(macroPoints[i], new double[] { }),
-        //            1
-        //        );
+        private Point3D RandomOffsetPoint(System.Random random, double maxValue)
+        {
+            return new Point3D(
+                random.NextDouble() * maxValue,
+                random.NextDouble() * maxValue,
+                random.NextDouble() * maxValue
+            );
+        }
+
+        private Match[] CreateFakeMatches(AData microData, int count)
+        {
+            Match[] matches = new Match[count];
+
+            Point3D[] microPoints = this.sampler.Sample(microData, count);
+            System.Random random = new System.Random();
 
 
-        //    return matches;
-        //}
+            for (int i = 0; i < count; i++)
+            {
+                matches[i] = new Match(
+                    new FeatureVector(microPoints[i], new double[1]),
+                    new FeatureVector(microPoints[i].ApplyRotationTranslation(expectedTransformation), new double[1]),
+                    1
+                );
+            }
+            return matches;
+        }
 
+        private FeatureVector[] FeatureVectorsMicroData(AData microData, System.Random random, int count)
+        {
+            FeatureVector[] featureVectorsMicro = new FeatureVector[count];
+            Point3D currentPoint;
+            Point3D transformedPoint;
+
+            for (int i = 0; i < count; i++)
+            {
+                currentPoint = GenerateRandomPoint(random, microData.MaxValueX, microData.MaxValueY, microData.MaxValueZ);
+                transformedPoint = currentPoint.ApplyRotationTranslation(expectedTransformation);
+                featureVectorsMicro[i] = (new FeatureVector(currentPoint, new double[3] { transformedPoint.X, transformedPoint.Y, transformedPoint.Z }));
+            }
+
+            return featureVectorsMicro;
+        }
+
+        private FeatureVector[] FeatureVectorsMacroData(FeatureVector[] microFeatureVectors)
+        {
+            FeatureVector[] featureVectorsMacro = new FeatureVector[microFeatureVectors.Length] ;
+            Point3D currentPoint;
+
+            for (int i = 0; i< microFeatureVectors.Length; i++)
+            {
+                currentPoint = microFeatureVectors[i].Point.ApplyRotationTranslation(expectedTransformation);
+                featureVectorsMacro[i] = new FeatureVector(currentPoint, new double[3] {currentPoint.X, currentPoint.Y, currentPoint.Z});
+            }
+
+            return featureVectorsMacro;
+        }
+
+        private void CheckValidity(List<FeatureVector> microFV, List<FeatureVector> macroFV)
+        {
+            Debug.Log("Checking validity");
+            for(int i = 0; i<microFV.Count; i++)
+            {
+                double distanceFromMacro = macroFV[i].Point.Translate(-expectedTransformation.TranslationVector).Rotate(expectedTransformation.RotationMatrix.Transpose()).Distance(microFV[i].Point);
+                double distanceFromMicro = microFV[i].Point.Rotate(expectedTransformation.RotationMatrix).Translate(expectedTransformation.TranslationVector).Distance(macroFV[i].Point);
+                Debug.Log($"Distance of FV Points {distanceFromMacro}, {distanceFromMicro}");
+
+            }
+            Debug.Log("Validity checked");
+        }
+
+        private Point3D GenerateRandomPoint(System.Random random, double maxX, double maxY, double maxZ)
+        {
+            return new Point3D(
+                    random.NextDouble() * maxX,
+                    random.NextDouble() * maxY,
+                    random.NextDouble() * maxZ
+            );
+        }
+
+        private void ShuffleFVList(List<FeatureVector> featureVectors)
+        {
+            System.Random random = new System.Random();
+            FeatureVector temp;
+            int randomIndex;
+            for(int i = 0; i < featureVectors.Count; i++)
+            {
+                temp = featureVectors[i];
+                randomIndex = random.Next(featureVectors.Count);
+
+                featureVectors[i] = featureVectors[randomIndex];
+                featureVectors[randomIndex] = temp;
+            }
+        }
 
 
     }

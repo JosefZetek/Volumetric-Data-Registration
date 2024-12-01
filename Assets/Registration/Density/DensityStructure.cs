@@ -61,11 +61,12 @@ namespace DataView
 					exponent = spreadParameter * transformations[i].SqrtDistanceTo(currentTransformation);
                     currentDensity += Math.Exp(-exponent*exponent);
 
-                    if (bestDensity < currentDensity)
-                    {
-                        bestDensity = currentDensity;
-                        bestTransformation = transformations[i];
-                    }
+                }
+
+                if (bestDensity < currentDensity)
+                {
+                    bestDensity = currentDensity;
+                    bestTransformation = transformations[i];
                 }
                     
             }

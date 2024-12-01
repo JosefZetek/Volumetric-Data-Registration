@@ -92,8 +92,7 @@ public class RegistrationViewHandler : MonoBehaviour
 
         RegistrationLauncher registrationLauncher = new RegistrationLauncher();
 
-        Transform3D tr = registrationLauncher.RunRegistration(microData, macroData);
-        Transform3D finalTransformation = registrationLauncher.RevertCenteringTransformation(tr);
+        Transform3D finalTransformation = registrationLauncher.RunRegistration(microData, macroData);
         Debug.Log("Transformation: " + finalTransformation);
 
         ShowRegistrationFinishedView(microData, macroData, finalTransformation);

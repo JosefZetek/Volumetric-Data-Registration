@@ -97,7 +97,8 @@ namespace DataView
 
         public override string ToString()
         {
-            string returnS = "";
+            string returnS = $"Point: {point}\nFeatures:";
+
             for (int i = 0; i < GetNumberOfFeatures; i++)
             {
                 returnS += Math.Round(features[i], 2);

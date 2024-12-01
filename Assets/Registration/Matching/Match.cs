@@ -39,7 +39,7 @@
 
         public override string ToString()
         {
-            return "f1: " + microFeatureVector.ToString() + " f2: " + macroFeatureVector.ToString() + " s: " + similarity;
+            return $"Match contains:\nMicro feature vector:\n{microFeatureVector}\nMacro feature vector:\n{macroFeatureVector}";
         }
     }
 }

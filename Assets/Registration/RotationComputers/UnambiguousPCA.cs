@@ -10,7 +10,7 @@ namespace DataView
     /// </summary>
     public class UnambiguousPCA
     {
-        public static double radius = 1;
+        public static double radius = 3;
 
         /// <summary>
         /// Calculates the rotation matrix from dMicro to dMacro

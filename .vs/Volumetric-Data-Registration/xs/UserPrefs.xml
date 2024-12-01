@@ -1,35 +1,33 @@
 ﻿<Properties StartupConfiguration="{E9E6DABC-757D-9313-16C6-28C0AFD75379}|">
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="d9f51f2d-993b-4022-a666-5ce5ab031e2e" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Registration/TransformationDistanceMetrics/TransformationDistance4.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Registration/Other/Point3D.cs">
     <Files>
-      <File FileName="Assets/SceneHandlers/MainViewHandler.cs" Line="83" Column="71" />
-      <File FileName="Assets/Registration/Other/Point3D.cs" />
+      <File FileName="Assets/SceneHandlers/MainViewHandler.cs" Line="92" Column="15" />
+      <File FileName="Assets/Registration/Other/Point3D.cs" Line="171" Column="1" />
       <File FileName="Assets/Registration/Other/Point2D.cs" />
       <File FileName="Assets/UI Toolkit/CreationDialogs/CutViewer.uxml" />
       <File FileName="Assets/SceneHandlers/CutViewer/ScaleHUD.asset" />
       <File FileName="Assets/Registration/Other/TransformationIO.cs" />
-      <File FileName="Assets/SceneHandlers/DataGenerationHandler.cs" />
+      <File FileName="Assets/SceneHandlers/DataGenerationHandler.cs" Line="1" Column="1" />
       <File FileName="Assets/Registration/Test/TestDataBuilder.cs" />
-      <File FileName="Assets/UI Toolkit/TestDataGeneration.uxml" Line="1" Column="1" />
+      <File FileName="Assets/UI Toolkit/TestDataGeneration.uxml" />
       <File FileName="Assets/UI Toolkit/CustomElements/PieChart.cs" />
       <File FileName="Assets/SceneHandlers/GeneralScripts/DataFileDialog.cs" />
-      <File FileName="Assets/Registration/Density/DensityStructure.cs" />
-      <File FileName="Assets/Registration/Other/FeatureVector.cs" />
+      <File FileName="Assets/Registration/Density/DensityStructure.cs" Line="153" Column="25" />
+      <File FileName="Assets/Registration/Other/FeatureVector.cs" Line="8" Column="18" />
       <File FileName="Assets/UI Toolkit/CustomElements/BarChart.cs" />
       <File FileName="Assets/SceneHandlers/GeneralScripts/MovementHandler.cs" />
-      <File FileName="Assets/Registration/TransformSelect/Transform3D.cs" />
-      <File FileName="Assets/Registration/TransformSelect/App.config" />
-      <File FileName="Assets/Registration/TransformSelect/Candidate.cs" />
+      <File FileName="Assets/Registration/TransformSelect/Transform3D.cs" Line="11" Column="50" />
+      <File FileName="Assets/Registration/TransformSelect/App.config" Line="1" Column="1" />
+      <File FileName="Assets/Registration/TransformSelect/Candidate.cs" Line="1" Column="1" />
       <File FileName="Assets/Registration/DataClasses/IDataSlicer.cs" />
       <File FileName="Assets/Registration/DataClasses/TransformedDataSlicer.cs" />
       <File FileName="Assets/Registration/Matching/IMatcher.cs" />
       <File FileName="Assets/Registration/Matching/Matcher.cs" />
-      <File FileName="Assets/Registration/Matching/Match.cs" />
-      <File FileName="Assets/Registration/RotationComputers/Transformer3D.cs" />
+      <File FileName="Assets/Registration/Matching/Match.cs" Line="42" Column="106" />
+      <File FileName="Assets/Registration/RotationComputers/Transformer3D.cs" Line="22" Column="40" />
       <File FileName="Assets/Registration/RotationComputers/UniformRotationComputerPCA.cs" />
       <File FileName="Assets/Registration/RotationComputers/RotationComputer.cs" />
       <File FileName="Assets/Registration/Samplers/SamplerIdentical.cs" />
@@ -39,15 +37,28 @@
       <File FileName="Assets/Registration/TransformationDistanceMetrics/NaiveTransformationDistance.cs" />
       <File FileName="Assets/Registration/TransformationDistanceMetrics/ITransformationDistance.cs" />
       <File FileName="Assets/Registration/TransformSelect/TransformationChaining.cs" Line="10" Column="9" />
-      <File FileName="Assets/Registration/TransformationDistanceMetrics/TransformationDistanceOptimized.cs" Line="31" Column="43" />
-      <File FileName="Assets/Registration/TransformationDistanceMetrics/TransformationDistance2.cs" Line="45" Column="25" />
+      <File FileName="Assets/Registration/TransformationDistanceMetrics/TransformationDistance2.cs" />
       <File FileName="Assets/Registration/TransformationDistanceMetrics/TransformationDistance1.cs" Line="1" Column="1" />
-      <File FileName="Assets/Registration/TransformationDistanceMetrics/TransformationDistance5.cs" Line="44" Column="14" />
-      <File FileName="Assets/Registration/TransformationDistanceMetrics/TransformationDistance6.cs" Line="163" Column="25" />
-      <File FileName="Assets/Registration/TransformationDistanceMetrics/NewClass.cs" Line="135" Column="18" />
-      <File FileName="Assets/Registration/TransformationDistanceMetrics/NewClass.cs" Line="27" Column="19" />
-      <File FileName="Assets/Registration/DataClasses/AData.cs" Line="1" Column="1" />
-      <File FileName="Assets/Registration/DataClasses/AMockObject.cs" Line="1" Column="1" />
+      <File FileName="Assets/Registration/TransformationDistanceMetrics/TransformationDistance5.cs" />
+      <File FileName="Assets/Registration/TransformationDistanceMetrics/TransformationDistance6.cs" Line="1" Column="1" />
+      <File FileName="Assets/Registration/DataClasses/AData.cs" />
+      <File FileName="Assets/Registration/DataClasses/AMockObject.cs" />
+      <File FileName="Assets/Registration/TransformationDistanceMetrics/TransformationDistance3.cs" />
+      <File FileName="Assets/Registration/TransformationDistanceMetrics/TransformationDistance4.cs" Line="1" Column="1" />
+      <File FileName="Assets/Registration/DataClasses/Data.cs" Line="47" Column="1" />
+      <File FileName="Assets/Registration/TransformationDistanceMetrics/TransformationDistance7.cs" Line="31" Column="16" />
+      <File FileName="Assets/SceneHandlers/TestResultVisualizerHandler.cs" Line="20" Column="78" />
+      <File FileName="Assets/SceneHandlers/CutViewer/CutViewerHandler.cs" Line="1" Column="1" />
+      <File FileName="Assets/Registration/TransformSelect/packages.config" Line="1" Column="1" />
+      <File FileName="Assets/Registration/DataClasses/VolumetricData.cs" />
+      <File FileName="Assets/Registration/RegistrationLaunchers/RegistrationLauncher.cs" Line="117" Column="61" />
+      <File FileName="Assets/SceneHandlers/RegistrationView/RegistrationViewHandler.cs" Line="1" Column="1" />
+      <File FileName="Assets/Registration/TransformSelect/ThreadedExecution.cs" Line="1" Column="1" />
+      <File FileName="Assets/Registration/TransformSelect/DensityFastest.cs" Line="144" Column="29" />
+      <File FileName="Assets/Registration/TransformSelect/Density.cs" Line="1" Column="1" />
+      <File FileName="Assets/Registration/RotationComputers/UnambiguousPCA.cs" Line="13" Column="40" />
+      <File FileName="Assets/Registration/Matching/KDTree.cs" Line="136" Column="1" />
+      <File FileName="Assets/Registration/FeatureComputers/FeatureComputerPCA.cs" Line="217" Column="6" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -55,13 +66,11 @@
           <Node name="Volumetric-Data-Registration" expanded="True">
             <Node name="Assets" expanded="True">
               <Node name="Registration" expanded="True">
-                <Node name="DataClasses" expanded="True" />
-                <Node name="RegistrationLaunchers" expanded="True" />
-                <Node name="TransformationDistanceMetrics" expanded="True" />
+                <Node name="FeatureComputers" expanded="True" />
+                <Node name="Other" expanded="True" />
                 <Node name="TransformSelect" expanded="True" />
               </Node>
               <Node name="SceneHandlers" expanded="True" />
-              <Node name="UI Toolkit" expanded="True" />
             </Node>
           </Node>
         </State>
@@ -69,5 +78,7 @@
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="cab95695-0932-44f7-87d6-500d055e447a" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MultiItemStartupConfigurations />
 </Properties>

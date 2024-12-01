@@ -26,7 +26,7 @@ namespace DataView
         }
 
         /// <summary>
-        /// Creates neutral transformation - identity rotation matrix, zero translation vector
+        /// Creates identity transformation
         /// </summary>
         public Transform3D()
         {
@@ -45,7 +45,7 @@ namespace DataView
         public double DistanceTo(Transform3D anotherTransformation)
         {
             if (transformationDistance == null)
-                throw new Exception("Transformation dustance needs to bet set before calling this method.");
+                throw new Exception("Transformation distance needs to bet set before calling this method.");
 
             return transformationDistance.GetTransformationsDistance(this, anotherTransformation);
         }

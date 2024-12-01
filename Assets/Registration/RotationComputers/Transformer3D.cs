@@ -19,7 +19,7 @@ namespace DataView
             double[] spacings = new double[] { dataMicro.XSpacing, dataMicro.YSpacing, dataMicro.ZSpacing, dataMacro.XSpacing, dataMacro.YSpacing, dataMacro.ZSpacing };
             double minSpacing = spacings.Min();
 
-            try { rotationMatrix = TestUniformRotationComputerPCA.CalculateRotation(dataMicro, dataMacro, pMicro, pMacro, minSpacing); }
+            try { rotationMatrix = UnambiguousPCA.CalculateRotation(dataMicro, dataMacro, pMicro, pMacro, minSpacing); }
             catch (Exception e) { throw e; }
 
             pMicro = pMicro.Rotate(rotationMatrix);

@@ -10,8 +10,6 @@ namespace DataView
 
         public Matrix<double> CalculatePCAVectors(AData data, Point3D point, double spacing)
         {
-
-
             Matrix<double> basis = Matrix<double>.Build.Dense(3,3);
             
             spacing = 0.3;
@@ -71,10 +69,7 @@ namespace DataView
             {
                 double weight = (values[i] - min) / (max - min); // Calculate the weight
 
-                meanVector[0] += pointsInSphere[i].X * weight;
-                meanVector[1] += pointsInSphere[i].Y * weight;
-                meanVector[2] += pointsInSphere[i].Z * weight;
-
+                meanVector += pointsInSphere[i].Coordinates * weight;
                 weightSum += weight;
             }
 
