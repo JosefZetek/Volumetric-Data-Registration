@@ -16,8 +16,8 @@ namespace DataView
     /// diag(- 2*R1^T*R2) . diag(Σ(from i = 1 to vq)qi*qi^T), where . denotes Dot Product
     /// </summary>
     public class TransformationDistanceSix : ITransformationDistance
-	{
-        private int numberOfVertices = 0;
+    {
+        private long numberOfVertices;
 
         double dotProductSum = 0;
 
@@ -34,7 +34,7 @@ namespace DataView
         /// <param name="microData">Instance of AData on which the result transformation is going to be applied</param>
         public TransformationDistanceSix(AData microData)
         {
-            numberOfVertices = microData.Measures[0] * microData.Measures[1] * microData.Measures[2];
+            this.numberOfVertices = (long)microData.Measures[0] * (long)microData.Measures[1] * (long)microData.Measures[2];
 
             centerPoint = Vector<double>.Build.DenseOfArray(new double[]
             {
@@ -228,6 +228,11 @@ namespace DataView
             result += (-2 * numberOfVertices * DotProduct(translationVector1, translationVector2));
             result += (numberOfVertices * DotProduct(translationVector2, translationVector2));
             return result;
+        }
+
+        public double GetRelativeTransformationDistance(Transform3D transformation1, Transform3D transformation2)
+        {
+            return GetTransformationsDistance(transformation1, transformation2) / numberOfVertices;
         }
     }
 }

@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using DataView;
 using MathNet.Numerics.LinearAlgebra;
 using System;
+using System.Collections.Generic;
 
 public class MainViewHandler : MonoBehaviour
 {
@@ -85,45 +86,60 @@ public class MainViewHandler : MonoBehaviour
         SceneManager.LoadScene("CutViewer");
     }
 
+    private void TestDensity()
+    {
+        AData mockObject = new MockObject(50, 70, 100);
+
+        ITransformationDistance transformationDistance = new TransformationDistanceSeven(mockObject);
+        Transform3D.SetTransformationDistance(transformationDistance);
+
+        List<Transform3D> transformations = new List<Transform3D>();
+
+        for(int i = 0; i<5; i++)
+        {
+            transformations.Add(
+                new Transform3D(
+                    Generator.GetRotationMatrix(i / 10.0, i / 10.0, i / 10.0),
+                    Generator.GetTranslationVector(0, 0, 0)
+                )
+            );
+            Debug.Log($"Transformation {i} = {transformations[i]}");
+        }
+
+
+        for(int i = 0; i<transformations.Count; i++)
+        {
+            for(int j = 0; j<transformations.Count; j++)
+            {
+                Debug.Log($"Distance from {i} to {j} = {transformations[i].RelativeDistanceTo(transformations[j])}");
+            }
+
+            Debug.Log("");
+        }
+
+        DensityTree densityTree = new DensityTree(transformations);
+
+        int k = 0;
+        foreach(Transform3D referenceTransformation in transformations)
+        {
+            List<Transform3D> result = new List<Transform3D>();
+            densityTree.ProximityQuery(referenceTransformation, 170, result);
+
+            Debug.Log($"Close for reference: {k++}");
+
+            foreach (Transform3D close in result)
+            {
+                Debug.Log($"Result: {close.RelativeDistanceTo(referenceTransformation)}");
+            }
+        }
+
+    }
 
     private void Start()
     {
         //RegistrationTest();
+        TestDensity();
     }
-
-    private Point3D GetRandomPoint(System.Random random)
-    {
-        return new Point3D(
-            random.NextDouble() * 50,
-            random.NextDouble() * 50,
-            random.NextDouble() * 50
-        );
-    }
-
-    private Transform3D GetRandomTransformation(System.Random random)
-    {
-        return new Transform3D(
-            GetRotationMatrix(
-                random.NextDouble() * 2 * Math.PI,
-                random.NextDouble() * 2 * Math.PI,
-                random.NextDouble() * 2 * Math.PI
-            ),
-            GetTranslationVector(
-                random.NextDouble() * 40 + 20,
-                random.NextDouble() * 40 + 20,
-                random.NextDouble() * 40 + 20
-            )
-        );
-    }
-
-    private double GenerateRandomDouble(System.Random random, double minValue, double maxValue)
-    {
-        return random.NextDouble() * (maxValue - minValue) + minValue;
-    }
-
-
-
-
 
     private void CreatePair(AMockObject referenceObject, Transform3D transformation)
     {
@@ -139,37 +155,5 @@ public class MainViewHandler : MonoBehaviour
 
         TransformationIO.ExportTransformation("/Users/pepazetek/Desktop/Tests/TEST3/micro_transformation", transformation);
     }
-
-    private Vector<double> GetTranslationVector(double x, double y, double z)
-    {
-        return Vector<double>.Build.DenseOfArray(new double[] { x, y, z });
-    }
-
-    private Matrix<double> GetRotationMatrix(double angleX, double angleY, double angleZ)
-    {
-        Matrix<double> rotationX = Matrix<double>.Build.DenseOfArray(new double[,]
-        {
-            {1, 0,  0 },
-            {0,  Math.Cos(angleX), -Math.Sin(angleX) },
-            { 0, Math.Sin(angleX), Math.Cos(angleX) }
-        });
-
-        Matrix<double> rotationY = Matrix<double>.Build.DenseOfArray(new double[,]
-        {
-            { Math.Cos(angleY), 0, Math.Sin(angleY) },
-            { 0, 1, 0 },
-            { -Math.Sin(angleY), 0, Math.Cos(angleY) }
-        });
-
-        Matrix<double> rotationZ = Matrix<double>.Build.DenseOfArray(new double[,]
-        {
-            {Math.Cos(angleZ), -Math.Sin(angleZ), 0 },
-            {Math.Sin(angleZ), Math.Cos(angleZ), 0 },
-            { 0, 0, 1 }
-        });
-
-        return rotationX * rotationY * rotationZ;
-    }
-
 
 }

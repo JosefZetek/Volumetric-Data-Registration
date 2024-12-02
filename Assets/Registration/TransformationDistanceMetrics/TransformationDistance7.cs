@@ -16,7 +16,7 @@ namespace DataView
     /// </summary>
     public class TransformationDistanceSeven : ITransformationDistance
     {
-        private int numberOfVertices;
+        private long numberOfVertices;
 
         private double innerProductSum;
 
@@ -125,6 +125,11 @@ namespace DataView
         {
             Vector<double> leftVector = (-2 * rotationMatrix1.Transpose() * rotationMatrix2).Diagonal();
             return leftVector.DotProduct(outerProductSum);
+        }
+
+        public double GetRelativeTransformationDistance(Transform3D transformation1, Transform3D transformation2)
+        {
+            return GetTransformationsDistance(transformation1, transformation2) / numberOfVertices;
         }
     }
 }

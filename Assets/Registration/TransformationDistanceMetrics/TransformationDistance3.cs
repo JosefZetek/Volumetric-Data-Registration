@@ -5,11 +5,13 @@ using DataView;
 public class TransformationDistanceThree : ITransformationDistance
 {
     private AData microData;
+    private long numberOfVertices;
 
 	public TransformationDistanceThree(AData microData)
 	{
         this.microData = microData;
-	}
+        this.numberOfVertices = (long)microData.Measures[0] * (long)microData.Measures[1] * (long)microData.Measures[2];
+    }
 
     public double GetSqrtTransformationDistance(Transform3D transformation1, Transform3D transformation2)
     {
@@ -72,6 +74,11 @@ public class TransformationDistanceThree : ITransformationDistance
         blackPart = blackPart1 + blackPart23 + blackPart4;
 
         return redPart + greenPart + bluePart + purplePart + blackPart;
+    }
+
+    public double GetRelativeTransformationDistance(Transform3D transformation1, Transform3D transformation2)
+    {
+        return GetTransformationsDistance(transformation1, transformation2) / numberOfVertices;
     }
 }
 

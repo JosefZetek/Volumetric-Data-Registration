@@ -13,10 +13,13 @@ namespace DataView
     class TransformationDistanceSecond : ITransformationDistance
     {
         private AData microData;
+        private long numberOfVertices;
+
 
         public TransformationDistanceSecond(AData microData)
         {
             this.microData = microData;
+            this.numberOfVertices = (long)microData.Measures[0] * (long)microData.Measures[1] * (long)microData.Measures[2];
         }
 
         public double GetSqrtTransformationDistance(Transform3D transformation1, Transform3D transformation2)
@@ -58,6 +61,11 @@ namespace DataView
                 }
             }
             return sum;
+        }
+
+        public double GetRelativeTransformationDistance(Transform3D transformation1, Transform3D transformation2)
+        {
+            return GetTransformationsDistance(transformation1, transformation2) / numberOfVertices;
         }
     }
 }

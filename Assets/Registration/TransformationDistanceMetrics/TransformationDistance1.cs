@@ -12,9 +12,12 @@ namespace DataView
     {
 
         private AData microData;
+        private long numberOfVertices;
+
         public TransformationDistanceFirst(AData microData)
         {
             this.microData = microData;
+            this.numberOfVertices = (long)microData.Measures[0] * (long)microData.Measures[1] * (long)microData.Measures[2];
         }
 
         private Vector<double> GetVector(double x, double y, double z)
@@ -60,6 +63,11 @@ namespace DataView
                 }
             }
             return sum;
+        }
+
+        public double GetRelativeTransformationDistance(Transform3D transformation1, Transform3D transformation2)
+        {
+            return GetTransformationsDistance(transformation1, transformation2) / numberOfVertices;
         }
     }
 }

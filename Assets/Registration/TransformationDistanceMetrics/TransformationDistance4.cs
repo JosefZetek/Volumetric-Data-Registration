@@ -9,7 +9,8 @@ public class TransformationDistanceFour : ITransformationDistance
     private double innerProductSum;
     private Vector<double> vertexSum;
     private Matrix<double> outerProductSum;
-    private int numberOfVertices;
+
+    private long numberOfVertices;
 
 
     public TransformationDistanceFour(AData microData)
@@ -19,7 +20,7 @@ public class TransformationDistanceFour : ITransformationDistance
         this.innerProductSum = InnerProductSum();
         this.vertexSum = SumVertices();
         this.outerProductSum = OuterProductSum();
-        this.numberOfVertices = microData.Measures[0] * microData.Measures[1] * microData.Measures[2];
+        this.numberOfVertices = (long)microData.Measures[0] * (long)microData.Measures[1] * (long)microData.Measures[2];
     }
 
 
@@ -134,5 +135,10 @@ public class TransformationDistanceFour : ITransformationDistance
     public double GetSqrtTransformationDistance(Transform3D transformation1, Transform3D transformation2)
     {
         return Math.Sqrt(GetTransformationsDistance(transformation1, transformation2));
+    }
+
+    public double GetRelativeTransformationDistance(Transform3D transformation1, Transform3D transformation2)
+    {
+        return GetTransformationsDistance(transformation1, transformation2) / numberOfVertices;
     }
 }

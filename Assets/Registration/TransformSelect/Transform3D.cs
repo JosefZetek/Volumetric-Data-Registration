@@ -55,6 +55,11 @@ namespace DataView
             return Math.Sqrt(Math.Abs(DistanceTo(anotherTransformation)));
         }
 
+        public double RelativeDistanceTo(Transform3D anotherTransformation)
+        {
+            return transformationDistance.GetRelativeTransformationDistance(this, anotherTransformation);
+        }
+
         public int CompareTo(Transform3D other)
         {
             return Math.Sign(DistanceTo(other));

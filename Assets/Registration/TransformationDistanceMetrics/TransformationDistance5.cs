@@ -11,7 +11,7 @@ public class TransformationDistanceFive : ITransformationDistance
     private double innerProductSum;
     private Matrix<double> outerProductSum;
     private Vector<double> vertexSum;
-    private int numberOfVertices;
+    private long numberOfVertices;
 
 
     public TransformationDistanceFive(AData microData)
@@ -23,7 +23,7 @@ public class TransformationDistanceFive : ITransformationDistance
         this.innerProductSum = InnerProductSum();
         this.outerProductSum = OuterProductSum();
         this.vertexSum = SumVertices();
-        this.numberOfVertices = microData.Measures[0] * microData.Measures[1] * microData.Measures[2];
+        this.numberOfVertices = (long)microData.Measures[0] * (long)microData.Measures[1] * (long)microData.Measures[2];
     }
 
     private Vector<double> GetCenteringTranslation(AData microData)
@@ -170,5 +170,10 @@ public class TransformationDistanceFive : ITransformationDistance
     public double GetSqrtTransformationDistance(Transform3D transformation1, Transform3D transformation2)
     {
         return Math.Sqrt(GetTransformationsDistance(transformation1, transformation2));
+    }
+
+    public double GetRelativeTransformationDistance(Transform3D transformation1, Transform3D transformation2)
+    {
+        return GetTransformationsDistance(transformation1, transformation2) / numberOfVertices;
     }
 }

@@ -113,7 +113,7 @@ namespace DataView
 
             Debug.Log("Computing transformations.\n");
 
-            Transform3D[] transformations = CalculateTransformations(microData, macroData, matches);
+            List<Transform3D> transformations = CalculateTransformations(microData, macroData, matches);
             DensityStructure densityStructure = new DensityStructure(transformations);
 
             Transform3D tr = densityStructure.FindBestTransformation(0.5, 50);
@@ -137,7 +137,7 @@ namespace DataView
             return featureVectors;
         }
 
-        private Transform3D[] CalculateTransformations(AData microData, AData macroData, Match[] matches)
+        private List<Transform3D> CalculateTransformations(AData microData, AData macroData, Match[] matches)
         {
             List<Transform3D> transformations = new List<Transform3D>();
 
@@ -154,7 +154,7 @@ namespace DataView
                 catch { continue; }
             }
 
-            return transformations.ToArray();
+            return transformations;
         }
 
         private void PrintRealDistances(Match[] matches)

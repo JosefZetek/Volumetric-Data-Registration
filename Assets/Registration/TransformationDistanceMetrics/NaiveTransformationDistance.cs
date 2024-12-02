@@ -13,6 +13,7 @@ namespace DataView
     {
 
         private AData data;
+        private long numberOfVertices;
 
         /// <summary>
         /// Constructor takes in data object and saves it
@@ -21,6 +22,12 @@ namespace DataView
         public NaiveTransformationDistance(AData data)
         {
             this.data = data;
+            this.numberOfVertices = (long)data.Measures[0] * (long)data.Measures[1] * (long)data.Measures[2];
+        }
+
+        public double GetRelativeTransformationDistance(Transform3D transformation1, Transform3D transformation2)
+        {
+            return GetTransformationsDistance(transformation1, transformation2) / numberOfVertices;
         }
 
         public double GetSqrtTransformationDistance(Transform3D transformation1, Transform3D transformation2)
