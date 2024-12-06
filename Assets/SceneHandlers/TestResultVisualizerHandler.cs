@@ -46,6 +46,7 @@ public class TestResultVisualizerHandler : MonoBehaviour
     private void RunTestsWithinDirectory(string directory, AData macroData, IRegistrationLauncher registrationLauncher)
     {
         Transform3D calculatedTransformation;
+        Transform3D expectedTransformation;
         AData microData;
 
         int order = 1;
@@ -61,14 +62,16 @@ public class TestResultVisualizerHandler : MonoBehaviour
                 break;
 
             microData = new VolumetricData(GetFilePathDescriptor(currentMicroFile, directory));
-            calculatedTransformation = registrationLauncher.RunRegistration(microData, macroData);
+            expectedTransformation = TransformationIO.FetchTransformation(Path.Combine(directory, currentMicroFile + ".txt"));
 
-            UnityEngine.Debug.Log("Registration done for image: " + currentMicroFile);
+            RegistrationLauncher.expectedTransformation = expectedTransformation;
+
+            calculatedTransformation = registrationLauncher.RunRegistration(microData, macroData);
 
             currentTransformationDistance = GetTransformationDistance(
                 microData,
                 calculatedTransformation,
-                TransformationIO.FetchTransformation(Path.Combine(directory, currentMicroFile + ".txt"))
+                expectedTransformation
             );
 
             this.barChart.AddColumn(currentTransformationDistance);

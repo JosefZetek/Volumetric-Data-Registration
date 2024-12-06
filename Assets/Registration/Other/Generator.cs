@@ -1,9 +1,12 @@
 ﻿
-using MathNet.Numerics.LinearAlgebra;
 using System;
+using MathNet.Numerics.LinearAlgebra;
+using DataView;
 
 public class Generator
 {
+    private static Random random = new Random();
+
     public static Vector<double> GetTranslationVector(double x, double y, double z)
     {
         return Vector<double>.Build.DenseOfArray(new double[] { x, y, z });
@@ -33,6 +36,22 @@ public class Generator
         });
 
         return rotationX * rotationY * rotationZ;
+    }
+
+    public static Transform3D GetRandomTransformation()
+    {
+        return new Transform3D(
+            GetRotationMatrix(
+                random.NextDouble() * Math.PI * 2,
+                random.NextDouble() * Math.PI * 2,
+                random.NextDouble() * Math.PI * 2
+            ),
+            GetTranslationVector(
+                random.NextDouble() * 40,
+                random.NextDouble() * 40,
+                random.NextDouble() * 40
+            )
+        );
     }
 }
 

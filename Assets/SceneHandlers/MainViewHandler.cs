@@ -86,16 +86,11 @@ public class MainViewHandler : MonoBehaviour
         SceneManager.LoadScene("CutViewer");
     }
 
-    private void TestDensity()
+    private List<Transform3D> InitTransformations(int count)
     {
-        AData mockObject = new MockObject(50, 70, 100);
-
-        ITransformationDistance transformationDistance = new TransformationDistanceSeven(mockObject);
-        Transform3D.SetTransformationDistance(transformationDistance);
-
         List<Transform3D> transformations = new List<Transform3D>();
 
-        for(int i = 0; i<5; i++)
+        for(int i = 0; i<count; i++)
         {
             transformations.Add(
                 new Transform3D(
@@ -103,42 +98,42 @@ public class MainViewHandler : MonoBehaviour
                     Generator.GetTranslationVector(0, 0, 0)
                 )
             );
-            Debug.Log($"Transformation {i} = {transformations[i]}");
         }
 
+        return transformations;
+    }
 
-        for(int i = 0; i<transformations.Count; i++)
-        {
-            for(int j = 0; j<transformations.Count; j++)
-            {
-                Debug.Log($"Distance from {i} to {j} = {transformations[i].RelativeDistanceTo(transformations[j])}");
-            }
+    private List<Transform3D> InitRandomTransformations(int count)
+    {
+        List<Transform3D> transformations = new List<Transform3D>();
+        for (int i = 0; i < count; i++)
+            transformations.Add(Generator.GetRandomTransformation());
 
-            Debug.Log("");
-        }
+        return transformations;
+    }
 
-        DensityTree densityTree = new DensityTree(transformations);
+    private void TestDensity()
+    {
+        AData mockObject = new MockObject(50, 70, 100);
 
-        int k = 0;
-        foreach(Transform3D referenceTransformation in transformations)
-        {
-            List<Transform3D> result = new List<Transform3D>();
-            densityTree.ProximityQuery(referenceTransformation, 170, result);
+        ITransformationDistance transformationDistance = new TransformationDistanceSeven(mockObject);
+        Transform3D.SetTransformationDistance(transformationDistance);
 
-            Debug.Log($"Close for reference: {k++}");
+        List<Transform3D> transformations = InitRandomTransformations(20);
 
-            foreach (Transform3D close in result)
-            {
-                Debug.Log($"Result: {close.RelativeDistanceTo(referenceTransformation)}");
-            }
-        }
+        Debug.Log("Optimized density bellow:");
+        DensityStructure densityStructure = new DensityStructure(transformations, 0.1);
+        densityStructure.TransformationsDensityFilter();
 
+        Debug.Log("\nNaive density bellow:");
+        DensityNaive densityStructure2 = new DensityNaive(transformations, densityStructure.Threshold, densityStructure.SpreadParameter);
+        densityStructure2.TransformationsDensityFilter();
     }
 
     private void Start()
     {
         //RegistrationTest();
-        TestDensity();
+        //TestDensity();
     }
 
     private void CreatePair(AMockObject referenceObject, Transform3D transformation)

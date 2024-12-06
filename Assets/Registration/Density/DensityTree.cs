@@ -4,7 +4,6 @@ namespace DataView
 {
     public class DensityTree
     {
-        private const int PIVOT_INDEX = 0;
         private const int LEAF_NODE_TRANSFORMATIONS = 1;
 
         private List<Transform3D> nodesTransformations;
@@ -14,79 +13,73 @@ namespace DataView
         private DensityTree closeNode = null;
         private DensityTree farNode = null;
 
-
         public DensityTree(List<Transform3D> transformations)
         {
             this.nodesTransformations = new List<Transform3D>();
-            ConstructTree(transformations);
+            List<int> remainingIndexes = CreateIndexes(transformations);
+            ConstructTree(transformations, remainingIndexes);
         }
 
-        private void ConstructTree(List<Transform3D> transformations)
+        private DensityTree(List<Transform3D> transformations, List<int> remainingIndexes)
+        {
+            this.nodesTransformations = new List<Transform3D>();
+            ConstructTree(transformations, remainingIndexes);
+        }
+
+        private void ConstructTree(List<Transform3D> transformations, List<int> remainingIndexes)
         {
             // If this is the leaf node
-            if (transformations.Count <= LEAF_NODE_TRANSFORMATIONS)
+            if (remainingIndexes.Count <= LEAF_NODE_TRANSFORMATIONS)
             {
-                this.nodesTransformations = transformations;
+                AddTransformationsToCurrentNode(transformations, remainingIndexes);
                 return;
             }
 
-            UnityEngine.Debug.Log("Transformations: ");
-
-            for(int i = 0; i<transformations.Count; i++)
-            {
-                UnityEngine.Debug.Log($"Transforamation: {transformations[i]}");
-            }
-
-
+            int PIVOT_INDEX = remainingIndexes[0];
             nodesTransformations.Add(transformations[PIVOT_INDEX]);
-            transformations.RemoveAt(PIVOT_INDEX);
+            remainingIndexes.RemoveAt(0);
 
-            UnityEngine.Debug.Log($"Reference Transformation {transformations[PIVOT_INDEX]}");
+            List<int> farTransformations = new List<int>();
+            List<int> closeTransformations = new List<int>();
 
-
-            List<Transform3D> farTransformations = new List<Transform3D>();
-            List<Transform3D> closeTransformations = new List<Transform3D>();
-
-            DivideIntoLists(transformations, ref closeTransformations, ref farTransformations);
+            DivideIntoLists(transformations, remainingIndexes, ref closeTransformations, ref farTransformations);
 
             if (closeTransformations.Count > 0)
-            {
-                UnityEngine.Debug.Log($"Close ones");
-                this.closeNode = new DensityTree(closeTransformations);
-            }
-
+                this.closeNode = new DensityTree(transformations, closeTransformations);
 
             if (farTransformations.Count > 0)
-            {
-                UnityEngine.Debug.Log($"Far ones");
-                this.farNode = new DensityTree(farTransformations);
-            }
+                this.farNode = new DensityTree(transformations, farTransformations);
         }
 
-        private void DivideIntoLists(List<Transform3D> transformations, ref List<Transform3D> closeNodes, ref List<Transform3D> farNodes)
+        private void DivideIntoLists(List<Transform3D> transformations, List<int> remainingIndexes, ref List<int> closeNodes, ref List<int> farNodes)
         {
             Transform3D referenceTransformation = this.nodesTransformations[0];
 
             List<double> transformationDistances = new List<double>();
 
-            for (int i = 0; i < transformations.Count; i++)
-                transformationDistances.Add(referenceTransformation.DistanceTo(transformations[i]));
+            int currentTransformationIndex;
+            for (int i = 0; i < remainingIndexes.Count; i++)
+            {
+                currentTransformationIndex = remainingIndexes[i];
+                transformationDistances.Add(referenceTransformation.RelativeDistanceTo(transformations[currentTransformationIndex]));
+            }
 
             QuickSelectClass testClass = new QuickSelectClass();
             this.threshold = testClass.QuickSelect(transformationDistances, transformationDistances.Count / 2);
 
             for (int i = 0; i < transformationDistances.Count; i++)
             {
-                if (transformationDistances[i] > threshold)
-                    farNodes.Add(transformations[i]);
+                int originalIndex = remainingIndexes[i];
+                if (transformationDistances[i] >= threshold)
+                    farNodes.Add(originalIndex);
                 else
-                    closeNodes.Add(transformations[i]);
+                    closeNodes.Add(originalIndex);
             }
         }
 
         public void ProximityQuery(Transform3D queryPoint, double radius, List<Transform3D> result)
         {
-            double distance = queryPoint.DistanceTo(this.nodesTransformations[0]);
+            double distance = queryPoint.RelativeDistanceTo(this.nodesTransformations[0]);
 
             // Check if the current node is within the radius
             if (distance < radius)
@@ -105,6 +98,56 @@ namespace DataView
                 this.farNode.ProximityQuery(queryPoint, radius, result);
             }
         }
+
+        private List<int> CreateIndexes(List<Transform3D> transformations)
+        {
+            List<int> remainingIndexes = new List<int>(transformations.Count);
+            for (int i = 0; i < transformations.Count; i++)
+                remainingIndexes.Add(i);
+
+            return remainingIndexes;
+        }
+
+        private void AddTransformationsToCurrentNode(List<Transform3D> transformations, List<int> remainingIndexes)
+        {
+            foreach (int index in remainingIndexes)
+                this.nodesTransformations.Add(transformations[index]);
+        }
+
+        public double GetMedianThreshold()
+        {
+            List<double> listOfThresholds = new List<double>();
+            Queue<DensityTree> densityTrees = new Queue<DensityTree>();
+            DensityTree currentDensityTree = this;
+
+            bool isLeaf;
+
+            do
+            {
+                isLeaf = true;
+
+                if (currentDensityTree.farNode != null)
+                {
+                    densityTrees.Enqueue(currentDensityTree.farNode);
+                    isLeaf = false;
+                }
+
+                if (currentDensityTree.closeNode != null)
+                {
+                    densityTrees.Enqueue(currentDensityTree.closeNode);
+                    isLeaf = false;
+                }
+
+                if(!isLeaf)
+                    listOfThresholds.Add(currentDensityTree.threshold);
+
+                currentDensityTree = densityTrees.Dequeue();
+            } while (densityTrees.Count > 0);
+
+            QuickSelectClass testClass = new QuickSelectClass();
+            return testClass.QuickSelect(listOfThresholds, listOfThresholds.Count / 2);
+        }
+
+
     }
 }
-

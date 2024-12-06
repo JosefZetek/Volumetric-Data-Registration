@@ -49,7 +49,7 @@ namespace DataView
         private void InitializeRegistrationModules()
         {
             this.sampler = new Sampler();
-            this.featureComputer = new FeatureComputerPCA();
+            this.featureComputer = new FeatureComputerCurvature();
             this.matcher = new Matcher();
             this.transformer = new Transformer3D();
         }
@@ -114,9 +114,9 @@ namespace DataView
             Debug.Log("Computing transformations.\n");
 
             List<Transform3D> transformations = CalculateTransformations(microData, macroData, matches);
-            DensityStructure densityStructure = new DensityStructure(transformations);
+            DensityStructure densityStructure = new DensityStructure(transformations, 0.1);
 
-            Transform3D tr = densityStructure.FindBestTransformation(0.5, 50);
+            Transform3D tr = densityStructure.TransformationsDensityFilter();
             return tr;
         }
 
@@ -211,6 +211,7 @@ namespace DataView
             for (int i = 0; i < count; i++)
             {
                 currentPoint = GenerateRandomPoint(random, microData.MaxValueX, microData.MaxValueY, microData.MaxValueZ);
+                UnityEngine.Debug.Log($"current point {currentPoint}");
                 transformedPoint = currentPoint.ApplyRotationTranslation(expectedTransformation);
                 featureVectorsMicro[i] = (new FeatureVector(currentPoint, new double[3] { transformedPoint.X, transformedPoint.Y, transformedPoint.Z }));
             }
