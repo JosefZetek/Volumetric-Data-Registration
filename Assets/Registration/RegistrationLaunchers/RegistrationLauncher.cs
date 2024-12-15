@@ -113,7 +113,10 @@ namespace DataView
 
             Debug.Log("Computing transformations.\n");
 
-            List<Transform3D> transformations = CalculateTransformations(microData, macroData, matches);
+            List<Transform3D> transformations = new List<Transform3D>();
+            CalculateTransformations(microData, macroData, matches, ref transformations);
+
+
             DensityStructure densityStructure = new DensityStructure(transformations, 0.1);
 
             Transform3D tr = densityStructure.TransformationsDensityFilter();
@@ -155,6 +158,26 @@ namespace DataView
             }
 
             return transformations;
+        }
+
+
+        /// <summary>
+        /// Adds transformations to a list passed by reference
+        /// </summary>
+        /// <param name="microData"></param>
+        /// <param name="macroData"></param>
+        /// <param name="matches"></param>
+        /// <param name="transformations"></param>
+        private void CalculateTransformations(AData microData, AData macroData, Match[] matches, ref List<Transform3D> transformations)
+        {
+            for (int i = 0; i < matches.Length; i++)
+            {
+                try
+                {
+                    transformer.AppendTransformation(matches[i], microData, macroData, ref transformations);
+                }
+                catch { continue; }
+            }
         }
 
         private void PrintRealDistances(Match[] matches)
@@ -211,7 +234,6 @@ namespace DataView
             for (int i = 0; i < count; i++)
             {
                 currentPoint = GenerateRandomPoint(random, microData.MaxValueX, microData.MaxValueY, microData.MaxValueZ);
-                UnityEngine.Debug.Log($"current point {currentPoint}");
                 transformedPoint = currentPoint.ApplyRotationTranslation(expectedTransformation);
                 featureVectorsMicro[i] = (new FeatureVector(currentPoint, new double[3] { transformedPoint.X, transformedPoint.Y, transformedPoint.Z }));
             }

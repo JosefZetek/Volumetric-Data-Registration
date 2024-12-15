@@ -80,7 +80,8 @@ public class MainViewHandler : MonoBehaviour
         Transform3D resultTransformation = registrationLauncher.RunRegistration(microData, macroData);
 
         Debug.Log($"Result transformation {resultTransformation}");
-        Debug.Log($"Distance: {transformation.DistanceTo(resultTransformation)}");
+        Debug.Log($"Distance: {transformation.RelativeDistanceTo(resultTransformation)}");
+        Debug.Log($"Rotation matrix difference {RegistrationLauncher.expectedTransformation.RotationMatrix - resultTransformation.RotationMatrix}");
 
         CutViewerHandler.SetDataSlicer(microData, macroData, resultTransformation);
         SceneManager.LoadScene("CutViewer");
@@ -112,28 +113,28 @@ public class MainViewHandler : MonoBehaviour
         return transformations;
     }
 
-    private void TestDensity()
-    {
-        AData mockObject = new MockObject(50, 70, 100);
-
-        ITransformationDistance transformationDistance = new TransformationDistanceSeven(mockObject);
-        Transform3D.SetTransformationDistance(transformationDistance);
-
-        List<Transform3D> transformations = InitRandomTransformations(20);
-
-        Debug.Log("Optimized density bellow:");
-        DensityStructure densityStructure = new DensityStructure(transformations, 0.1);
-        densityStructure.TransformationsDensityFilter();
-
-        Debug.Log("\nNaive density bellow:");
-        DensityNaive densityStructure2 = new DensityNaive(transformations, densityStructure.Threshold, densityStructure.SpreadParameter);
-        densityStructure2.TransformationsDensityFilter();
-    }
-
     private void Start()
     {
-        //RegistrationTest();
+        RegistrationTest();
         //TestDensity();
+
+        /*
+        Matrix<double> adjointHessianMatrix = Generator.GetRotationMatrix(23, 5, 21);
+
+        Vector<double> functionGradientVector = Generator.GetTranslationVector(2, 5, 4);
+        Matrix<double> functionGradient = functionGradientVector.ToRowMatrix();
+
+        double prvniMetoda = (functionGradient * adjointHessianMatrix * functionGradient.Transpose())[0, 0];
+        //double druhaMetoda = adjointHessianMatrix.Multiply(functionGradientVector).DotProduct(functionGradientVector);
+
+
+
+        Debug.Log(adjointHessianMatrix.Multiply(functionGradientVector));
+        Debug.Log(adjointHessianMatrix.LeftMultiply(functionGradientVector));
+        Debug.Log(functionGradient * adjointHessianMatrix);
+
+        */
+        //Debug.Log($"Rozdil: {prvniMetoda - druhaMetoda}");
     }
 
     private void CreatePair(AMockObject referenceObject, Transform3D transformation)

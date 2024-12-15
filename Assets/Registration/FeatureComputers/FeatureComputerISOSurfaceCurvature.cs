@@ -6,46 +6,6 @@ namespace DataView
 {
     public class FeatureComputerISOSurfaceCurvature : IFeatureComputer
     {
-
-        private FeatureVector ShapeOperator(AData d, Point3D p)
-        {
-            Console.WriteLine("Shape operator implementation: ");
-
-            Point3D nearestGridPoint = new Point3D(
-                RoundToNearestSpacingMultiplier(p.X, d.XSpacing),
-                RoundToNearestSpacingMultiplier(p.Y, d.YSpacing),
-                RoundToNearestSpacingMultiplier(p.Z, d.ZSpacing)
-            );
-
-            List<Point3D> surroundingPoints = GetSurroundingPoints(nearestGridPoint, d);
-            Matrix<double> equationMatrix = ConstructEquationMatrix(surroundingPoints, nearestGridPoint, d);
-            Vector<double> coeficients = EquationComputer.CalculateSolution(equationMatrix);
-
-            Matrix<double> hessianMatrix = ConstructHessianMatrix(coeficients);
-
-            Matrix<double> functionGradient = GetFunctionGradient(coeficients, p.X, p.Y, p.Z);
-            functionGradient /= functionGradient.L2Norm();
-
-            Matrix<double> identityMatrix = Matrix<double>.Build.DenseIdentity(3);
-            Console.WriteLine(identityMatrix);
-
-            Matrix<double> matrix = identityMatrix - functionGradient.Transpose() * functionGradient;
-
-            
-
-            Matrix<double> ShapeOperator = matrix * hessianMatrix * matrix;
-            var eigendecomposition = ShapeOperator.Evd();
-
-
-            double minCurvature = eigendecomposition.EigenValues[0].Real;
-            double maxCurvature = eigendecomposition.EigenValues[1].Real;
-
-            Console.WriteLine("Min curvature = {0}", minCurvature);
-            Console.WriteLine("Max curvature = {0}", maxCurvature);
-            return new FeatureVector(p, new double[] { minCurvature, maxCurvature });
-
-        }
-
         private FeatureVector OriginalImplementation(AData d, Point3D p)
         {
             Point3D nearestGridPoint = new Point3D(
@@ -59,102 +19,43 @@ namespace DataView
             Vector<double> coeficients = EquationComputer.CalculateSolution(equationMatrix);
 
             Matrix<double> hessianMatrix = ConstructHessianMatrix(coeficients);
-            Matrix<double> adjointHessianMatrix = ConstructAdjointHessianMatrix(hessianMatrix);
+            Matrix<double> adjointHessianMatrix = ConstructAdjointMatrix(hessianMatrix);
 
-            Matrix<double> functionGradient = GetFunctionGradient(coeficients, p.X, p.Y, p.Z);
+            Vector<double> functionGradient = GetFunctionGradient(coeficients, p.X, p.Y, p.Z);
             double functionGradientNorm = functionGradient.L2Norm();
 
-            double gaussianCurvature = (functionGradient * adjointHessianMatrix * functionGradient.Transpose())[0, 0] / Math.Pow(functionGradientNorm, 4);
-            double meanCurvature = ((functionGradient * hessianMatrix * functionGradient.Transpose())[0, 0] - (Math.Pow(functionGradientNorm, 2) * hessianMatrix.Trace())) / (2 * Math.Pow(functionGradientNorm, 3));
+            double gaussianCurvature = adjointHessianMatrix.LeftMultiply(functionGradient).DotProduct(functionGradient) / Math.Pow(functionGradientNorm, 4);
+            double meanCurvature = (hessianMatrix.LeftMultiply(functionGradient).DotProduct(functionGradient) - Math.Pow(functionGradientNorm, 2) * hessianMatrix.Trace()) / 2 * Math.Pow(functionGradientNorm, 3);
 
-            double increment = Math.Sqrt(Math.Pow(meanCurvature, 2) - gaussianCurvature);
-            double minCurvature = meanCurvature - increment;
-            double maxCurvature = meanCurvature + increment;
-
-            return new FeatureVector(p, new double[] { minCurvature, maxCurvature });
-        }
-
-        private FeatureVector AlternativeImplementation(AData d, Point3D p)
-        {
-            Console.WriteLine("Alternative implementation: ");
-
-            Point3D nearestGridPoint = new Point3D(
-                RoundToNearestSpacingMultiplier(p.X, d.XSpacing),
-                RoundToNearestSpacingMultiplier(p.Y, d.YSpacing),
-                RoundToNearestSpacingMultiplier(p.Z, d.ZSpacing)
-            );
-
-            List<Point3D> surroundingPoints = GetSurroundingPoints(nearestGridPoint, d);
-            Matrix<double> equationMatrix = ConstructEquationMatrix(surroundingPoints, nearestGridPoint, d);
-            Vector<double> coeficients = EquationComputer.CalculateSolution(equationMatrix);
-
-            Matrix<double> hessianMatrix = ConstructHessianMatrix(coeficients);
-            Matrix<double> adjointHessianMatrix = ConstructAdjointHessianMatrix(hessianMatrix);
-
-            Matrix<double> functionGradient = GetFunctionGradient(coeficients, p.X, p.Y, p.Z);
-            double functionGradientNorm = functionGradient.L2Norm();
-
-            hessianMatrix = -hessianMatrix / functionGradientNorm;
-
-
-            var eigenvalues = hessianMatrix.Evd();
-
-            double maxCurvature = eigenvalues.EigenValues[0].Real;
-            double minCurvature = eigenvalues.EigenValues[1].Real;
-
-            return new FeatureVector(p, new double[] { minCurvature, maxCurvature });
+            return new FeatureVector(p, new double[] { gaussianCurvature, meanCurvature});
         }
 
         public FeatureVector ComputeFeatureVector(AData d, Point3D p)
         {
             return OriginalImplementation(d, p);
-            //AlternativeImplementation(d, p);
-
-            //return ShapeOperator(d, p);
         }
 
-        private Matrix<double> ConstructAdjointHessianMatrix(Matrix<double> hessianMatrix)
+        private Matrix<double> ConstructAdjointMatrix(Matrix<double> hessianMatrix)
         {
-
             return Matrix<double>.Build.DenseOfArray(new double[,]
             {
                 {
                     hessianMatrix[1, 1] * hessianMatrix[2, 2] - hessianMatrix[1, 2] * hessianMatrix[2, 1],
-                    hessianMatrix[1, 2] * hessianMatrix[2, 0] - hessianMatrix[1, 0] * hessianMatrix[2, 2],
-                    hessianMatrix[1, 0] * hessianMatrix[2, 1] - hessianMatrix[1, 1] * hessianMatrix[2, 0]
-                },
-                {
                     hessianMatrix[0, 2] * hessianMatrix[2, 1] - hessianMatrix[0, 1] * hessianMatrix[2, 2],
-                    hessianMatrix[0, 0] * hessianMatrix[2, 2] - hessianMatrix[0, 2] * hessianMatrix[2, 0],
-                    hessianMatrix[0, 1] * hessianMatrix[2, 0] - hessianMatrix[0, 0] * hessianMatrix[2, 1]
+                    hessianMatrix[0, 1] * hessianMatrix[1, 2] - hessianMatrix[0, 2] * hessianMatrix[1, 1],
                 },
                 {
-                    hessianMatrix[0, 1] * hessianMatrix[1, 2] - hessianMatrix[0, 2] * hessianMatrix[1, 1],
-                    hessianMatrix[1, 0] * hessianMatrix[0, 2] - hessianMatrix[0, 0] * hessianMatrix[1, 2],
-                    hessianMatrix[0, 0] * hessianMatrix[1, 1] - hessianMatrix[0, 1] * hessianMatrix[1, 0]
-                }
-            });
+                    hessianMatrix[1, 2] * hessianMatrix[2, 0] - hessianMatrix[1, 0] * hessianMatrix[2, 2],
+                    hessianMatrix[0, 0] * hessianMatrix[2, 2] - hessianMatrix[0, 2] * hessianMatrix[2, 0],
+                    hessianMatrix[0, 2] * hessianMatrix[1, 0] - hessianMatrix[0, 0] * hessianMatrix[1, 2],
 
-            /*
-            return Matrix<double>.Build.DenseOfArray(new double[,]
-            {
-                {
-                    hessianMatrix[0, 0] * hessianMatrix[2, 2] - hessianMatrix[1, 2] * hessianMatrix[2, 1],
-                    hessianMatrix[1, 2] * hessianMatrix[2, 0] - hessianMatrix[1, 0] * hessianMatrix[2, 2],
-                    hessianMatrix[1, 0] * hessianMatrix[2, 1] - hessianMatrix[1, 1] * hessianMatrix[2, 0]
                 },
                 {
-                    hessianMatrix[0, 2] * hessianMatrix[2, 1] - hessianMatrix[0, 1] * hessianMatrix[2, 2],
-                    hessianMatrix[0, 0] * hessianMatrix[2, 2] - hessianMatrix[0, 2] * hessianMatrix[2, 0],
-                    hessianMatrix[0, 1] * hessianMatrix[2, 1] - hessianMatrix[0, 0] * hessianMatrix[2, 1]
-                },
-                {
-                    hessianMatrix[0, 1] * hessianMatrix[1, 2] - hessianMatrix[0, 2] * hessianMatrix[1, 1],
-                    hessianMatrix[1, 0] * hessianMatrix[0, 2] - hessianMatrix[0, 0] * hessianMatrix[1, 2],
+                    hessianMatrix[1, 0] * hessianMatrix[2, 1] - hessianMatrix[1, 1] * hessianMatrix[2, 0],
+                    hessianMatrix[0, 1] * hessianMatrix[2, 0] - hessianMatrix[0, 0] * hessianMatrix[2, 1],
                     hessianMatrix[0, 0] * hessianMatrix[1, 1] - hessianMatrix[0, 1] * hessianMatrix[1, 0]
                 }
             });
-            */
         }
 
         private Matrix<double> ConstructHessianMatrix(Vector<double> coeficients)
@@ -167,24 +68,15 @@ namespace DataView
             });
         }
 
-        private Matrix<double> GetFunctionGradient(Vector<double> coeficients, double x, double y, double z)
+        private Vector<double> GetFunctionGradient(Vector<double> coeficients, double x, double y, double z)
         {
-            return Matrix<double>.Build.DenseOfArray(new double[,]
+            return Vector<double>.Build.DenseOfArray(new double[]
             {
-                {
-                    2*coeficients[0]*x + coeficients[3] * y + coeficients[4] * z + coeficients[6],
-                    2*coeficients[1]*y + coeficients[3] * x + coeficients[5] * z + coeficients[7],
-                    2*coeficients[2]*z + coeficients[4] * x + coeficients[5] * y + coeficients[8]
-                }
+                2*coeficients[0]*x + coeficients[3] * y + coeficients[4] * z + coeficients[6],
+                2*coeficients[1]*y + coeficients[3] * x + coeficients[5] * z + coeficients[7],
+                2*coeficients[2]*z + coeficients[4] * x + coeficients[5] * y + coeficients[8]
             });
         }
-
-        private double GetValue(Vector<double> coeficients, double x, double y, double z)
-        {
-            //a* x^2 + b * y ^ 2 + c * z ^ 2 + d * x * y + e * x * z + f * y * z + g * x + h * y + i * z = f(x, y, z)
-            return coeficients[0] * Math.Pow(x, 2) + coeficients[1] * Math.Pow(y, 2) + coeficients[2] * Math.Pow(z, 2) + coeficients[3] * x * y + coeficients[4] * x * z + coeficients[5] * y * z + coeficients[6] * x + coeficients[7] * y + coeficients[8] * z;
-        }
-
 
         /// <summary>
         /// Constructs Gram-Schmidt matrix for approximation using least squares
@@ -303,10 +195,6 @@ namespace DataView
                 {
                     for (double z = nearestGridPoint.Z - d.ZSpacing; z <= (nearestGridPoint.Z + d.ZSpacing); z += d.ZSpacing)
                     {
-                        //if its the nearest point, skip it
-                        if (x == nearestGridPoint.X && y == nearestGridPoint.Y && z == nearestGridPoint.Z)
-                            continue;
-
                         surroundingPoints.Add(new Point3D(x, y, z));
                     }
                 }
