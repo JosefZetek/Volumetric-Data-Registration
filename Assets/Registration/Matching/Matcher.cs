@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MathNet.Numerics.LinearAlgebra;
 
 namespace DataView
 {
@@ -77,9 +73,7 @@ namespace DataView
             }
 
             double s = num / denom * 100;
-            if (s < 0) { s = 0; }
-            return s;
-            //return (s < 0) ? 0 : s; my replacement
+            return (s < 0) ? 0 : s;
         }
     }
 }

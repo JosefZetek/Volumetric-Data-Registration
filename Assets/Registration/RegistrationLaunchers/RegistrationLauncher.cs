@@ -68,18 +68,20 @@ namespace DataView
 
             //----------------------------------------FEATURE VECTOR CALCULATION------------------------------------------------
 
-            //Debug.Log("Computing micro feature vectors.");
-            //List<FeatureVector> featureVectorsMicro = CalculateFeatureVectors(sampler, featureComputer, microData, NUMBER_OF_POINTS_MICRO);
-            //Debug.Log("Computing macro feature vectors.");
-            //List<FeatureVector> featureVectorsMacro = CalculateFeatureVectors(sampler, featureComputer, macroData, NUMBER_OF_POINTS_MACRO);
+            Debug.Log("Computing micro feature vectors.");
+            List<FeatureVector> featureVectorsMicro = CalculateFeatureVectors(sampler, featureComputer, microData, NUMBER_OF_POINTS_MICRO);
+            Debug.Log("Computing macro feature vectors.");
+            List<FeatureVector> featureVectorsMacro = CalculateFeatureVectors(sampler, featureComputer, macroData, NUMBER_OF_POINTS_MACRO);
 
             //Debug.Log($"Number of feature vectors micro: {featureVectorsMicro.Count}");
             //Debug.Log($"Number of feature vectors macro: {featureVectorsMacro.Count}");
 
 
+            /*
             System.Random random = new System.Random();
             FeatureVector[] featureVectorsMicro = FeatureVectorsMicroData(microData, random, NUMBER_OF_POINTS_MICRO);
             FeatureVector[] featureVectorsMacro = FeatureVectorsMacroData(featureVectorsMicro);
+            */
 
             //CheckValidity(featureVectorsMicro, featureVectorsMacro);
 
@@ -89,7 +91,14 @@ namespace DataView
 
             //----------------------------------------MATCHES-------------------------------------------------
             Debug.Log("Matching.");
-            Match[] matches = matcher.Match(featureVectorsMicro, featureVectorsMacro, THRESHOLD);
+            Match[] matches = matcher.Match(featureVectorsMicro.ToArray(), featureVectorsMacro.ToArray(), THRESHOLD);
+
+            NaiveMatcher naiveMatcher = new NaiveMatcher();
+
+            matches = naiveMatcher.Match(featureVectorsMicro.ToArray(), featureVectorsMacro.ToArray(), THRESHOLD);
+
+            //CompareAlternativeMatches(matches, matchesAlternative);
+
             //Match[] matches = CreateFakeMatches(microData, Math.Min(NUMBER_OF_POINTS_MACRO, NUMBER_OF_POINTS_MICRO));
 
             //Match testMatch = new Match(
@@ -107,7 +116,7 @@ namespace DataView
             //    .Distance(matches[0].macroFV.Point)
             //);
 
-            //PrintRealDistances(matches);
+            PrintRealDistances(matches);
 
             //------------------------------------GET TRANSFORMATION -----------------------------------------
 
@@ -116,11 +125,28 @@ namespace DataView
             List<Transform3D> transformations = new List<Transform3D>();
             CalculateTransformations(microData, macroData, matches, ref transformations);
 
+            Debug.Log($"Number of transformations: {transformations.Count}");
 
             DensityStructure densityStructure = new DensityStructure(transformations, 0.1);
 
             Transform3D tr = densityStructure.TransformationsDensityFilter();
             return tr;
+        }
+
+        private void CompareAlternativeMatches(Match[] matches, Match[] matchesAlternative)
+        {
+            if(matches.Length != matchesAlternative.Length)
+            {
+                Debug.Log($"Matches dont have same length: {matchesAlternative.Length} x {matches.Length}");
+                return;
+            }
+
+            for(int i = 0; i<matches.Length; i++)
+            {
+                Debug.Log($"Distance macro {matches[i].macroFV.Point.Distance(matchesAlternative[i].macroFV.Point)}");
+                Debug.Log($"Distances micro {matches[i].microFV.Point.Distance(matchesAlternative[i].microFV.Point)}");
+            }
+
         }
 
         private List<FeatureVector> CalculateFeatureVectors(ISampler sampler, IFeatureComputer featureComputer, AData data, int NUMBER_OF_POINTS)

@@ -38,19 +38,12 @@ namespace DataView
             }
             catch (Exception e) { throw e; }
 
-
-
-            UnityEngine.Debug.Log("--------------------");
-
             for(int i = -1; i<=1; i+=2)
             {
                 for (int j = -1; j <= 1; j+=2)
                 {
 
                     transitionMatrix = CalculateTransitionMatrix(AdjustBasis(basisMicro, i, j), basisMacro);
-                    Matrix<double> diff = transitionMatrix - RegistrationLauncher.expectedTransformation.RotationMatrix;
-
-                    UnityEngine.Debug.Log($"Difference of rotation matrices: {diff}");
                     rotationMatrices.Add(transitionMatrix);
                 }
             }

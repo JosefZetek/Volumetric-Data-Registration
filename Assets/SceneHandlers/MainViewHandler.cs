@@ -81,7 +81,6 @@ public class MainViewHandler : MonoBehaviour
 
         Debug.Log($"Result transformation {resultTransformation}");
         Debug.Log($"Distance: {transformation.RelativeDistanceTo(resultTransformation)}");
-        Debug.Log($"Rotation matrix difference {RegistrationLauncher.expectedTransformation.RotationMatrix - resultTransformation.RotationMatrix}");
 
         CutViewerHandler.SetDataSlicer(microData, macroData, resultTransformation);
         SceneManager.LoadScene("CutViewer");

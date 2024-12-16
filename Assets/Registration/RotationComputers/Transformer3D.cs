@@ -59,7 +59,7 @@ namespace DataView
                     currentTransformation = new Transform3D(rotationMatrix, translationVector);
                     transformations.Add(currentTransformation);
 
-                    UnityEngine.Debug.Log($"Vzdalenost pridavane transformace od realne: {currentTransformation.DistanceTo(RegistrationLauncher.expectedTransformation)}");
+                    //UnityEngine.Debug.Log($"Vzdalenost pridavane transformace od realne: {currentTransformation.DistanceTo(RegistrationLauncher.expectedTransformation)}");
                 }
 
 

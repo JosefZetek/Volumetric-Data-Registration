@@ -1,8 +1,14 @@
 ﻿<Properties StartupConfiguration="{E9E6DABC-757D-9313-16C6-28C0AFD75379}|">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="7a0d79f6-c4e0-41b7-9cd8-503776be7da2" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SceneHandlers/MainViewHandler.cs">
     <Files>
-      <File FileName="Assets/Registration/RegistrationLaunchers/RegistrationLauncher.cs" />
-      <File FileName="Assets/SceneHandlers/MainViewHandler.cs" Line="79" Column="70" />
+      <File FileName="Assets/Registration/RegistrationLaunchers/RegistrationLauncher.cs" Line="218" Column="1" />
+      <File FileName="Assets/SceneHandlers/MainViewHandler.cs" Line="84" Column="1" />
       <File FileName="Assets/Registration/Density/DensityStructure.cs" />
       <File FileName="Assets/Registration/Density/DensityTree.cs" />
       <File FileName="Assets/Registration/TransformationDistanceMetrics/TransformationDistance7.cs" />
@@ -14,12 +20,18 @@
       <File FileName="Assets/Registration/TransformSelect/Transform3D.cs" />
       <File FileName="Assets/Registration/RotationComputers/RotationComputer.cs" />
       <File FileName="Assets/Registration/RotationComputers/RotationComputerVector.cs" />
-      <File FileName="Assets/Registration/RotationComputers/Transformer3D.cs" Line="1" Column="1" />
+      <File FileName="Assets/Registration/RotationComputers/Transformer3D.cs" Line="62" Column="174" />
       <File FileName="Assets/Registration/RotationComputers/UnambiguousPCA.cs" />
       <File FileName="Assets/Registration/RotationComputers/ITransformer.cs" />
-      <File FileName="Assets/Registration/RotationComputers/UniformRotationComputerPCA2.cs" />
+      <File FileName="Assets/Registration/RotationComputers/UniformRotationComputerPCA2.cs" Line="40" Column="1" />
       <File FileName="Assets/Registration/RotationComputers/UniformRotationComputerPCA.cs" />
-      <File FileName="Assets/Registration/FeatureComputers/FeatureComputerISOSurfaceCurvature.cs" />
+      <File FileName="Assets/Registration/FeatureComputers/FeatureComputerISOSurfaceCurvature.cs" Line="157" Column="46" />
+      <File FileName="Assets/Registration/Other/QuickSelectClass.cs" Line="53" Column="58" />
+      <File FileName="Assets/Registration/Matching/IMatcher.cs" Line="1" Column="1" />
+      <File FileName="Assets/Registration/Matching/KDTree.cs" Line="1" Column="1" />
+      <File FileName="Assets/Registration/Matching/Match.cs" Line="1" Column="1" />
+      <File FileName="Assets/Registration/Matching/Matcher.cs" Line="33" Column="14" />
+      <File FileName="Assets/Registration/Matching/NewClass.cs" Line="83" Column="9" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -30,24 +42,21 @@
                 <Node name="DataClasses" expanded="True" />
                 <Node name="Density" expanded="True" />
                 <Node name="FeatureComputers" expanded="True" />
+                <Node name="Matching" expanded="True" />
                 <Node name="Other" expanded="True" />
                 <Node name="RegistrationLaunchers" expanded="True" />
                 <Node name="RotationComputers" expanded="True" />
                 <Node name="TransformationDistanceMetrics" expanded="True" />
                 <Node name="TransformSelect" expanded="True" />
               </Node>
-              <Node name="SceneHandlers" expanded="True" />
+              <Node name="SceneHandlers" expanded="True">
+                <Node name="MainViewHandler.cs" selected="True" />
+              </Node>
             </Node>
           </Node>
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="7cfdfaa2-f046-4a21-bb00-91ec01584dca" />
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
 </Properties>

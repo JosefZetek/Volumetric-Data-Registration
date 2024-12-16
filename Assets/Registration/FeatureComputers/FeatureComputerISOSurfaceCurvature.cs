@@ -6,33 +6,19 @@ namespace DataView
 {
     public class FeatureComputerISOSurfaceCurvature : IFeatureComputer
     {
-        private FeatureVector OriginalImplementation(AData d, Point3D p)
+        public FeatureVector ComputeFeatureVector(AData d, Point3D p)
         {
+
             Point3D nearestGridPoint = new Point3D(
                 RoundToNearestSpacingMultiplier(p.X, d.XSpacing),
                 RoundToNearestSpacingMultiplier(p.Y, d.YSpacing),
                 RoundToNearestSpacingMultiplier(p.Z, d.ZSpacing)
             );
 
-            List<Point3D> surroundingPoints = GetSurroundingPoints(nearestGridPoint, d);
-            Matrix<double> equationMatrix = ConstructEquationMatrix(surroundingPoints, nearestGridPoint, d);
-            Vector<double> coeficients = EquationComputer.CalculateSolution(equationMatrix);
+            Curvature closerNeighborhood = ComputeCurvature(p, d, nearestGridPoint, 1);
+            Curvature furtherNeighborhood = ComputeCurvature(p, d, nearestGridPoint, 2);
 
-            Matrix<double> hessianMatrix = ConstructHessianMatrix(coeficients);
-            Matrix<double> adjointHessianMatrix = ConstructAdjointMatrix(hessianMatrix);
-
-            Vector<double> functionGradient = GetFunctionGradient(coeficients, p.X, p.Y, p.Z);
-            double functionGradientNorm = functionGradient.L2Norm();
-
-            double gaussianCurvature = adjointHessianMatrix.LeftMultiply(functionGradient).DotProduct(functionGradient) / Math.Pow(functionGradientNorm, 4);
-            double meanCurvature = (hessianMatrix.LeftMultiply(functionGradient).DotProduct(functionGradient) - Math.Pow(functionGradientNorm, 2) * hessianMatrix.Trace()) / 2 * Math.Pow(functionGradientNorm, 3);
-
-            return new FeatureVector(p, new double[] { gaussianCurvature, meanCurvature});
-        }
-
-        public FeatureVector ComputeFeatureVector(AData d, Point3D p)
-        {
-            return OriginalImplementation(d, p);
+            return new FeatureVector(p, new double[] { closerNeighborhood.GaussianCurvature, closerNeighborhood.MeanCurvature, furtherNeighborhood.GaussianCurvature, furtherNeighborhood.MeanCurvature });
         }
 
         private Matrix<double> ConstructAdjointMatrix(Matrix<double> hessianMatrix)
@@ -68,134 +54,122 @@ namespace DataView
             });
         }
 
-        private Vector<double> GetFunctionGradient(Vector<double> coeficients, double x, double y, double z)
+        private Vector<double> GetFunctionGradient(Point3D p, Vector<double> coeficients)
         {
             return Vector<double>.Build.DenseOfArray(new double[]
             {
-                2*coeficients[0]*x + coeficients[3] * y + coeficients[4] * z + coeficients[6],
-                2*coeficients[1]*y + coeficients[3] * x + coeficients[5] * z + coeficients[7],
-                2*coeficients[2]*z + coeficients[4] * x + coeficients[5] * y + coeficients[8]
+                2*coeficients[0]*p.X + coeficients[3] * p.Y + coeficients[4] * p.Z + coeficients[6],
+                2*coeficients[1]*p.Y + coeficients[3] * p.X + coeficients[5] * p.Z + coeficients[7],
+                2*coeficients[2]*p.Z + coeficients[4] * p.X + coeficients[5] * p.Y + coeficients[8]
             });
         }
 
-        /// <summary>
-        /// Constructs Gram-Schmidt matrix for approximation using least squares
-        /// Equation format a * x^2 + b * y^2 + c * z^2 + d * x*y + e * x*z + f * y*z + g*x + h*y + i*z = f(x,y,z)
-        /// </summary>
-        /// <param name="surroundingPoints">List of points from the surrounding of a given value</param>
-        /// <param name="d">Data class</param>
-        /// <returns>Returns equation matrix for least squares method</returns>
-        private Matrix<double> ConstructEquationMatrix(List<Point3D> surroundingPoints, Point3D centerPoint, AData d)
+        private Curvature ComputeCurvature(Point3D point, AData d, Point3D centerPoint, int radius)
         {
-            //this gets created here to improve efficiency - 9 values corresponding to function format, 10th is the value at given point
-            double[] row = new double[10];
+            List<Point3D> surroundingPoints = GetSurroundingPoints(centerPoint, d, radius);
 
-            Matrix<double> equationMatrix = Matrix<double>.Build.Dense(9, 10);
+            Vector<double> coeficients = CalculateCoeficients(surroundingPoints, d);
+            Matrix<double> hessianMatrix = ConstructHessianMatrix(coeficients);
+            Matrix<double> adjointHessian = ConstructAdjointMatrix(hessianMatrix);
+
+            Vector<double> functionGradient = GetFunctionGradient(point, coeficients);
+            double functionGradientNorm = functionGradient.L2Norm();
+
+            return new Curvature(
+                adjointHessian.LeftMultiply(functionGradient).DotProduct(functionGradient) / Math.Pow(functionGradientNorm, 4), /* Gaussian curvature */
+                (hessianMatrix.LeftMultiply(functionGradient).DotProduct(functionGradient) - Math.Pow(functionGradientNorm, 2) * hessianMatrix.Trace()) / 2 * Math.Pow(functionGradientNorm, 3) /* Mean curvature */
+            );
+        }
+
+        private double GetValue(Vector<double> coeficients, double x, double y, double z)
+        {
+            //a* x^2 + b * y ^ 2 + c * z ^ 2 + d * x * y + e * x * z + f * y * z + g * x + h * y + i * z = f(x, y, z)
+            return coeficients[0] * Math.Pow(x, 2) + coeficients[1] * Math.Pow(y, 2) + coeficients[2] * Math.Pow(z, 2) + coeficients[3] * x * y + coeficients[4] * x * z + coeficients[5] * y * z + coeficients[6] * x + coeficients[7] * y + coeficients[8] * z + coeficients[9];
+        }
+
+        public void Compare(Point3D p, AData d)
+        {
+            Point3D nearestGridPoint = new Point3D(
+                RoundToNearestSpacingMultiplier(p.X, d.XSpacing),
+                RoundToNearestSpacingMultiplier(p.Y, d.YSpacing),
+                RoundToNearestSpacingMultiplier(p.Z, d.ZSpacing)
+            );
+
+            List<Point3D> surroundingPoints = GetSurroundingPoints(nearestGridPoint, d, 1);
+
+            Vector<double> coeficients = CalculateCoeficients(surroundingPoints, d);
+
+            for (double x = -1; x <= 1; x++)
+            {
+                for (double y = -1; y <= 1; y++)
+                {
+                    for (double z = -1; z <= 1; z++)
+                    {
+                        Point3D current = new Point3D(p.X + x, p.Y + y, p.Z + z);
+
+                        Console.WriteLine($"Difference: {d.GetValue(current) - GetValue(coeficients, current.X, current.Y, current.Z)}");
+                    }
+                }
+            }
+        }
+
+
+
+        private Vector<double> CalculateCoeficients(List<Point3D> surroundingPoints, AData d)
+        {
+            int NUMBER_OF_VARIABLES = 10;
+
+            Matrix<double> qMatrix = Matrix<double>.Build.Dense(surroundingPoints.Count, NUMBER_OF_VARIABLES);
+            Vector<double> values = Vector<double>.Build.Dense(surroundingPoints.Count);
+            Matrix<double> rightSide = Matrix<double>.Build.Dense(qMatrix.ColumnCount, 1);
 
             for (int i = 0; i < surroundingPoints.Count; i++)
             {
-
-                try
-                {
-                    row[0] = Math.Pow(surroundingPoints[i].X, 2);
-                    row[1] = Math.Pow(surroundingPoints[i].Y, 2);
-                    row[2] = Math.Pow(surroundingPoints[i].Z, 2);
-                    row[3] = surroundingPoints[i].X * surroundingPoints[i].Y;
-                    row[4] = surroundingPoints[i].X * surroundingPoints[i].Z;
-                    row[5] = surroundingPoints[i].Y * surroundingPoints[i].Z;
-                    row[6] = surroundingPoints[i].X;
-                    row[7] = surroundingPoints[i].Y;
-                    row[8] = surroundingPoints[i].Z;
-                    row[9] = d.GetValue(surroundingPoints[i].X, surroundingPoints[i].Y, surroundingPoints[i].Z);
-
-                    AddIncrement(row, equationMatrix);
-                }
-                catch { continue; }
-                
+                qMatrix[i, 0] = Math.Pow(surroundingPoints[i].X, 2);
+                qMatrix[i, 1] = Math.Pow(surroundingPoints[i].Y, 2);
+                qMatrix[i, 2] = Math.Pow(surroundingPoints[i].Z, 2);
+                qMatrix[i, 3] = surroundingPoints[i].X * surroundingPoints[i].Y;
+                qMatrix[i, 4] = surroundingPoints[i].X * surroundingPoints[i].Z;
+                qMatrix[i, 5] = surroundingPoints[i].Y * surroundingPoints[i].Z;
+                qMatrix[i, 6] = surroundingPoints[i].X;
+                qMatrix[i, 7] = surroundingPoints[i].Y;
+                qMatrix[i, 8] = surroundingPoints[i].Z;
+                qMatrix[i, 9] = 1;
             }
 
-            return equationMatrix;
+            /* Values at corresponding points of surroundingPoints */
+            for (int i = 0; i < values.Count; i++)
+                values[i] = d.GetValue(surroundingPoints[i]);
+
+            /* Constructing right side */
+            for (int i = 0; i < rightSide.RowCount; i++)
+                rightSide[i, 0] = qMatrix.Column(i).DotProduct(values);
+
+
+            return (qMatrix.Transpose() * qMatrix).Solve(rightSide).Column(0);
         }
 
-        private Matrix<double> ConstructEquationMatrixAlternative(List<Point3D> surroundingPoints, AData d)
-        {
-            List<Vector<double>> leftSide = new List<Vector<double>>();
-            List<Vector<double>> rightSide = new List<Vector<double>>();
-
-            foreach (Point3D surroundingPoint in surroundingPoints)
-            {
-                try
-                {
-                    d.GetValue(surroundingPoint);
-                }
-                catch { continue; }
-
-                Vector<double> leftSideVector = Vector<double>.Build.Dense(9);
-                leftSideVector[0] = Math.Pow(surroundingPoint.X, 2);
-                leftSideVector[1] = Math.Pow(surroundingPoint.Y, 2);
-                leftSideVector[2] = Math.Pow(surroundingPoint.Z, 2);
-                leftSideVector[3] = surroundingPoint.X * surroundingPoint.Y;
-                leftSideVector[4] = surroundingPoint.X * surroundingPoint.Z;
-                leftSideVector[5] = surroundingPoint.Y * surroundingPoint.Z;
-                leftSideVector[6] = surroundingPoint.X;
-                leftSideVector[7] = surroundingPoint.Y;
-                leftSideVector[8] = surroundingPoint.Z;
-
-                Vector<double> rightSideVector = Vector<double>.Build.Dense(1);
-                rightSideVector[0] = d.GetValue(surroundingPoint.X, surroundingPoint.Y, surroundingPoint.Z);
-
-                leftSide.Add(leftSideVector);
-                rightSide.Add(rightSideVector);
-            }
-
-            Matrix<double> leftSideMatrix = Matrix<double>.Build.Dense(leftSide.Count, 9);
-            Matrix<double> rightSideMatrix = Matrix<double>.Build.Dense(rightSide.Count, 1);
-
-            for(int i = 0; i< leftSide.Count; i++)
-            {
-                leftSideMatrix.SetRow(i, leftSide[i]);
-                rightSideMatrix.SetRow(i, rightSide[i]);
-            }
-
-            Matrix<double> leftSideFinal = leftSideMatrix.Transpose() * leftSideMatrix;
-            Matrix<double> rightSideFinal = leftSideMatrix.Transpose() * rightSideMatrix;
-
-            Matrix<double> result = Matrix<double>.Build.Dense(leftSideFinal.RowCount, leftSideFinal.ColumnCount + rightSideFinal.ColumnCount);
-            for(int i = 0; i<leftSideFinal.ColumnCount; i++)
-            {
-                result.SetColumn(i, leftSideFinal.Column(i));
-            }
-
-            result.SetColumn(leftSideFinal.ColumnCount, rightSideFinal.Column(0));
-
-            return result;
-        }
-
-        /// <summary>
-        /// Adds increments to Gram-Schmidt matrix
-        /// </summary>
-        /// <param name="row"></param>
-        /// <param name="equationMatrix"></param>
-        private void AddIncrement(double[] row, Matrix<double> equationMatrix)
-        {
-            for(int i = 0; i < row.Length - 1; i++) //1 index extra with value at given point
-            {
-                for(int j = 0; j < row.Length; j++)
-                    equationMatrix[i, j] += (row[i] * row[j]);
-            }
-        }
-
-        private List<Point3D> GetSurroundingPoints(Point3D nearestGridPoint, AData d)
+        private List<Point3D> GetSurroundingPoints(Point3D nearestGridPoint, AData d, int radius)
         {
             List<Point3D> surroundingPoints = new List<Point3D>();
 
-            for (double x = nearestGridPoint.X - d.XSpacing; x <= (nearestGridPoint.X + d.XSpacing); x += d.XSpacing)
+            int minSpacingMulitplierX = MinSpacingMulitplier(nearestGridPoint.X, d.XSpacing, radius), maxSpacingMultiplierX = MaxSpacingMultiplier(nearestGridPoint.X, d.MaxValueX, d.XSpacing, radius);
+            int minSpacingMulitplierY = MinSpacingMulitplier(nearestGridPoint.Y, d.YSpacing, radius), maxSpacingMultiplierY = MaxSpacingMultiplier(nearestGridPoint.Y, d.MaxValueY, d.YSpacing, radius);
+            int minSpacingMulitplierZ = MinSpacingMulitplier(nearestGridPoint.Z, d.ZSpacing, radius), maxSpacingMultiplierZ = MaxSpacingMultiplier(nearestGridPoint.Z, d.MaxValueZ, d.ZSpacing, radius);
+
+            for (int x = -minSpacingMulitplierX; x <= maxSpacingMultiplierX; x++)
             {
-                for (double y = nearestGridPoint.Y - d.YSpacing; y <= (nearestGridPoint.Y + d.YSpacing); y += d.YSpacing)
+                for (double y = -minSpacingMulitplierY; y <= maxSpacingMultiplierY; y++)
                 {
-                    for (double z = nearestGridPoint.Z - d.ZSpacing; z <= (nearestGridPoint.Z + d.ZSpacing); z += d.ZSpacing)
+                    for (double z = -minSpacingMulitplierZ; z <= maxSpacingMultiplierZ; z++)
                     {
-                        surroundingPoints.Add(new Point3D(x, y, z));
+                        surroundingPoints.Add(
+                            new Point3D(
+                                nearestGridPoint.X + x * d.XSpacing,
+                                nearestGridPoint.Y + y * d.YSpacing,
+                                nearestGridPoint.Z + z * d.ZSpacing
+                            )
+                        );
                     }
                 }
             }
@@ -211,12 +185,38 @@ namespace DataView
         private double RoundToNearestSpacingMultiplier(double value, double spacing)
         {
 
-            int divider = (int)(value / spacing);
-            double smallerNeighborDistance = value - (divider * spacing);
-            double biggerNeighborDistance = ((divider + 1) * spacing) - value;
+            int unitDistance = (int)(value / spacing);
+            double smallerNeighborDistance = value - (unitDistance * spacing);
+            double biggerNeighborDistance = ((unitDistance + 1) * spacing) - value;
 
-            return smallerNeighborDistance < biggerNeighborDistance ? (divider * spacing) : ((divider + 1) * spacing);
+            return smallerNeighborDistance < biggerNeighborDistance ? (unitDistance * spacing) : ((unitDistance + 1) * spacing);
+        }
+
+
+        public static int MinSpacingMulitplier(double currentCoordinate, double spacing, int desiredShift)
+        {
+            return (int)Math.Min(currentCoordinate / spacing, desiredShift);
+        }
+
+        public static int MaxSpacingMultiplier(double currentCoordinate, double maxValue, double spacing, int desiredShift)
+        {
+            return (int)Math.Min((maxValue - currentCoordinate) / spacing, desiredShift);
+        }
+
+        private class Curvature
+        {
+            private double gaussianCurvature;
+            private double meanCurvature;
+
+            public Curvature(double gaussianCurvature, double meanCurvature)
+            {
+                this.gaussianCurvature = gaussianCurvature;
+                this.meanCurvature = meanCurvature;
+            }
+
+            public double GaussianCurvature { get => gaussianCurvature; }
+            public double MeanCurvature { get => meanCurvature; }
+
         }
     }
 }
-
