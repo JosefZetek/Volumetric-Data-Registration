@@ -25,6 +25,7 @@ namespace DataView
                 int pivotIndex = random.Next(0, listToSort.Count);
                 T pivot = listToSort[pivotIndex];
 
+                /* Sort values */
                 for (int i = 0; i < listToSort.Count; i++)
                 {
                     if (pivotIndex == i)

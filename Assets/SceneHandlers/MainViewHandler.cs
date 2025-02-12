@@ -1,9 +1,7 @@
-using UnityEngine;
+using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
 using DataView;
-using MathNet.Numerics.LinearAlgebra;
-using System;
 using System.Collections.Generic;
 
 public class MainViewHandler : MonoBehaviour
@@ -55,7 +53,6 @@ public class MainViewHandler : MonoBehaviour
             var macroDataPath = DataFileDialog.GetFilePath("macro");
             var microDataPath = DataFileDialog.GetFilePath("micro");
             Transform3D transformation = TransformationIO.FetchTransformation(DataFileDialog.GetFile("txt"));
-            
 
             VolumetricData macroData = new VolumetricData(macroDataPath);
             VolumetricData microData = new VolumetricData(microDataPath);
@@ -77,10 +74,12 @@ public class MainViewHandler : MonoBehaviour
 
         RegistrationLauncher.expectedTransformation = transformation;
         RegistrationLauncher registrationLauncher = new RegistrationLauncher();
+        //Debug.Log($"Value: {registrationLauncher.GetVariation(microData, macroData)}");
+
         Transform3D resultTransformation = registrationLauncher.RunRegistration(microData, macroData);
 
         Debug.Log($"Result transformation {resultTransformation}");
-        Debug.Log($"Distance: {transformation.RelativeDistanceTo(resultTransformation)}");
+        //Debug.Log($"Distance: {transformation.RelativeDistanceTo(resultTransformation)}");
 
         CutViewerHandler.SetDataSlicer(microData, macroData, resultTransformation);
         SceneManager.LoadScene("CutViewer");
@@ -115,25 +114,6 @@ public class MainViewHandler : MonoBehaviour
     private void Start()
     {
         RegistrationTest();
-        //TestDensity();
-
-        /*
-        Matrix<double> adjointHessianMatrix = Generator.GetRotationMatrix(23, 5, 21);
-
-        Vector<double> functionGradientVector = Generator.GetTranslationVector(2, 5, 4);
-        Matrix<double> functionGradient = functionGradientVector.ToRowMatrix();
-
-        double prvniMetoda = (functionGradient * adjointHessianMatrix * functionGradient.Transpose())[0, 0];
-        //double druhaMetoda = adjointHessianMatrix.Multiply(functionGradientVector).DotProduct(functionGradientVector);
-
-
-
-        Debug.Log(adjointHessianMatrix.Multiply(functionGradientVector));
-        Debug.Log(adjointHessianMatrix.LeftMultiply(functionGradientVector));
-        Debug.Log(functionGradient * adjointHessianMatrix);
-
-        */
-        //Debug.Log($"Rozdil: {prvniMetoda - druhaMetoda}");
     }
 
     private void CreatePair(AMockObject referenceObject, Transform3D transformation)

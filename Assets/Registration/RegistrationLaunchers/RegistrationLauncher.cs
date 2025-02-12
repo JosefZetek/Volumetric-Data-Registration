@@ -48,8 +48,8 @@ namespace DataView
 
         private void InitializeRegistrationModules()
         {
-            this.sampler = new Sampler();
-            this.featureComputer = new FeatureComputerCurvature();
+            this.sampler = new SamplerVariance();
+            this.featureComputer = new FeatureComputerHistogram();
             this.matcher = new Matcher();
             this.transformer = new Transformer3D();
         }
@@ -73,8 +73,8 @@ namespace DataView
             Debug.Log("Computing macro feature vectors.");
             List<FeatureVector> featureVectorsMacro = CalculateFeatureVectors(sampler, featureComputer, macroData, NUMBER_OF_POINTS_MACRO);
 
-            //Debug.Log($"Number of feature vectors micro: {featureVectorsMicro.Count}");
-            //Debug.Log($"Number of feature vectors macro: {featureVectorsMacro.Count}");
+            Debug.Log($"Number of feature vectors micro: {featureVectorsMicro.Count}");
+            Debug.Log($"Number of feature vectors macro: {featureVectorsMacro.Count}");
 
 
             /*
@@ -91,11 +91,11 @@ namespace DataView
 
             //----------------------------------------MATCHES-------------------------------------------------
             Debug.Log("Matching.");
+
+            //Match[] matches = matcher.Match(featureVectorsMicro.ToArray(), featureVectorsMacro.ToArray(), THRESHOLD);
+
+            //FakeMatcher matcher = new FakeMatcher(expectedTransformation);
             Match[] matches = matcher.Match(featureVectorsMicro.ToArray(), featureVectorsMacro.ToArray(), THRESHOLD);
-
-            NaiveMatcher naiveMatcher = new NaiveMatcher();
-
-            matches = naiveMatcher.Match(featureVectorsMicro.ToArray(), featureVectorsMacro.ToArray(), THRESHOLD);
 
             //CompareAlternativeMatches(matches, matchesAlternative);
 
@@ -108,13 +108,6 @@ namespace DataView
             //);
 
             //Debug.Log($"Test match: {testMatch}");
-
-            //Debug.Log(testMatch
-            //    .microFV
-            //    .Point
-            //    .ApplyRotationTranslation(expectedTransformation)
-            //    .Distance(matches[0].macroFV.Point)
-            //);
 
             PrintRealDistances(matches);
 
@@ -154,6 +147,7 @@ namespace DataView
             Debug.Log("Sampling.");
             Point3D[] pointsMicro = sampler.Sample(data, NUMBER_OF_POINTS);
 
+            Debug.Log($"Sampled points: {pointsMicro.Length}");
             List<FeatureVector> featureVectors = new List<FeatureVector>();
 
             Debug.Log("Computing micro feature vectors.");

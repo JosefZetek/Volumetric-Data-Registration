@@ -6,8 +6,18 @@ namespace DataView
 {
     public class FeatureComputerISOSurfaceCurvature : IFeatureComputer
     {
+        private const double BORDER_PERCENTAGE = 0.1;
+
+        private double spreadParameterX;
+        private double spreadParameterY;
+        private double spreadParameterZ;
+
         public FeatureVector ComputeFeatureVector(AData d, Point3D p)
         {
+            double spreadParameter = -Math.Log(BORDER_PERCENTAGE) / 2;
+            this.spreadParameterX = spreadParameter / d.XSpacing;
+            this.spreadParameterY = spreadParameter / d.YSpacing;
+            this.spreadParameterZ = spreadParameter / d.ZSpacing;
 
             Point3D nearestGridPoint = new Point3D(
                 RoundToNearestSpacingMultiplier(p.X, d.XSpacing),
@@ -68,7 +78,7 @@ namespace DataView
         {
             List<Point3D> surroundingPoints = GetSurroundingPoints(centerPoint, d, radius);
 
-            Vector<double> coeficients = CalculateCoeficients(surroundingPoints, d);
+            Vector<double> coeficients = CalculateCoeficients(surroundingPoints, point, d);
             Matrix<double> hessianMatrix = ConstructHessianMatrix(coeficients);
             Matrix<double> adjointHessian = ConstructAdjointMatrix(hessianMatrix);
 
@@ -77,7 +87,7 @@ namespace DataView
 
             return new Curvature(
                 adjointHessian.LeftMultiply(functionGradient).DotProduct(functionGradient) / Math.Pow(functionGradientNorm, 4), /* Gaussian curvature */
-                (hessianMatrix.LeftMultiply(functionGradient).DotProduct(functionGradient) - Math.Pow(functionGradientNorm, 2) * hessianMatrix.Trace()) / 2 * Math.Pow(functionGradientNorm, 3) /* Mean curvature */
+                (hessianMatrix.LeftMultiply(functionGradient).DotProduct(functionGradient) - Math.Pow(functionGradientNorm, 2) * hessianMatrix.Trace()) / (2 * Math.Pow(functionGradientNorm, 3)) /* Mean curvature */
             );
         }
 
@@ -87,66 +97,50 @@ namespace DataView
             return coeficients[0] * Math.Pow(x, 2) + coeficients[1] * Math.Pow(y, 2) + coeficients[2] * Math.Pow(z, 2) + coeficients[3] * x * y + coeficients[4] * x * z + coeficients[5] * y * z + coeficients[6] * x + coeficients[7] * y + coeficients[8] * z + coeficients[9];
         }
 
-        public void Compare(Point3D p, AData d)
-        {
-            Point3D nearestGridPoint = new Point3D(
-                RoundToNearestSpacingMultiplier(p.X, d.XSpacing),
-                RoundToNearestSpacingMultiplier(p.Y, d.YSpacing),
-                RoundToNearestSpacingMultiplier(p.Z, d.ZSpacing)
-            );
-
-            List<Point3D> surroundingPoints = GetSurroundingPoints(nearestGridPoint, d, 1);
-
-            Vector<double> coeficients = CalculateCoeficients(surroundingPoints, d);
-
-            for (double x = -1; x <= 1; x++)
-            {
-                for (double y = -1; y <= 1; y++)
-                {
-                    for (double z = -1; z <= 1; z++)
-                    {
-                        Point3D current = new Point3D(p.X + x, p.Y + y, p.Z + z);
-
-                        Console.WriteLine($"Difference: {d.GetValue(current) - GetValue(coeficients, current.X, current.Y, current.Z)}");
-                    }
-                }
-            }
-        }
-
-
-
-        private Vector<double> CalculateCoeficients(List<Point3D> surroundingPoints, AData d)
+        private Vector<double> CalculateCoeficients(List<Point3D> surroundingPoints, Point3D referencePoint, AData d)
         {
             int NUMBER_OF_VARIABLES = 10;
 
+            Matrix<double> qMatrixT = Matrix<double>.Build.Dense(NUMBER_OF_VARIABLES, surroundingPoints.Count);
             Matrix<double> qMatrix = Matrix<double>.Build.Dense(surroundingPoints.Count, NUMBER_OF_VARIABLES);
             Vector<double> values = Vector<double>.Build.Dense(surroundingPoints.Count);
             Matrix<double> rightSide = Matrix<double>.Build.Dense(qMatrix.ColumnCount, 1);
 
             for (int i = 0; i < surroundingPoints.Count; i++)
             {
-                qMatrix[i, 0] = Math.Pow(surroundingPoints[i].X, 2);
-                qMatrix[i, 1] = Math.Pow(surroundingPoints[i].Y, 2);
-                qMatrix[i, 2] = Math.Pow(surroundingPoints[i].Z, 2);
-                qMatrix[i, 3] = surroundingPoints[i].X * surroundingPoints[i].Y;
-                qMatrix[i, 4] = surroundingPoints[i].X * surroundingPoints[i].Z;
-                qMatrix[i, 5] = surroundingPoints[i].Y * surroundingPoints[i].Z;
-                qMatrix[i, 6] = surroundingPoints[i].X;
-                qMatrix[i, 7] = surroundingPoints[i].Y;
-                qMatrix[i, 8] = surroundingPoints[i].Z;
-                qMatrix[i, 9] = 1;
-            }
+                double weight = GetGaussianWeight(
+                    surroundingPoints[i].X - referencePoint.X,
+                    surroundingPoints[i].Y - referencePoint.Y,
+                    surroundingPoints[i].Z - referencePoint.Z
+                );
 
-            /* Values at corresponding points of surroundingPoints */
-            for (int i = 0; i < values.Count; i++)
-                values[i] = d.GetValue(surroundingPoints[i]);
+                qMatrixT[0, i] = Math.Pow(surroundingPoints[i].X, 2);
+                qMatrixT[1, i] = Math.Pow(surroundingPoints[i].Y, 2);
+                qMatrixT[2, i] = Math.Pow(surroundingPoints[i].Z, 2);
+                qMatrixT[3, i] = surroundingPoints[i].X * surroundingPoints[i].Y;
+                qMatrixT[4, i] = surroundingPoints[i].X * surroundingPoints[i].Z;
+                qMatrixT[5, i] = surroundingPoints[i].Y * surroundingPoints[i].Z;
+                qMatrixT[6, i] = surroundingPoints[i].X;
+                qMatrixT[7, i] = surroundingPoints[i].Y;
+                qMatrixT[8, i] = surroundingPoints[i].Z;
+                qMatrixT[9, i] = 1;
+
+                for (int j = 0; j < qMatrixT.RowCount; j++)
+                    qMatrix[i, j] = qMatrixT[j, i] * weight;
+
+                values[i] = d.GetValue(surroundingPoints[i]) * weight;
+            }
 
             /* Constructing right side */
             for (int i = 0; i < rightSide.RowCount; i++)
-                rightSide[i, 0] = qMatrix.Column(i).DotProduct(values);
+                rightSide[i, 0] = qMatrixT.Row(i).DotProduct(values);
 
+            return (qMatrixT * qMatrix).Solve(rightSide).Column(0);
+        }
 
-            return (qMatrix.Transpose() * qMatrix).Solve(rightSide).Column(0);
+        private double GetGaussianWeight(double x, double y, double z)
+        {
+            return Math.Exp(-(spreadParameterX * x * x + spreadParameterY * y * y + spreadParameterZ * z * z));
         }
 
         private List<Point3D> GetSurroundingPoints(Point3D nearestGridPoint, AData d, int radius)
@@ -159,9 +153,9 @@ namespace DataView
 
             for (int x = -minSpacingMulitplierX; x <= maxSpacingMultiplierX; x++)
             {
-                for (double y = -minSpacingMulitplierY; y <= maxSpacingMultiplierY; y++)
+                for (int y = -minSpacingMulitplierY; y <= maxSpacingMultiplierY; y++)
                 {
-                    for (double z = -minSpacingMulitplierZ; z <= maxSpacingMultiplierZ; z++)
+                    for (int z = -minSpacingMulitplierZ; z <= maxSpacingMultiplierZ; z++)
                     {
                         surroundingPoints.Add(
                             new Point3D(
