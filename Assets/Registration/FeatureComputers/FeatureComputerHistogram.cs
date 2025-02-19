@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace DataView
 {
@@ -18,21 +17,32 @@ namespace DataView
             List<Point3D> points = GetSphere(p, radius, samplingRate, d);
 
             foreach (Point3D point in points)
-                AddValue(numberOfOccurences, d.GetValue(point));
+                AddValue(d, point, numberOfOccurences);
 
             return new FeatureVector(p, numberOfOccurences);
         }
 
-        private void AddValue(double[] numberOfOccurences, double value)
+        private void AddValue(AData d, Point3D p, double[] numberOfOccurences)
         {
+            double value = d.GetValue(p);
+
             int closestSmallerInteger = (int)Math.Floor(value);
             int closestBiggerInteger = (int)Math.Ceiling(value);
+
+            int biggerIndex = (int)((closestBiggerInteger - d.MinValue) / (d.MaxValue - d.MinValue) * (DEFAULT_SIZE - 1));
+            int smallerIndex = (int)((closestSmallerInteger - d.MinValue) / (d.MaxValue - d.MinValue) * (DEFAULT_SIZE - 1));
+
+            if(closestBiggerInteger == closestSmallerInteger)
+            {
+                numberOfOccurences[smallerIndex] += 1.0;
+                return;
+            }
 
             double percentageSmaller = (value - closestSmallerInteger) / (closestBiggerInteger - closestSmallerInteger);
             double percentageBigger = 1 - percentageSmaller;
 
-            numberOfOccurences[closestSmallerInteger] += percentageSmaller;
-            numberOfOccurences[closestBiggerInteger] += percentageBigger;
+            numberOfOccurences[smallerIndex] += percentageSmaller;
+            numberOfOccurences[biggerIndex] += percentageBigger;
         }
 
         /// <summary>
@@ -50,11 +60,8 @@ namespace DataView
             double zSquared = rSquared - Math.Pow(x, 2) - Math.Pow(y, 2);
 
             if (zSquared < 0)
-            {
-                Debug.Log($"No values within radius");
                 throw new ArgumentException("No values are within bounds for the given X, Y coordinates and given radius");
-            }
-                
+
 
             double minZ = -Math.Sqrt(zSquared);
             double maxZ = -minZ;
@@ -86,31 +93,5 @@ namespace DataView
 
             return points;
         }
-
-        ///// <summary>
-        ///// This is a messenger class for passing min and max bounds
-        ///// </summary>
-        //class SphereBounds
-        //{
-        //    private double minCoordinate;
-        //    private double maxCoordinate;
-
-        //    public SphereBounds(double minCoordinate, double maxCoordinate)
-        //    {
-        //        this.minCoordinate = minCoordinate;
-        //        this.maxCoordinate = maxCoordinate;
-        //    }
-
-        //    //GETTERS
-        //    public double MinCoordinate
-        //    {
-        //        get { return minCoordinate; }
-        //    }
-
-        //    public double MaxCoordinate
-        //    {
-        //        get { return maxCoordinate; }
-        //    }
-        //}
     }
 }
