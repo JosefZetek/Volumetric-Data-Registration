@@ -1,34 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using MathNet.Numerics.LinearAlgebra;
 
 namespace DataView
 {
     public class FeatureComputerISOSurfaceCurvature : IFeatureComputer
     {
-        private const double BORDER_PERCENTAGE = 0.1;
-
         private double spreadParameterX;
         private double spreadParameterY;
         private double spreadParameterZ;
 
         public FeatureVector ComputeFeatureVector(AData d, Point3D p)
         {
-            double spreadParameter = -Math.Log(BORDER_PERCENTAGE) / 2;
-            this.spreadParameterX = spreadParameter / d.XSpacing;
-            this.spreadParameterY = spreadParameter / d.YSpacing;
-            this.spreadParameterZ = spreadParameter / d.ZSpacing;
-
             Point3D nearestGridPoint = new Point3D(
                 RoundToNearestSpacingMultiplier(p.X, d.XSpacing),
                 RoundToNearestSpacingMultiplier(p.Y, d.YSpacing),
                 RoundToNearestSpacingMultiplier(p.Z, d.ZSpacing)
             );
 
+            UnityEngine.Debug.Log("---------------------");
+            UnityEngine.Debug.Log($"Point X = [{p.X}, {p.Y}, {p.Z}]");
+
+            CalculateSpreadParameter(d, 0.1);
             Curvature closerNeighborhood = ComputeCurvature(p, d, nearestGridPoint, 1);
+
+            CalculateSpreadParameter(d, 0.2);
             Curvature furtherNeighborhood = ComputeCurvature(p, d, nearestGridPoint, 2);
 
+            UnityEngine.Debug.Log($"Curvature closer: {closerNeighborhood.GaussianCurvature}, {closerNeighborhood.MeanCurvature}");
+            UnityEngine.Debug.Log($"Curvature further: {furtherNeighborhood.GaussianCurvature}, {furtherNeighborhood.MeanCurvature}");
+            UnityEngine.Debug.Log("---------------------");
+
             return new FeatureVector(p, new double[] { closerNeighborhood.GaussianCurvature, closerNeighborhood.MeanCurvature, furtherNeighborhood.GaussianCurvature, furtherNeighborhood.MeanCurvature });
+        }
+
+        private void CalculateSpreadParameter(AData d, double borderPercentage)
+        {
+            double spreadParameter = -Math.Log(borderPercentage) / 2;
+            this.spreadParameterX = spreadParameter / d.XSpacing;
+            this.spreadParameterY = spreadParameter / d.YSpacing;
+            this.spreadParameterZ = spreadParameter / d.ZSpacing;
         }
 
         private Matrix<double> ConstructAdjointMatrix(Matrix<double> hessianMatrix)
@@ -79,15 +91,33 @@ namespace DataView
             List<Point3D> surroundingPoints = GetSurroundingPoints(centerPoint, d, radius);
 
             Vector<double> coeficients = CalculateCoeficients(surroundingPoints, point, d);
-            Matrix<double> hessianMatrix = ConstructHessianMatrix(coeficients);
-            Matrix<double> adjointHessian = ConstructAdjointMatrix(hessianMatrix);
 
             Vector<double> functionGradient = GetFunctionGradient(point, coeficients);
+
+            UnityEngine.Debug.Log($"Coef: {coeficients}");
+            Matrix<double> hessianMatrix = ConstructHessianMatrix(coeficients);
+            UnityEngine.Debug.Log($"Hessian: {hessianMatrix}");
+
+
+            /* If the frobenius norm is too small */
+            if (hessianMatrix.FrobeniusNorm() < 1e-5)
+                return new Curvature(0, 0);
+
+            Matrix<double> adjointHessian = ConstructAdjointMatrix(hessianMatrix);
+
+            
+
             double functionGradientNorm = functionGradient.L2Norm();
 
+            double gaussianCurvature = adjointHessian.LeftMultiply(functionGradient).DotProduct(functionGradient) / Math.Pow(functionGradientNorm, 4); /* Gaussian curvature */
+            double meanCurvature = (hessianMatrix.LeftMultiply(functionGradient).DotProduct(functionGradient) - Math.Pow(functionGradientNorm, 2) * hessianMatrix.Trace()) / (2 * Math.Pow(functionGradientNorm, 3)); /* Mean curvature */
+
+            double sqDiff = Math.Sqrt(Math.Pow(meanCurvature, 2) - gaussianCurvature);
+
             return new Curvature(
-                adjointHessian.LeftMultiply(functionGradient).DotProduct(functionGradient) / Math.Pow(functionGradientNorm, 4), /* Gaussian curvature */
-                (hessianMatrix.LeftMultiply(functionGradient).DotProduct(functionGradient) - Math.Pow(functionGradientNorm, 2) * hessianMatrix.Trace()) / (2 * Math.Pow(functionGradientNorm, 3)) /* Mean curvature */
+                meanCurvature + sqDiff,
+                meanCurvature-sqDiff
+                
             );
         }
 
@@ -128,6 +158,7 @@ namespace DataView
                 for (int j = 0; j < qMatrixT.RowCount; j++)
                     qMatrix[i, j] = qMatrixT[j, i] * weight;
 
+                //values[i] = d.GetValue(surroundingPoints[i]);
                 values[i] = d.GetValue(surroundingPoints[i]) * weight;
             }
 

@@ -32,6 +32,11 @@ public class CutViewerHandler : MonoBehaviour
         dataSlicer = new DataSlicer(data);
     }
 
+    public static void SetFCSlicer(AData data)
+    {
+        dataSlicer = new DataFCSlicer(data);
+    }
+
     /// <summary>
     /// Creates a texture where 1 value in passed array is 1 pixel
     /// </summary>
@@ -109,7 +114,9 @@ public class CutViewerHandler : MonoBehaviour
         Color[][] values;
         CutResolution resolution = new CutResolution(500, 500);
 
-        values = dataSlicer.Cut(slider.value, dropdown.index, resolution);
+        //values = dataSlicer.Cut(slider.value, dropdown.index, resolution);
+        values = dataSlicer.Cut(0.5, 2, resolution);
+
         image.image = GetTexture(values);
     }
 

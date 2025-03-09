@@ -6,17 +6,16 @@ namespace DataView
 {
     public class FeatureComputerPCA : IFeatureComputer
     {
-        public static double radius = 3;
+
+        private const int SURROUNDING = 3;
 
         public Matrix<double> CalculatePCAVectors(AData data, Point3D point, double spacing)
         {
-            Matrix<double> basis = Matrix<double>.Build.Dense(3,3);
-            
-            spacing = 0.3;
+            Matrix<double> basis;
 
             try
             {
-                basis = GetPointBasis(data, point, spacing, radius);
+                basis = GetPointBasis(data, point, spacing, spacing * SURROUNDING);
             }
             catch (Exception e) { throw e; }
 
@@ -157,7 +156,7 @@ namespace DataView
 
             List<double> featurevector = new List<double>();
 
-            Matrix<double> a = CalculatePCAVectors(d, p, 0.3);
+            Matrix<double> a = CalculatePCAVectors(d, p, Math.Min(Math.Min(d.XSpacing, d.YSpacing), d.ZSpacing)/2.0);
 
             for(double i = -radiusX; i<=radiusX; i+=0.5)
             {

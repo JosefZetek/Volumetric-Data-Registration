@@ -1,15 +1,9 @@
 ﻿<Properties StartupConfiguration="{E9E6DABC-757D-9313-16C6-28C0AFD75379}|">
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="20a50488-fb8f-473b-ac6b-597dafea92b5" />
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Registration/RegistrationLaunchers/RegistrationLauncher.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SceneHandlers/CutViewer/CutViewerHandler.cs">
     <Files>
-      <File FileName="Assets/Registration/RegistrationLaunchers/RegistrationLauncher.cs" Line="26" Column="33" />
-      <File FileName="Assets/SceneHandlers/MainViewHandler.cs" Line="1" Column="1" />
+      <File FileName="Assets/SceneHandlers/MainViewHandler.cs" Line="71" Column="127" />
+      <File FileName="Assets/Registration/RegistrationLaunchers/RegistrationLauncher.cs" />
       <File FileName="Assets/Registration/Density/DensityStructure.cs" />
       <File FileName="Assets/Registration/Density/DensityTree.cs" />
       <File FileName="Assets/Registration/TransformationDistanceMetrics/TransformationDistance7.cs" />
@@ -17,7 +11,7 @@
       <File FileName="Assets/Registration/Other/Generator.cs" />
       <File FileName="Assets/SceneHandlers/TestResultVisualizerHandler.cs" />
       <File FileName="Assets/Registration/Other/Point3D.cs" />
-      <File FileName="Assets/Registration/RegistrationLaunchers/IRegistrationLauncher.cs" Line="1" Column="1" />
+      <File FileName="Assets/Registration/RegistrationLaunchers/IRegistrationLauncher.cs" />
       <File FileName="Assets/Registration/TransformSelect/Transform3D.cs" />
       <File FileName="Assets/Registration/RotationComputers/RotationComputer.cs" />
       <File FileName="Assets/Registration/RotationComputers/RotationComputerVector.cs" />
@@ -35,7 +29,7 @@
       <File FileName="Assets/Registration/Matching/FakeMatcher.cs" />
       <File FileName="Assets/Registration/Samplers/ISampler.cs" />
       <File FileName="Assets/Registration/TransformationDistanceMetrics/ITransformationDistance.cs" />
-      <File FileName="Assets/Registration/FeatureComputers/FeatureComputerISOSurfaceCurvature.cs" />
+      <File FileName="Assets/Registration/FeatureComputers/FeatureComputerISOSurfaceCurvature.cs" Line="96" Column="1" />
       <File FileName="Assets/Registration/Samplers/SamplerVariance.cs" />
       <File FileName="Assets/SceneHandlers/DataGenerationHandler.cs" />
       <File FileName="Assets/Registration/TransformSelect/Density.cs" />
@@ -46,27 +40,59 @@
       <File FileName="Assets/Registration/FeatureComputers/FeatureComputerDataDistribution.cs" />
       <File FileName="Assets/Registration/FeatureComputers/FeatureComputerNormedRings.cs" />
       <File FileName="Assets/Registration/FeatureComputers/IFeatureComputer.cs" />
-      <File FileName="Assets/Registration/FeatureComputers/FeatureComputerHistogram.cs" Line="3" Column="1" />
+      <File FileName="Assets/Registration/FeatureComputers/FeatureComputerHistogram.cs" />
+      <File FileName="Assets/Registration/DataClasses/AData.cs" />
+      <File FileName="Assets/Registration/DataClasses/AMockObject.cs" />
+      <File FileName="Assets/Registration/FeatureComputers/FeatureComputer.cs" />
+      <File FileName="Assets/Registration/FeatureComputers/FakeFeatureComputer.cs" />
+      <File FileName="Assets/Registration/FeatureComputers/FeatureComputerPCA.cs" />
+      <File FileName="Assets/Registration/DataClasses/EllipsoidMockData.cs" Line="1" Column="1" />
+      <File FileName="Assets/Registration/Other/PointWithFeatures.cs" />
+      <File FileName="Assets/Registration/DataClasses/VolumetricData.cs" />
+      <File FileName="Assets/Registration/DataClasses/PointDistanceMock.cs" />
+      <File FileName="Assets/Registration/DataClasses/SpheresMockData.cs" />
+      <File FileName="Assets/Registration/DataClasses/MockDataSegment.cs" />
+      <File FileName="Assets/Registration/Other/CSVWriter.cs" />
+      <File FileName="Assets/Registration/Other/FeatureVector.cs" />
+      <File FileName="Assets/SceneHandlers/CutViewer/CutViewerHandler.cs" Line="75" Column="52" />
+      <File FileName="Assets/Registration/DataClasses/DataSlicer.cs" Line="1" Column="1" />
+      <File FileName="Assets/Registration/DataClasses/NewMonoBehaviour.cs" Line="27" Column="49" />
+      <File FileName="Assets/Registration/DataClasses/TransformedDataSlicer.cs" />
+      <File FileName="Assets/Registration/DataClasses/SphereMockData.cs" />
+      <File FileName="Assets/SceneHandlers/CutViewer/ScaleHUD.asset" />
+      <File FileName="Assets/Registration/DataClasses/Data.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="Volumetric-Data-Registration">
+          <Node name="Volumetric-Data-Registration" expanded="True">
             <Node name="Assets" expanded="True">
-              <Node name="Registration" expanded="True" selected="True">
+              <Node name="Registration" expanded="True">
+                <Node name="DataClasses" expanded="True" />
                 <Node name="Density" expanded="True" />
                 <Node name="FeatureComputers" expanded="True" />
+                <Node name="Other" expanded="True" />
                 <Node name="RegistrationLaunchers" expanded="True" />
                 <Node name="RotationComputers" expanded="True" />
                 <Node name="Samplers" expanded="True" />
                 <Node name="TransformationDistanceMetrics" expanded="True" />
                 <Node name="TransformSelect" expanded="True" />
               </Node>
-              <Node name="SceneHandlers" expanded="True" />
+              <Node name="SceneHandlers" expanded="True">
+                <Node name="CutViewer" expanded="True">
+                  <Node name="CutViewerHandler.cs" selected="True" />
+                </Node>
+              </Node>
             </Node>
           </Node>
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="394b221c-2d14-46d8-aedc-53ab4c515f7d" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MultiItemStartupConfigurations />
 </Properties>

@@ -65,24 +65,44 @@ public class MainViewHandler : MonoBehaviour
 
     private void RegistrationTest()
     {
-        AData macroData = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/TEST2/macroData.mhd", "/Users/pepazetek/Desktop/Tests/TEST2/macroData.raw"));
-        AData microData = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/TEST2/microData5.mhd", "/Users/pepazetek/Desktop/Tests/TEST2/microData5.raw"));
+        //AData macroData = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/TEST2/macroData.mhd", "/Users/pepazetek/Desktop/Tests/TEST2/macroData.raw"));
+        //AData microData = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/TEST2/microData5.mhd", "/Users/pepazetek/Desktop/Tests/TEST2/microData5.raw"));
 
-        Transform3D transformation = TransformationIO.FetchTransformation("/Users/pepazetek/Desktop/Tests/TEST2/microData5.txt");
+        AData data = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/sphere.mhd", "/Users/pepazetek/sphere.raw"));
+        IFeatureComputer fc = new FeatureComputerISOSurfaceCurvature();
+        Point3D point = new Point3D(0, 0, 2.4);
+        Point3D centerPoint = new Point3D(2.5, 2.5, 2.5);
 
-        Debug.Log($"Loaded transformation: {transformation}");
+        Debug.Log($"Distance to center: {centerPoint.Distance(point)}");
 
-        RegistrationLauncher.expectedTransformation = transformation;
-        RegistrationLauncher registrationLauncher = new RegistrationLauncher();
+        Debug.Log($"Value: {data.GetValue(point)}");
+        Debug.Log($"FC: {fc.ComputeFeatureVector(data, point)}");
+
+        //:4.34 y: 4.54 z: 2.4 and current value: 1
+
+
+        CutViewerHandler.SetFCSlicer(data);
+
+        //Transform3D transformation = TransformationIO.FetchTransformation("/Users/pepazetek/Desktop/Tests/TEST2/microData5.txt");
+        //Transform3D transformation = new Transform3D();
+
+        //Debug.Log($"Loaded transformation: {transformation}");
+
+        //RegistrationLauncher.expectedTransformation = transformation;
+        //RegistrationLauncher registrationLauncher = new RegistrationLauncher();
         //Debug.Log($"Value: {registrationLauncher.GetVariation(microData, macroData)}");
 
-        Transform3D resultTransformation = registrationLauncher.RunRegistration(microData, macroData);
+        //registrationLauncher.Krivost(data);
+        //registrationLauncher.ZK(data, data);
 
-        Debug.Log($"Result transformation {resultTransformation}");
-        //Debug.Log($"Distance: {transformation.RelativeDistanceTo(resultTransformation)}");
 
-        CutViewerHandler.SetDataSlicer(microData, macroData, resultTransformation);
-        SceneManager.LoadScene("CutViewer");
+        //Transform3D resultTransformation = registrationLauncher.RunRegistration(microData, macroData);
+
+        //Debug.Log($"Result transformation {resultTransformation}");
+        ////Debug.Log($"Distance: {transformation.RelativeDistanceTo(resultTransformation)}");
+
+        //CutViewerHandler.SetDataSlicer(microData, macroData, resultTransformation);
+        //SceneManager.LoadScene("CutViewer");
     }
 
     private List<Transform3D> InitTransformations(int count)
@@ -114,6 +134,10 @@ public class MainViewHandler : MonoBehaviour
     private void Start()
     {
         RegistrationTest();
+        //SphereMockData sphereMockData = new SphereMockData();
+
+        //FileSaver fileSaver = new FileSaver("/Users/pepazetek/", "sphere", sphereMockData);
+        //fileSaver.MakeFiles();
     }
 
     private void CreatePair(AMockObject referenceObject, Transform3D transformation)

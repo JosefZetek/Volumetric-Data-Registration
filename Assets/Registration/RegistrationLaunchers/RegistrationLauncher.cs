@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace DataView
@@ -49,7 +48,7 @@ namespace DataView
         private void InitializeRegistrationModules()
         {
             this.sampler = new SamplerVariance();
-            this.featureComputer = new FeatureComputerHistogram();
+            this.featureComputer = new FeatureComputerISOSurfaceCurvature();
             this.matcher = new Matcher();
             this.transformer = new Transformer3D();
         }
@@ -57,6 +56,29 @@ namespace DataView
         public Transform3D RunRegistration(FilePathDescriptor microDataPath, FilePathDescriptor macroDataPath)
         {
             return RunRegistration(new VolumetricData(microDataPath), new VolumetricData(macroDataPath));
+        }
+
+        public void Krivost(AData data)
+        {
+            List<Point2D> graphPoints = new List<Point2D>();
+
+            Point3D[] points = sampler.Sample(data, NUMBER_OF_POINTS_MACRO);
+            for (int i = 0; i<points.Length; i++)
+            {
+                double distance = points[i].Distance(new Point3D(2.5, 2.5, 2.5));
+
+                graphPoints.Add(new Point2D(1.0 / distance, -featureComputer.ComputeFeatureVector(data, points[i]).Features[1]));
+            }
+
+            CSVWriter.WriteResult("Realna krivost X vypocitana krivost 1 (prevraceny znak)", "Realna krivost", "Vypocitana krivost", graphPoints);
+        }
+
+        public void ZK(AData microData, AData macroData)
+        {
+            Point3D[] microPoints = sampler.Sample(microData, NUMBER_OF_POINTS_MICRO);
+            Point3D[] macroPoints = sampler.Sample(macroData, NUMBER_OF_POINTS_MACRO);
+
+            GenerateFVGraph(microData, macroData, microPoints, macroPoints);
         }
 
         public Transform3D RunRegistration(AData microData, AData macroData)
@@ -68,6 +90,8 @@ namespace DataView
 
             //----------------------------------------FEATURE VECTOR CALCULATION------------------------------------------------
 
+            
+
             Debug.Log("Computing micro feature vectors.");
             List<FeatureVector> featureVectorsMicro = CalculateFeatureVectors(sampler, featureComputer, microData, NUMBER_OF_POINTS_MICRO);
             Debug.Log("Computing macro feature vectors.");
@@ -75,7 +99,6 @@ namespace DataView
 
             Debug.Log($"Number of feature vectors micro: {featureVectorsMicro.Count}");
             Debug.Log($"Number of feature vectors macro: {featureVectorsMacro.Count}");
-
 
             /*
             System.Random random = new System.Random();
@@ -126,21 +149,6 @@ namespace DataView
             return tr;
         }
 
-        private void CompareAlternativeMatches(Match[] matches, Match[] matchesAlternative)
-        {
-            if(matches.Length != matchesAlternative.Length)
-            {
-                Debug.Log($"Matches dont have same length: {matchesAlternative.Length} x {matches.Length}");
-                return;
-            }
-
-            for(int i = 0; i<matches.Length; i++)
-            {
-                Debug.Log($"Distance macro {matches[i].macroFV.Point.Distance(matchesAlternative[i].macroFV.Point)}");
-                Debug.Log($"Distances micro {matches[i].microFV.Point.Distance(matchesAlternative[i].microFV.Point)}");
-            }
-
-        }
 
         private List<FeatureVector> CalculateFeatureVectors(ISampler sampler, IFeatureComputer featureComputer, AData data, int NUMBER_OF_POINTS)
         {
@@ -158,6 +166,52 @@ namespace DataView
             }
 
             return featureVectors;
+        }
+
+        private void GenerateFVGraph(AData microData, AData macroData, Point3D[] microPoints, Point3D[] macroPoints)
+        {
+
+            List<Point2D> distances = new List<Point2D>();
+            double realDistance, fvDistance;
+            FeatureVector microFV, macroFV;
+
+            SpheresMockData spheresMockData = new SpheresMockData();
+            spheresMockData.PrintSpherePositions();
+
+            for(int i = 0; i<Math.Min(microPoints.Length, 100); i++)
+            {
+                for(int j = 0; j<Math.Min(macroPoints.Length, 100); j++)
+                {
+                    
+                    microFV = featureComputer.ComputeFeatureVector(microData, microPoints[i]);
+                    macroFV = featureComputer.ComputeFeatureVector(macroData, macroPoints[j]);
+
+                    //realDistance = microPoints[i].ApplyRotationTranslation(expectedTransformation).Distance(macroPoints[j]);
+                    //realDistance = Math.Abs(microPoints[i].Distance(new Point3D(2.5, 2.5, 2.5)) - macroPoints[i].Distance(new Point3D(2.5, 2.5, 2.5)));
+                    fvDistance = microFV.DistTo2(macroFV);
+
+                    int sphereIndex1 = spheresMockData.GetSphereIndex(microPoints[i].X, microPoints[i].Y, microPoints[i].Z);
+                    int sphereIndex2 = spheresMockData.GetSphereIndex(macroPoints[i].X, macroPoints[i].Y, macroPoints[i].Z);
+
+
+                    int indexDistance = (sphereIndex1 == 8 || sphereIndex2 == 8) ? 10 : Math.Abs(sphereIndex1 - sphereIndex2);
+
+                    if (fvDistance > 1E4 && indexDistance == 0)
+                    {
+                        Debug.Log($"Sphere index 1 = {sphereIndex1}");
+                        Debug.Log($"Sphere index 2 = {sphereIndex2}");
+                        Debug.Log($"");
+                        Debug.Log($"Micro FV: {microFV}");
+                        Debug.Log($"Macro FV: {macroFV}");
+                        Debug.Log($"");
+                    }
+
+
+                    distances.Add(new Point2D(indexDistance, fvDistance));
+                }
+            }
+
+            CSVWriter.WriteResult("FV - zavislost indexu koule na vzdalenosti FV.csv", "Real distance", "FV Distance", distances);
         }
 
         private List<Transform3D> CalculateTransformations(AData microData, AData macroData, Match[] matches)
