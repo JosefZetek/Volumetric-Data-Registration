@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using MathNet.Numerics.LinearAlgebra;
 
 namespace DataView
@@ -19,18 +18,11 @@ namespace DataView
                 RoundToNearestSpacingMultiplier(p.Z, d.ZSpacing)
             );
 
-            UnityEngine.Debug.Log("---------------------");
-            UnityEngine.Debug.Log($"Point X = [{p.X}, {p.Y}, {p.Z}]");
-
             CalculateSpreadParameter(d, 0.1);
             Curvature closerNeighborhood = ComputeCurvature(p, d, nearestGridPoint, 1);
 
             CalculateSpreadParameter(d, 0.2);
             Curvature furtherNeighborhood = ComputeCurvature(p, d, nearestGridPoint, 2);
-
-            UnityEngine.Debug.Log($"Curvature closer: {closerNeighborhood.GaussianCurvature}, {closerNeighborhood.MeanCurvature}");
-            UnityEngine.Debug.Log($"Curvature further: {furtherNeighborhood.GaussianCurvature}, {furtherNeighborhood.MeanCurvature}");
-            UnityEngine.Debug.Log("---------------------");
 
             return new FeatureVector(p, new double[] { closerNeighborhood.GaussianCurvature, closerNeighborhood.MeanCurvature, furtherNeighborhood.GaussianCurvature, furtherNeighborhood.MeanCurvature });
         }
@@ -90,22 +82,20 @@ namespace DataView
         {
             List<Point3D> surroundingPoints = GetSurroundingPoints(centerPoint, d, radius);
 
-            Vector<double> coeficients = CalculateCoeficients(surroundingPoints, point, d);
+            Equation equation = GetApproximationEquation(surroundingPoints, point, d);
 
-            Vector<double> functionGradient = GetFunctionGradient(point, coeficients);
+            if (!equation.CheckCondition())
+                return new Curvature(0, 0);
 
-            UnityEngine.Debug.Log($"Coef: {coeficients}");
+            Vector<double> coeficients = equation.GetEquationResult();
             Matrix<double> hessianMatrix = ConstructHessianMatrix(coeficients);
-            UnityEngine.Debug.Log($"Hessian: {hessianMatrix}");
-
 
             /* If the frobenius norm is too small */
             if (hessianMatrix.FrobeniusNorm() < 1e-5)
                 return new Curvature(0, 0);
 
+            Vector<double> functionGradient = GetFunctionGradient(point, coeficients);
             Matrix<double> adjointHessian = ConstructAdjointMatrix(hessianMatrix);
-
-            
 
             double functionGradientNorm = functionGradient.L2Norm();
 
@@ -127,7 +117,7 @@ namespace DataView
             return coeficients[0] * Math.Pow(x, 2) + coeficients[1] * Math.Pow(y, 2) + coeficients[2] * Math.Pow(z, 2) + coeficients[3] * x * y + coeficients[4] * x * z + coeficients[5] * y * z + coeficients[6] * x + coeficients[7] * y + coeficients[8] * z + coeficients[9];
         }
 
-        private Vector<double> CalculateCoeficients(List<Point3D> surroundingPoints, Point3D referencePoint, AData d)
+        private Equation GetApproximationEquation(List<Point3D> surroundingPoints, Point3D referencePoint, AData d)
         {
             int NUMBER_OF_VARIABLES = 10;
 
@@ -166,7 +156,7 @@ namespace DataView
             for (int i = 0; i < rightSide.RowCount; i++)
                 rightSide[i, 0] = qMatrixT.Row(i).DotProduct(values);
 
-            return (qMatrixT * qMatrix).Solve(rightSide).Column(0);
+            return new Equation(qMatrixT.Multiply(qMatrix).Svd(), rightSide);
         }
 
         private double GetGaussianWeight(double x, double y, double z)
