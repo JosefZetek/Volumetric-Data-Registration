@@ -3,17 +3,19 @@ using UnityEngine;
 
 namespace DataView
 {
-    public class DataFCSlicer : IDataSlicer
+    public class DataSamplerSlicer : IDataSlicer
     {
         private AData referenceData;
-        private FeatureComputerISOSurfaceCurvature featureComputer;
+        private ISampler sampler;
+        private Point3D[] sampledPoints;
 
         private const int DIMENSIONS = 3;
 
-        public DataFCSlicer(AData data)
+        public DataSamplerSlicer(AData data)
         {
             this.referenceData = data;
-            this.featureComputer = new FeatureComputerISOSurfaceCurvature();
+            this.sampler = new SamplerGradient(0.1);
+            this.sampledPoints = sampler.Sample(data, 1000);
         }
 
         public Color[][] Cut(double t, int axis, CutResolution resolution)
@@ -31,7 +33,6 @@ namespace DataView
             int firstVariableIndex = (axis == 0) ? 1 : 0, secondVariableIndex = (axis == 2) ? 1 : 2;
 
             float currentNormalizedValue;
-            FeatureVector featureVector;
 
             for (int i = 0; i < resolution.Height; i++)
             {
@@ -45,34 +46,39 @@ namespace DataView
                     double firstDimensionProgress = ((double)j / ((double)resolution.Width - 1)) * referenceData.Bounds[firstVariableIndex];
                     coordinates[firstVariableIndex] = firstDimensionProgress;
 
-                    featureVector = featureComputer.ComputeFeatureVector(referenceData, new Point3D(coordinates[0], coordinates[1], coordinates[2]));
+                    double maxDifference = Math.Max(referenceData.Bounds[firstVariableIndex] / resolution.Width, referenceData.Bounds[secondVariableIndex] / resolution.Height);
 
 
-
-                    if (0.00625 < featureVector.Features[0] && featureVector.Features[0] < 0.1)
-                        currentNormalizedValue = Normalize((float)featureVector.Features[0]);
-
-                    else
-                        currentNormalizedValue = Constrain((float)featureVector.Features[0], 0, 1);
-
-
-
-
-
-                    //if (Math.Abs(coordinates[0]-1515) < 3 && Math.Abs(coordinates[1] - 170) < 3)
-                    //{
-                    //    Debug.Log("");
-                    //    Debug.Log($"[{coordinates[0]}, {coordinates[1]}, {coordinates[2]}");
-                    //    Debug.Log(featureVector);
-                    //    Debug.Log($"{currentNormalizedValue}");
-                    //    Debug.Log("");
-                    //}
-
+                    if(IsSampledPoint(new Point3D(coordinates[0], coordinates[1], coordinates[2]), maxDifference))
+                    {
+                        cutData[i][j] = new Color(255, 0, 0);
+                        continue;
+                    }
+                    currentNormalizedValue = (float)referenceData.GetNormalizedValue(coordinates[0], coordinates[1], coordinates[2]);
                     cutData[i][j] = new Color(currentNormalizedValue, currentNormalizedValue, currentNormalizedValue);
                 }
             }
 
             return cutData;
+        }
+
+        private bool IsSampledPoint(Point3D point, double threshold)
+        {
+            for (int i = 0; i < sampledPoints.Length; i++)
+            {
+                if (Math.Abs(sampledPoints[i].X - point.X) > threshold)
+                    continue;
+
+                if (Math.Abs(sampledPoints[i].Y - point.Y) > threshold)
+                    continue;
+
+                if (Math.Abs(sampledPoints[i].Z - point.Z) > threshold)
+                    continue;
+
+                return true;
+            }
+
+            return false;
         }
 
         private float Constrain(float constrainedValue, float minValue, float maxValue)

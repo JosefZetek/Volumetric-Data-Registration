@@ -1,62 +1,67 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace DataView
+public class QuickSelectClass
 {
-    public class QuickSelectClass
-	{
+    private Random random = new Random();
 
-		private Random random;
+    public T QuickSelect<T>(List<T> list, int k) where T : IComparable<T>
+    {
+        List<T> tempArray = new List<T>();
+        for (int i = 0; i < list.Count; i++)
+            tempArray.Add(list[i]);
 
-        public QuickSelectClass()
-		{
-            random = new Random();
+
+        int left = 0, right = tempArray.Count - 1;
+
+        while (left <= right)
+        {
+            int pivotIndex = random.Next(left, right + 1);
+            (int low, int high) = PartitionThreeWay(tempArray, left, right, pivotIndex);
+
+            if (k >= low && k <= high)
+                return tempArray[k]; // Found the median efficiently
+            else if (k < low)
+                right = low - 1; // Search left
+            else
+                left = high + 1; // Search right
         }
 
-        public T QuickSelect<T>(List<T> givenList, int elementNumber) where T : IComparable<T>
+        throw new InvalidOperationException("QuickSelect failed.");
+    }
+
+    private (int, int) PartitionThreeWay<T>(List<T> list, int left, int right, int pivotIndex) where T : IComparable<T>
+    {
+        T pivotValue = list[pivotIndex];
+        int low = left, mid = left, high = right;
+
+        while (mid <= high)
         {
-            List<T> listToSort = givenList;
+            int cmp = list[mid].CompareTo(pivotValue);
 
-            List<T> smallerList = new List<T>();
-            List<T> biggerList = new List<T>();
-
-            while (true)
+            if (cmp < 0)  // Move smaller elements to the left
             {
-                int pivotIndex = random.Next(0, listToSort.Count);
-                T pivot = listToSort[pivotIndex];
-
-                /* Sort values */
-                for (int i = 0; i < listToSort.Count; i++)
-                {
-                    if (pivotIndex == i)
-                        continue;
-
-                    if (listToSort[i].CompareTo(pivot) <= 0)
-                    {
-                        smallerList.Add(listToSort[i]);
-                        continue;
-                    }
-
-                    biggerList.Add(listToSort[i]);
-                }
-
-                if (elementNumber < smallerList.Count)
-                {
-                    listToSort = smallerList;
-                    smallerList = new List<T>();
-                    biggerList.Clear();
-                    continue;
-                }
-
-                if (elementNumber == smallerList.Count)
-                    return pivot;
-
-                elementNumber -= (smallerList.Count + 1);
-                listToSort = biggerList;
-                smallerList.Clear();
-                biggerList = new List<T>();
+                Swap(list, low, mid);
+                low++; mid++;
+            }
+            else if (cmp > 0) // Move larger elements to the right
+            {
+                Swap(list, mid, high);
+                high--;
+            }
+            else  // Equal elements stay in the middle
+            {
+                mid++;
             }
         }
+
+        return (low, high); // Return range of pivot duplicates
+    }
+
+    private void Swap<T>(List<T> list, int i, int j)
+    {
+        T temp = list[i];
+        list[i] = list[j];
+        list[j] = temp;
     }
 }
-

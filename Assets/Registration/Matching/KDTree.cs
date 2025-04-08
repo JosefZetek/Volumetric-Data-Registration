@@ -152,12 +152,12 @@ namespace DataView
             {
                 
                 n.left = new Node();
-                AddChildren(n.left, left, (axis + 1) % fVectors[fVectors.Length-1].GetNumberOfFeatures);
+                AddChildren(n.left, left, (axis + 1) % fVectors[fVectors.Length-1].Features.Length);
             }
             if (right.Count > 0)
             {
                 n.right = new Node();
-                AddChildren(n.right, right, (axis + 1) % fVectors[fVectors.Length - 1].GetNumberOfFeatures);
+                AddChildren(n.right, right, (axis + 1) % fVectors[fVectors.Length - 1].Features.Length);
             }
         }
 

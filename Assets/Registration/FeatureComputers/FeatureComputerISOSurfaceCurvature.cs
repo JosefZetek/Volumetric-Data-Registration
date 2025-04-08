@@ -18,13 +18,44 @@ namespace DataView
                 RoundToNearestSpacingMultiplier(p.Z, d.ZSpacing)
             );
 
-            CalculateSpreadParameter(d, 0.1);
-            Curvature closerNeighborhood = ComputeCurvature(p, d, nearestGridPoint, 1);
+            //CalculateSpreadParameter(d, 0.2);
+            //Curvature closerNeighborhood = ComputeCurvature(p, d, nearestGridPoint, 1);
 
-            CalculateSpreadParameter(d, 0.2);
-            Curvature furtherNeighborhood = ComputeCurvature(p, d, nearestGridPoint, 2);
+            //CalculateSpreadParameter(d, 0.3);
+            //Curvature furtherNeighborhood = ComputeCurvature(p, d, nearestGridPoint, 2);
 
-            return new FeatureVector(p, new double[] { closerNeighborhood.GaussianCurvature, closerNeighborhood.MeanCurvature, furtherNeighborhood.GaussianCurvature, furtherNeighborhood.MeanCurvature });
+            CalculateSpreadParameter(d, 0.4);
+            Curvature furthestNeighborhood = ComputeCurvature(p, d, nearestGridPoint, 3);
+
+            //double[] filteredCurvatures = FilterCurvatures(closerNeighborhood, furtherNeighborhood, furthestNeighborhood);
+
+            //return new FeatureVector(p, new double[] { 1/closerNeighborhood.GaussianCurvature, 1/closerNeighborhood.MeanCurvature, 1/furtherNeighborhood.GaussianCurvature, 1/furtherNeighborhood.MeanCurvature});
+            return new FeatureVector(p, new double[] { furthestNeighborhood.GaussianCurvature, furthestNeighborhood.MeanCurvature });
+        }
+
+        private double[] FilterCurvatures(Curvature closerNeighborhood, Curvature furtherNeighborhood, Curvature furthestNeighborhood)
+        {
+            //double[] gaussianCurvatures = new double[] { closerNeighborhood.GaussianCurvature, furtherNeighborhood.GaussianCurvature, furthestNeighborhood.GaussianCurvature };
+            //double[] meanCurvatures = new double[] { closerNeighborhood.MeanCurvature, furtherNeighborhood.MeanCurvature, furthestNeighborhood.MeanCurvature };
+
+            //Array.Sort(gaussianCurvatures);
+            //Array.Sort(meanCurvatures);
+
+            double filteredGaussian = FindMedian(closerNeighborhood.GaussianCurvature, furtherNeighborhood.GaussianCurvature, furthestNeighborhood.GaussianCurvature);
+            double filteredMean = FindMedian(closerNeighborhood.MeanCurvature, furtherNeighborhood.MeanCurvature, furthestNeighborhood.MeanCurvature);
+
+            return new double[] { filteredGaussian, filteredMean };
+        }
+
+        private double FindMedian(double a, double b, double c)
+        {
+            if ((b <= a && a <= c) || (c <= a && a <= b))
+                return a;
+
+            if ((a <= b && b <= c) || (c <= b && b <= a))
+                return b;
+
+            return c;
         }
 
         private void CalculateSpreadParameter(AData d, double borderPercentage)
@@ -82,19 +113,19 @@ namespace DataView
         {
             List<Point3D> surroundingPoints = GetSurroundingPoints(centerPoint, d, radius);
 
-            Equation equation = GetApproximationEquation(surroundingPoints, point, d);
+            Vector<double> coeficients = GetApproximationEquation(surroundingPoints, point, centerPoint, d);
 
-            if (!equation.CheckCondition())
-                return new Curvature(0, 0);
+            //if (!equation.CheckCondition())
+            //    return new Curvature(0, 0);
 
-            Vector<double> coeficients = equation.GetEquationResult();
+            //Vector<double> coeficients = equation.GetEquationResult();
             Matrix<double> hessianMatrix = ConstructHessianMatrix(coeficients);
 
             /* If the frobenius norm is too small */
             if (hessianMatrix.FrobeniusNorm() < 1e-5)
                 return new Curvature(0, 0);
 
-            Vector<double> functionGradient = GetFunctionGradient(point, coeficients);
+            Vector<double> functionGradient = GetFunctionGradient(point - centerPoint, coeficients);
             Matrix<double> adjointHessian = ConstructAdjointMatrix(hessianMatrix);
 
             double functionGradientNorm = functionGradient.L2Norm();
@@ -102,12 +133,12 @@ namespace DataView
             double gaussianCurvature = adjointHessian.LeftMultiply(functionGradient).DotProduct(functionGradient) / Math.Pow(functionGradientNorm, 4); /* Gaussian curvature */
             double meanCurvature = (hessianMatrix.LeftMultiply(functionGradient).DotProduct(functionGradient) - Math.Pow(functionGradientNorm, 2) * hessianMatrix.Trace()) / (2 * Math.Pow(functionGradientNorm, 3)); /* Mean curvature */
 
-            double sqDiff = Math.Sqrt(Math.Pow(meanCurvature, 2) - gaussianCurvature);
+            double sqDiff = Math.Max(Math.Pow(meanCurvature, 2) - gaussianCurvature, 0);
+            sqDiff = Math.Sqrt(sqDiff);
 
             return new Curvature(
                 meanCurvature + sqDiff,
-                meanCurvature-sqDiff
-                
+                meanCurvature - sqDiff
             );
         }
 
@@ -117,15 +148,18 @@ namespace DataView
             return coeficients[0] * Math.Pow(x, 2) + coeficients[1] * Math.Pow(y, 2) + coeficients[2] * Math.Pow(z, 2) + coeficients[3] * x * y + coeficients[4] * x * z + coeficients[5] * y * z + coeficients[6] * x + coeficients[7] * y + coeficients[8] * z + coeficients[9];
         }
 
-        private Equation GetApproximationEquation(List<Point3D> surroundingPoints, Point3D referencePoint, AData d)
+        private Vector<double> GetApproximationEquation(List<Point3D> surroundingPoints, Point3D referencePoint, Point3D centerPoint, AData d)
         {
             int NUMBER_OF_VARIABLES = 10;
 
             Matrix<double> qMatrixT = Matrix<double>.Build.Dense(NUMBER_OF_VARIABLES, surroundingPoints.Count);
             Matrix<double> qMatrix = Matrix<double>.Build.Dense(surroundingPoints.Count, NUMBER_OF_VARIABLES);
             Vector<double> values = Vector<double>.Build.Dense(surroundingPoints.Count);
+            Vector<double> weightedValues = Vector<double>.Build.Dense(surroundingPoints.Count);
             Matrix<double> rightSide = Matrix<double>.Build.Dense(qMatrix.ColumnCount, 1);
 
+
+            Point3D currentCenteredPoint;
             for (int i = 0; i < surroundingPoints.Count; i++)
             {
                 double weight = GetGaussianWeight(
@@ -134,29 +168,51 @@ namespace DataView
                     surroundingPoints[i].Z - referencePoint.Z
                 );
 
-                qMatrixT[0, i] = Math.Pow(surroundingPoints[i].X, 2);
-                qMatrixT[1, i] = Math.Pow(surroundingPoints[i].Y, 2);
-                qMatrixT[2, i] = Math.Pow(surroundingPoints[i].Z, 2);
-                qMatrixT[3, i] = surroundingPoints[i].X * surroundingPoints[i].Y;
-                qMatrixT[4, i] = surroundingPoints[i].X * surroundingPoints[i].Z;
-                qMatrixT[5, i] = surroundingPoints[i].Y * surroundingPoints[i].Z;
-                qMatrixT[6, i] = surroundingPoints[i].X;
-                qMatrixT[7, i] = surroundingPoints[i].Y;
-                qMatrixT[8, i] = surroundingPoints[i].Z;
+                currentCenteredPoint = surroundingPoints[i] - centerPoint;
+
+                qMatrixT[0, i] = Math.Pow(currentCenteredPoint.X, 2);
+                qMatrixT[1, i] = Math.Pow(currentCenteredPoint.Y, 2);
+                qMatrixT[2, i] = Math.Pow(currentCenteredPoint.Z, 2);
+                qMatrixT[3, i] = currentCenteredPoint.X * currentCenteredPoint.Y;
+                qMatrixT[4, i] = currentCenteredPoint.X * currentCenteredPoint.Z;
+                qMatrixT[5, i] = currentCenteredPoint.Y * currentCenteredPoint.Z;
+                qMatrixT[6, i] = currentCenteredPoint.X;
+                qMatrixT[7, i] = currentCenteredPoint.Y;
+                qMatrixT[8, i] = currentCenteredPoint.Z;
                 qMatrixT[9, i] = 1;
 
                 for (int j = 0; j < qMatrixT.RowCount; j++)
                     qMatrix[i, j] = qMatrixT[j, i] * weight;
 
-                //values[i] = d.GetValue(surroundingPoints[i]);
-                values[i] = d.GetValue(surroundingPoints[i]) * weight;
+                values[i] = d.GetValue(surroundingPoints[i]);
+                weightedValues[i] = values[i] * weight;
             }
+
+            if (CheckSameValues(values, 1))
+                return Vector<double>.Build.Dense(NUMBER_OF_VARIABLES);
 
             /* Constructing right side */
             for (int i = 0; i < rightSide.RowCount; i++)
-                rightSide[i, 0] = qMatrixT.Row(i).DotProduct(values);
+                rightSide[i, 0] = qMatrixT.Row(i).DotProduct(weightedValues);
 
-            return new Equation(qMatrixT.Multiply(qMatrix).Svd(), rightSide);
+            Matrix<double> left = qMatrixT.Multiply(qMatrix);
+            return left.Solve(rightSide).Column(0).Map(x => double.IsNaN(x) ? 0 : x);
+        }
+
+        private bool CheckSameValues(Vector<double> values, double threshold)
+        {
+            double minValue = double.MaxValue, maxValue = double.MinValue;
+
+            for (int i = 0; i < values.Count; i++)
+            {
+                if (minValue > values[i])
+                    minValue = values[i];
+
+                if (maxValue < values[i])
+                    maxValue = values[i];
+            }
+
+            return Math.Abs(minValue - maxValue) < threshold;
         }
 
         private double GetGaussianWeight(double x, double y, double z)
@@ -231,7 +287,6 @@ namespace DataView
 
             public double GaussianCurvature { get => gaussianCurvature; }
             public double MeanCurvature { get => meanCurvature; }
-
         }
     }
 }

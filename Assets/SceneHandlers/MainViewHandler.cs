@@ -65,23 +65,49 @@ public class MainViewHandler : MonoBehaviour
 
     private void RegistrationTest()
     {
+        //EllipsoidMockData ellipsoidMockData = new EllipsoidMockData(80, 50, 30, new int[] { 90, 60, 40 }, new double[] { 1, 1, 1 });
+
+        //FileSaver fileSaver = new FileSaver("/Users/pepazetek/Desktop/", "EllipsoidMacro", ellipsoidMockData);
+        //fileSaver.MakeFiles();
+
+
+
+        //TransformedFileSaver transformedFileSaver = new TransformedFileSaver("/Users/pepazetek/Desktop/", "EllipsoidMicro", ellipsoidMockData, new Transform3D(Generator.GetRotationMatrix(0, 0, 0), Generator.GetTranslationVector(20, 20, 10)), ellipsoidMockData.Measures, new double[] { ellipsoidMockData.XSpacing, ellipsoidMockData.YSpacing, ellipsoidMockData.ZSpacing });
+        //transformedFileSaver.MakeFiles();
+
+        //AData macro = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/EllipsoidMacroData.mhd", "/Users/pepazetek/Desktop/Tests/EllipsoidMacroData.raw"));
+        //CutViewerHandler.SetSamplerSlicer(macro);
+        //SceneManager.LoadScene("CutViewer");
+
+
+        //AData macro = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/EllipsoidMacroData.mhd", "/Users/pepazetek/Desktop/Tests/EllipsoidMacroData.raw"));
+        //AData micro = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/EllipsoidMicroData.mhd", "/Users/pepazetek/Desktop/Tests/EllipsoidMicroData.raw"));
+        //Transform3D transformation = TransformationIO.FetchTransformation("/Users/pepazetek/Desktop/Tests/transformation.txt");
+
+        //CutViewerHandler.SetDataSlicer(micro, macro, transformation);
+
+
+
+        //TransformationIO.ExportTransformation("/Users/pepazetek/Desktop/", transformation);
         //AData macroData = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/TEST2/macroData.mhd", "/Users/pepazetek/Desktop/Tests/TEST2/macroData.raw"));
         //AData microData = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/TEST2/microData5.mhd", "/Users/pepazetek/Desktop/Tests/TEST2/microData5.raw"));
 
-        AData data = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/sphere.mhd", "/Users/pepazetek/sphere.raw"));
-        IFeatureComputer fc = new FeatureComputerISOSurfaceCurvature();
-        Point3D point = new Point3D(0, 0, 2.4);
-        Point3D centerPoint = new Point3D(2.5, 2.5, 2.5);
+        //SpheresMockData spheresMockData = new SpheresMockData();
 
-        Debug.Log($"Distance to center: {centerPoint.Distance(point)}");
+        //AData data = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/ExportedSpheres.mhd", "/Users/pepazetek/ExportedSpheres.raw"));
+        //IFeatureComputer fc = new FeatureComputerISOSurfaceCurvature();
+        //Point3D point = new Point3D(0, 0, 2.5);
+        //Point3D centerPoint = new Point3D(2.5, 2.5, 2.5);
 
-        Debug.Log($"Value: {data.GetValue(point)}");
-        Debug.Log($"FC: {fc.ComputeFeatureVector(data, point)}");
+        //Debug.Log($"Distance to center: {centerPoint.Distance(point)}");
+
+        //Debug.Log($"Value: {data.GetValue(point)}");
+        //Debug.Log($"FC: {fc.ComputeFeatureVector(data, point)}");
 
         //:4.34 y: 4.54 z: 2.4 and current value: 1
 
 
-        CutViewerHandler.SetFCSlicer(data);
+        //CutViewerHandler.SetFCSlicer(data);
 
         //Transform3D transformation = TransformationIO.FetchTransformation("/Users/pepazetek/Desktop/Tests/TEST2/microData5.txt");
         //Transform3D transformation = new Transform3D();
@@ -99,7 +125,7 @@ public class MainViewHandler : MonoBehaviour
         //Transform3D resultTransformation = registrationLauncher.RunRegistration(microData, macroData);
 
         //Debug.Log($"Result transformation {resultTransformation}");
-        ////Debug.Log($"Distance: {transformation.RelativeDistanceTo(resultTransformation)}");
+        //Debug.Log($"Distance: {transformation.RelativeDistanceTo(resultTransformation)}");
 
         //CutViewerHandler.SetDataSlicer(microData, macroData, resultTransformation);
         //SceneManager.LoadScene("CutViewer");
@@ -144,7 +170,7 @@ public class MainViewHandler : MonoBehaviour
     {
         MockDataSegment mockDataSegment = new MockDataSegment(
             referenceObject,
-            new int[] { referenceObject.Measures[0]/2, referenceObject.Measures[1]/2, referenceObject.Measures[2]/2 },
+            new int[] { referenceObject.Measures[0], referenceObject.Measures[1], referenceObject.Measures[2] },
             new double[] { referenceObject.XSpacing, referenceObject.YSpacing, referenceObject.ZSpacing });
 
         mockDataSegment.TransformObject(transformation);

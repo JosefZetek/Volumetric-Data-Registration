@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
 using DataView;
+using System.IO;
 
 public class CutViewerHandler : MonoBehaviour
 {
@@ -21,6 +22,11 @@ public class CutViewerHandler : MonoBehaviour
     public static void SetDataSlicer(AData microData, AData macroData, Transform3D transformation)
     {
         dataSlicer = new TransformedDataSlicer(macroData, microData, transformation);
+    }
+
+    public static void SetSamplerSlicer(AData data)
+    {
+        dataSlicer = new DataSamplerSlicer(data);
     }
 
     /// <summary>
@@ -80,6 +86,7 @@ public class CutViewerHandler : MonoBehaviour
         cutPreview = rootVisualElement.Q<VisualElement>("cutPreview");
 
         this.image = new Image();
+
         //this.image.scaleMode = ScaleMode.StretchToFill;
         //this.image.scaleMode = ScaleMode.ScaleToFit;
 
@@ -90,6 +97,7 @@ public class CutViewerHandler : MonoBehaviour
 
         rootVisualElement.Q<Button>("backButton").clicked += () => SceneManager.LoadScene("MainView");
         rootVisualElement.Q<Button>("loadButton").clicked += () => LoadObject();
+        UpdateImage();
     }
 
     private void LoadObject()
@@ -114,10 +122,13 @@ public class CutViewerHandler : MonoBehaviour
         Color[][] values;
         CutResolution resolution = new CutResolution(500, 500);
 
-        //values = dataSlicer.Cut(slider.value, dropdown.index, resolution);
-        values = dataSlicer.Cut(0.5, 2, resolution);
+        values = dataSlicer.Cut(slider.value, dropdown.index, resolution);
+        //values = dataSlicer.Cut(0.5, 2, resolution);
 
-        image.image = GetTexture(values);
+        Texture2D texture = GetTexture(values);
+        image.image = texture;
+        //byte[] pngData = texture.EncodeToPNG();
+        //File.WriteAllBytes("/Users/pepazetek/UpdatedSphere.png", pngData);
     }
 
     private void ResetValues()

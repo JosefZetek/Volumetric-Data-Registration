@@ -1,7 +1,4 @@
-﻿using System;
-using DataView;
-using MathNet.Numerics.LinearAlgebra;
-namespace DataView
+﻿namespace DataView
 {
     public abstract class AMockObject
     {

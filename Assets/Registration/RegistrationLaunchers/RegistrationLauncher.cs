@@ -47,9 +47,10 @@ namespace DataView
 
         private void InitializeRegistrationModules()
         {
-            this.sampler = new SamplerVariance();
+            RegistrationLauncher.expectedTransformation = TransformationIO.FetchTransformation("/Users/pepazetek/Desktop/Tests/TEST3/EllipsoidMicroData1.txt");
+            this.sampler = new SamplerGradient(0.1);
             this.featureComputer = new FeatureComputerISOSurfaceCurvature();
-            this.matcher = new Matcher();
+            this.matcher = new FakeMatcher(expectedTransformation);
             this.transformer = new Transformer3D();
         }
 
@@ -176,7 +177,7 @@ namespace DataView
             FeatureVector microFV, macroFV;
 
             SpheresMockData spheresMockData = new SpheresMockData();
-            spheresMockData.PrintSpherePositions();
+            //spheresMockData.PrintSpherePositions();
 
             for(int i = 0; i<Math.Min(microPoints.Length, 100); i++)
             {
@@ -191,27 +192,27 @@ namespace DataView
                     fvDistance = microFV.DistTo2(macroFV);
 
                     int sphereIndex1 = spheresMockData.GetSphereIndex(microPoints[i].X, microPoints[i].Y, microPoints[i].Z);
-                    int sphereIndex2 = spheresMockData.GetSphereIndex(macroPoints[i].X, macroPoints[i].Y, macroPoints[i].Z);
+                    int sphereIndex2 = spheresMockData.GetSphereIndex(macroPoints[j].X, macroPoints[j].Y, macroPoints[j].Z);
 
 
                     int indexDistance = (sphereIndex1 == 8 || sphereIndex2 == 8) ? 10 : Math.Abs(sphereIndex1 - sphereIndex2);
 
-                    if (fvDistance > 1E4 && indexDistance == 0)
-                    {
-                        Debug.Log($"Sphere index 1 = {sphereIndex1}");
-                        Debug.Log($"Sphere index 2 = {sphereIndex2}");
-                        Debug.Log($"");
-                        Debug.Log($"Micro FV: {microFV}");
-                        Debug.Log($"Macro FV: {macroFV}");
-                        Debug.Log($"");
-                    }
+                    //if (fvDistance > 1E4 && indexDistance == 0)
+                    //{
+                    //    Debug.Log($"Sphere index 1 = {sphereIndex1}");
+                    //    Debug.Log($"Sphere index 2 = {sphereIndex2}");
+                    //    Debug.Log($"");
+                    //    Debug.Log($"Micro FV: {microFV}");
+                    //    Debug.Log($"Macro FV: {macroFV}");
+                    //    Debug.Log($"");
+                    //}
 
 
                     distances.Add(new Point2D(indexDistance, fvDistance));
                 }
             }
 
-            CSVWriter.WriteResult("FV - zavislost indexu koule na vzdalenosti FV.csv", "Real distance", "FV Distance", distances);
+            CSVWriter.WriteResult("index X FV vzdalenosti.csv", "Index distance", "FV Distance", distances);
         }
 
         private List<Transform3D> CalculateTransformations(AData microData, AData macroData, Match[] matches)
@@ -248,7 +249,9 @@ namespace DataView
             {
                 try
                 {
-                    transformer.AppendTransformation(matches[i], microData, macroData, ref transformations);
+                    Transform3D transformation = transformer.GetTransformation(matches[i], microData, macroData);
+                    transformations.Add(transformation);
+                    //transformer.AppendTransformation(matches[i], microData, macroData, ref transformations);
                 }
                 catch { continue; }
             }
@@ -256,6 +259,13 @@ namespace DataView
 
         private void PrintRealDistances(Match[] matches)
         {
+            //Point3D center = new Point3D(2.5, 2.5, 2.5);
+            //for (int i = 0; i < matches.Length; i++)
+            //{
+            //    Debug.Log(Math.Abs(matches[i].microFV.Point.Distance(center) - matches[i].macroFV.Point.Distance(center)));
+
+            //}
+
             if (expectedTransformation == null)
             {
                 Debug.Log("Expected transformation not specified.");

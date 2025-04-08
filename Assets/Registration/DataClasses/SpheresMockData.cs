@@ -25,6 +25,9 @@ public class SpheresMockData : AMockObject
 
             positions[i] = currentSpacing + currentRadius + diametersSum;
             radiusArray[i] = currentRadius;
+
+            Console.WriteLine($"Posiiton {i}: {positions[i]}");
+            Console.WriteLine($"Radius {i}: {radiusArray[i]}");
         }
     }
 
@@ -46,17 +49,6 @@ public class SpheresMockData : AMockObject
         return 0;
     }
 
-    public void PrintSpherePositions()
-    {
-        for (int i = 0; i<SPHERES; i++)
-        {
-            UnityEngine.Debug.Log($"i = {i}");
-            UnityEngine.Debug.Log($"Position X = {positions[i]}");
-            UnityEngine.Debug.Log($"Radius = {radiusArray[i]}");
-        }
-        
-    }
-
     public int GetSphereIndex(double x, double y, double z)
     {
         for (int i = 0; i < SPHERES; i++)
@@ -76,7 +68,6 @@ public class SpheresMockData : AMockObject
             return i;
         }
 
-        UnityEngine.Debug.Log($"Bod mimo = [{x}, {y}, {z}]");
         return SPHERES;
     }
 
@@ -94,7 +85,7 @@ public class SpheresMockData : AMockObject
         {
             result = Circle(p, new Point3D(positions[i], 170, 170), radiusArray[i] - 10, radiusArray[i]);
             if (result != 0)
-                return result;
+                return result * 1000;
         }
 
         return 0;
@@ -106,6 +97,6 @@ public class SpheresMockData : AMockObject
 
     public override double ZSpacing => 1;
 
-    public override int[] Measures => new int[] { (int)(1530* 1.0/XSpacing), (int)(340 * 1.0/YSpacing), (int)(340 * 1.0/ZSpacing) };
+    public override int[] Measures => new int[] { (int)(1530 * 1.0 / XSpacing), (int)(340 * 1.0 / YSpacing), (int)(340 * 1.0 / ZSpacing) };
 }
 

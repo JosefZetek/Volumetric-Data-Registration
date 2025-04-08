@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Factorization;
 
 namespace DataView
 {
@@ -10,7 +12,7 @@ namespace DataView
     /// </summary>
     public class UniformRotationComputerPCA
     {
-        public static double radius = 3;
+        public static double radius = 2;
 
         /// <summary>
         /// Calculates the rotation matrix from dMicro to dMacro
@@ -21,35 +23,15 @@ namespace DataView
         /// <param name="pointMacro">Point in data2 to take samples around</param>
         /// <param name="count">Number of samples taken</param>
         /// <returns>Returns rotation matrix</returns>
-        public static List<Matrix<double>> CalculateRotation(AData dMicro, AData dMacro, Point3D pointMicro, Point3D pointMacro, double spacing)
+        public static Matrix<double> CalculateRotation(AData dMicro, AData dMacro, Point3D pointMicro, Point3D pointMacro, double spacing)
         {
-            Matrix<double> basisMicro;
-            Matrix<double> basisMacro;
+            Matrix<double> basisMicro = GetPointBasis(dMicro, pointMicro, spacing, radius, "micro.csv");
+            Matrix<double> basisMacro = GetPointBasis(dMacro, pointMacro, spacing, radius, "macro.csv");
 
-            List<Matrix<double>> rotationMatrices = new List<Matrix<double>>();
-            Matrix<double> transitionMatrix;
+            Console.WriteLine($"Micro: {basisMicro}");
+            Console.WriteLine($"Macro: {basisMacro}");
 
-            spacing = 0.1;
-
-            try
-            {
-                basisMicro = GetPointBasis(dMicro, pointMicro, spacing, radius);
-                basisMacro = AdjustBasis(GetPointBasis(dMacro, pointMacro, spacing, radius), 1, 1);
-            }
-            catch (Exception e) { throw e; }
-
-            for(int i = -1; i<=1; i+=2)
-            {
-                for (int j = -1; j <= 1; j+=2)
-                {
-
-                    transitionMatrix = CalculateTransitionMatrix(AdjustBasis(basisMicro, i, j), basisMacro);
-                    rotationMatrices.Add(transitionMatrix);
-                }
-            }
-
-            
-            return rotationMatrices;
+            return CalculateTransitionMatrix(basisMicro, basisMacro);
         }
 
         private static Vector<double> CrossProduct(Vector<double> firstVector, Vector<double> secondVector)
@@ -124,37 +106,85 @@ namespace DataView
 
         private static Matrix<double> CalculateTransitionMatrix(Matrix<double> basisMicro, Matrix<double> basisMacro)
         {
-            return basisMicro.Transpose() * basisMacro;
+            return basisMacro * basisMicro.Inverse();
+        }
+
+        private static void Save(string outputFilename, string prefix, List<Point3D> points, List<double> values)
+        {
+            double[][] csvOutput = new double[points.Count][];
+
+            for (int i = 0; i < csvOutput.Length; i++)
+                csvOutput[i] = new double[] { points[i].X, points[i].Y, points[i].Z, values[i] };
+
+            CSVWriter.WriteResult("/Users/pepazetek/Desktop/" + prefix + "_" + outputFilename, csvOutput);
         }
 
         // od pana Váši
-        private static Matrix<double> GetPointBasis(AData d, Point3D point, double spacing, double radius)
+        public static Matrix<double> GetPointBasis(AData d, Point3D point, double spacing, double radius, string outputFilename)
         {
-            double max = 0;
-
             List<Point3D> points = GetSphere(point, radius, spacing, d);
-            List<double> values = CalculateValues(points, d, ref max);
+            List<double> values = CalculateValues(points, d);
 
+            //Save(outputFilename, "unfiltered", points, values);
+
+            /* Threshold to filter insignificant  values */
             QuickSelectClass quickSelectClass = new QuickSelectClass();
-
-            /* Threshold to filter insignificant  values */
             double threshold = quickSelectClass.QuickSelect(values, values.Count / 2);
-
             FilterPoints(ref points, ref values, threshold);
 
-            Vector<double> meanVector = CalculateWeightedMeanVector(points, values, threshold, max);
 
-            Matrix<double> covarianceMatrix = CalculateCovarianceMatrix(points, values, meanVector);
+            //Save(outputFilename, "filtered", points, values);
 
-            var evd = covarianceMatrix.Evd();
-            return evd.EigenVectors;
+            Vector<double> meanVector = CalculateWeightedMeanVector(points);
+            Console.WriteLine("Mean " + outputFilename + ":\n" + meanVector);
+
+            Matrix<double> covarianceMatrix = CalculateCovarianceMatrix(points, meanVector);
+            Console.WriteLine("Covariance matrix " + outputFilename + ":\n" + covarianceMatrix);
+
+            Matrix<double> basisMatrix = GetEigenVectors(covarianceMatrix.Evd());
+            //Vector<double> gradient = GradientCalculator.GetFunctionGradient(point, d);
+
+            AdjustBasis(basisMatrix, point.Coordinates);
+
+            return basisMatrix;
         }
 
-        private static List<double> CalculateValues(List<Point3D> points, AData d, ref double max)
+        private static void AdjustBasis(Matrix<double> basisMatrix, Vector<double> gradient)
+        {
+            Vector<double> temp;
+            for (int i = 0; i < 2; i++)
+            {
+                temp = basisMatrix.Column(i);
+                basisMatrix.SetColumn(i, Math.Sign(temp.DotProduct(gradient)) * temp);
+            }
+
+            basisMatrix.SetColumn(2, CrossProduct(basisMatrix.Column(0), basisMatrix.Column(1)));
+        }
+
+        private static Matrix<double> GetEigenVectors(Evd<double> evd)
+        {
+            Vector<double> eigenValues = evd.EigenValues.Real();
+            Matrix<double> eigenVectors = evd.EigenVectors;
+
+            // Get indices sorted by eigenvalues in descending order
+            int[] sortedIndices = eigenValues.Enumerate()
+                                             .Select((value, index) => (value, index))
+                                             .OrderByDescending(pair => pair.value)
+                                             .Select(pair => pair.index)
+                                             .ToArray();
+
+            Matrix<double> sortedEigenVectors = Matrix<double>.Build.Dense(eigenVectors.RowCount, eigenVectors.ColumnCount);
+
+            for (int i = 0; i < sortedIndices.Length; i++)
+                sortedEigenVectors.SetColumn(i, eigenVectors.Column(sortedIndices[i]));
+
+            return sortedEigenVectors;
+        }
+
+        private static List<double> CalculateValues(List<Point3D> points, AData d)
         {
             List<double> values = new List<double>();
-            double min = double.MaxValue;
-            max = double.MinValue;
+            double min = double.MaxValue, max = double.MinValue;
 
             for (int i = 0; i < points.Count; i++)
             {
@@ -175,7 +205,7 @@ namespace DataView
             List<Point3D> filteredPoints = new List<Point3D>();
             List<double> filteredValues = new List<double>();
 
-            for(int i = 0; i<points.Count; i++)
+            for (int i = 0; i < points.Count; i++)
             {
                 if (values[i] >= threshold)
                 {
@@ -188,43 +218,35 @@ namespace DataView
             values = filteredValues;
         }
 
-        private static Matrix<double> CalculateCovarianceMatrix(List<Point3D> pointsInSphere, List<double> values, Vector<double> meanVector)
+        private static Matrix<double> CalculateCovarianceMatrix(List<Point3D> pointsInSphere, Vector<double> meanVector)
         {
-            //Optimization needed
-            Matrix<double> a = Matrix<double>.Build.Dense(3, pointsInSphere.Count);
+            int N = pointsInSphere.Count;
+            Matrix<double> A = Matrix<double>.Build.Dense(N, 3); // Each row is a point (N x 3)
 
-            for (int i = 0; i < values.Count; i++)
+            for (int i = 0; i < N; i++)
             {
-                Vector<double> currentVector = Vector<double>.Build.DenseOfArray(new double[] { pointsInSphere[i].X, pointsInSphere[i].Y, pointsInSphere[i].Z });
-                currentVector -= meanVector;
-
-                a.SetColumn(i, currentVector);
+                A.SetRow(i, new double[] {
+                    pointsInSphere[i].X - meanVector[0],
+                    pointsInSphere[i].Y - meanVector[1],
+                    pointsInSphere[i].Z - meanVector[2]
+                });
             }
 
-            return a * a.Transpose();
+            return (A.Transpose() * A) / (N - 1); // (3xN) * (Nx3) = 3x3 covariance matrix
         }
 
-        private static Vector<double> CalculateWeightedMeanVector(List<Point3D> pointsInSphere, List<double> values, double threshold, double max)
+        private static Vector<double> CalculateWeightedMeanVector(List<Point3D> pointsInSphere)
         {
             Vector<double> meanVector = Vector<double>.Build.Dense(3);
-            double weightSum = 0;
 
             for (int i = 0; i < pointsInSphere.Count; i++)
             {
-                /* Filter insignificant values */
-                if (threshold > values[i])
-                    continue;
-
-                double weight = (values[i] - threshold) / (max - threshold); // Calculate the weight
-
-                meanVector[0] += pointsInSphere[i].X * weight;
-                meanVector[1] += pointsInSphere[i].Y * weight;
-                meanVector[2] += pointsInSphere[i].Z * weight;
-
-                weightSum += weight;
+                meanVector[0] += pointsInSphere[i].X;
+                meanVector[1] += pointsInSphere[i].Y;
+                meanVector[2] += pointsInSphere[i].Z;
             }
 
-            meanVector /= weightSum;
+            meanVector /= pointsInSphere.Count;
             return meanVector;
         }
 
@@ -240,9 +262,9 @@ namespace DataView
         {
             List<Point3D> points = new List<Point3D>();
 
-            for(double x = -r; x<=r; x+=spacing)
+            for (double x = -r; x <= r; x += spacing)
             {
-                for(double y = -r; y<=r; y+=spacing)
+                for (double y = -r; y <= r; y += spacing)
                 {
                     SphereBounds zBounds;
 
@@ -260,7 +282,6 @@ namespace DataView
 
             return points;
         }
-
 
         /// <summary>
         /// Given an x and y coordinates, this method will generate a min and max z coordinate
@@ -283,18 +304,5 @@ namespace DataView
             double maxZ = -minZ;
             return new SphereBounds(minZ, maxZ);
         }
-
-        /// <summary>
-        /// Returns random number within the specified bounds
-        /// </summary>
-        /// <param name="minimum">Minimum number to be generated</param>
-        /// <param name="maximum">Maximum number to be generated</param>
-        /// <param name="r">Instance of Random class</param>
-        /// <returns></returns>
-        private static double GetRandomDouble(double minimum, double maximum, Random r)
-        {
-            return r.NextDouble() * (maximum - minimum) + minimum;
-        }
-        
     }
 }

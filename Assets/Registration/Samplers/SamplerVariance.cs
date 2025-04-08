@@ -9,23 +9,23 @@ namespace DataView
     public class SamplerVariance : ISampler
     {
         private Random r;
-        private double percentile;
+        private double minVariance;
 
-        public SamplerVariance(int seed, double percentile)
+        public SamplerVariance(int seed, double minVariance)
         {
             this.r = new Random(seed);
-            this.percentile = Constrain(percentile, 0, 1);
+            this.minVariance = minVariance;
         }
 
-        public SamplerVariance(double percentile)
+        public SamplerVariance(double minVariance)
         {
-            this.percentile = Constrain(percentile, 0, 1);
+            this.minVariance = minVariance;
         }
 
         public SamplerVariance()
         {
             this.r = new Random();
-            this.percentile = Constrain(0.1, 0, 1);
+            this.minVariance = 0.2;
         }
 
         public Point3D[] Sample(AData d, int count)
@@ -34,31 +34,16 @@ namespace DataView
             Point3D currentPoint;
             int currentIndex = 0;
 
-            /* Sample 1000 points and obtain percentile */
-            double threshold = FindGivenPercentile(d, 1000);
-
             while(currentIndex < count)
             {
                 currentPoint = GetRandomPoint(d);
-                if (CalculateVariance(d, currentPoint) < threshold)
+                if (CalculateVariance(d, currentPoint) < minVariance)
                     continue;
 
                 points[currentIndex++] = currentPoint;
             }
 
             return points;
-        }
-
-        public double FindGivenPercentile(AData d, int sampleCount)
-        {
-            List<double> values = new List<double>();
-
-            //put variances of each randomly sampled points into array
-            for(int i = 0; i<sampleCount; i++)
-                values.Add(CalculateVariance(d, GetRandomPoint(d)));
-
-            QuickSelectClass qc = new QuickSelectClass();
-            return qc.QuickSelect(values, (int)((1 - percentile) * values.Count));
         }
 
         private double CalculateVariance(AData d, Point3D point)
@@ -76,7 +61,6 @@ namespace DataView
                         double neighborZ = Constrain(point.Z + z * d.ZSpacing, 0, d.MaxValueZ);
 
                         values.Add(d.GetValue(new Point3D(neighborX, neighborY, neighborZ)));
-                        //values.Add(0);
                     }
                 }
             }

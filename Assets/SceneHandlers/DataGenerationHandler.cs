@@ -5,8 +5,6 @@ using UnityEditor;
 using DataView;
 using MathNet.Numerics.LinearAlgebra;
 using System;
-using System.Threading.Tasks;
-using System.Diagnostics;
 
 public class DataGenerationHandler : MonoBehaviour
 {

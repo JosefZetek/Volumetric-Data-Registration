@@ -91,10 +91,12 @@ namespace DataView
             double num = 0;
             double denom = f1.Magnitude() * f2.Magnitude();
 
-            for (int i = 0; i < f1.GetNumberOfFeatures; i++)
-            {
+            if (f1.Features.Length != f2.Features.Length)
+                return 0;
+
+            for (int i = 0; i < f1.Features.Length; i++)
                 num += f1.Features[i] * f2.Features[i];
-            }
+
 
             double s = num / denom * 100;
             return (s < 0) ? 0 : s;

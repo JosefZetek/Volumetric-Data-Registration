@@ -7,8 +7,6 @@ namespace DataView
     /// </summary>
     public class FeatureVector
     {
-        private static int NumberOfFeatures = -1;
-
         /// <summary>
         /// Point to which the feature vector belongs
         /// </summary>
@@ -40,24 +38,12 @@ namespace DataView
         {
             this.Point = p;
             this.features = new double[] { x1, x2, x3, x4, x5 };
-            CheckVectorLength();
         }
 
         public FeatureVector(Point3D p, double[] features)
         {
             this.Point = p;
             this.features = features;
-            CheckVectorLength();
-        }
-
-        private void CheckVectorLength()
-        {
-            //Sets the number of features if it has not been set yet
-            if (NumberOfFeatures < 0)
-                NumberOfFeatures = this.features.Length;
-
-            else if (NumberOfFeatures != this.features.Length)
-                throw new Exception("Number of features needs to be the same");
         }
 
         /// <summary>
@@ -82,7 +68,11 @@ namespace DataView
         public double DistTo2(FeatureVector fv)
         {
             double sum = 0;
-            for (int i = 0; i < GetNumberOfFeatures; i++)
+
+            if (fv.features.Length != this.features.Length)
+                throw new Exception("Different number of features");
+
+            for (int i = 0; i < this.features.Length; i++)
             {
                 double d = this.features[i] - fv.features[i];
                 sum += d * d;
@@ -92,17 +82,16 @@ namespace DataView
         }
 
         internal Point3D Point { get => point; set => point = value; }
-        public int GetNumberOfFeatures { get => features.Length; }
         public double[] Features { get => features; }
 
         public override string ToString()
         {
             string returnS = $"Point: {point}\nFeatures:";
 
-            for (int i = 0; i < GetNumberOfFeatures; i++)
+            for (int i = 0; i < features.Length; i++)
             {
                 returnS += Math.Round(features[i], 2);
-                if (i != GetNumberOfFeatures - 1)
+                if (i != (this.features.Length - 1))
                     returnS += ", ";
             }
 
