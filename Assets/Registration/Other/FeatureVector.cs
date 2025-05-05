@@ -82,6 +82,7 @@ namespace DataView
         }
 
         internal Point3D Point { get => point; set => point = value; }
+        public int GetNumberOfFeatures { get => features.Length; }
         public double[] Features { get => features; }
 
         public override string ToString()

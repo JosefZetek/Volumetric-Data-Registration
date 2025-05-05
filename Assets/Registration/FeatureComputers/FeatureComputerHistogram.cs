@@ -6,12 +6,23 @@ namespace DataView
     public class FeatureComputerHistogram : IFeatureComputer
     {
         private const int DEFAULT_SIZE = 20;
+        private double radiusMultiplier;
+
+        public FeatureComputerHistogram()
+        {
+            this.radiusMultiplier = 5;
+        }
+
+        public FeatureComputerHistogram(double radiusMultiplier)
+        {
+            this.radiusMultiplier = radiusMultiplier;
+        }
 
         public FeatureVector ComputeFeatureVector(AData d, Point3D p)
         {
             double[] numberOfOccurences = new double[DEFAULT_SIZE];
 
-            double radius = Math.Max(Math.Max(2 * d.XSpacing, 2 * d.YSpacing), 2 * d.ZSpacing);
+            double radius = Math.Max(Math.Max(radiusMultiplier * d.XSpacing, radiusMultiplier * d.YSpacing), radiusMultiplier * d.ZSpacing);
             double samplingRate = Math.Min(Math.Min(d.XSpacing, d.YSpacing), d.ZSpacing) / 2;
 
             List<Point3D> points = GetSphere(p, radius, samplingRate, d);

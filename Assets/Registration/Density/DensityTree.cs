@@ -61,7 +61,7 @@ namespace DataView
             for (int i = 0; i < remainingIndexes.Count; i++)
             {
                 currentTransformationIndex = remainingIndexes[i];
-                transformationDistances.Add(referenceTransformation.RelativeDistanceTo(transformations[currentTransformationIndex]));
+                transformationDistances.Add(referenceTransformation.SqrtDistanceTo(transformations[currentTransformationIndex]));
             }
 
             QuickSelectClass testClass = new QuickSelectClass();
@@ -79,7 +79,7 @@ namespace DataView
 
         public void ProximityQuery(Transform3D queryPoint, double radius, List<Transform3D> result)
         {
-            double distance = queryPoint.RelativeDistanceTo(this.nodesTransformations[0]);
+            double distance = queryPoint.SqrtDistanceTo(this.nodesTransformations[0]);
 
             // Check if the current node is within the radius
             if (distance < radius)

@@ -1,41 +1,40 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DataView
 {
-    public class DataFCSlicer : IDataSlicer
+    public class DataFCSlicer : ADataSlicer
     {
-        private AData referenceData;
-        private FeatureComputerISOSurfaceCurvature featureComputer;
+        private FeatureComputerISOCurvature featureComputer;
 
         private const int DIMENSIONS = 3;
 
         public DataFCSlicer(AData data)
         {
             this.referenceData = data;
-            this.featureComputer = new FeatureComputerISOSurfaceCurvature();
+            this.featureComputer = new FeatureComputerISOCurvature();
         }
 
-        public Color[][] Cut(double t, int axis, CutResolution resolution)
+        public override Color[][] Cut(double t, int axis, CutResolution resolution)
         {
             /* Constraining t to be within range */
             t = Math.Min(Math.Max(0, t), 1);
 
             double cutPosition = t * referenceData.Bounds[axis];
 
-            Color[][] cutData = new Color[resolution.Height][];
+            double[][] cutData = new double[resolution.Height][];
             double[] coordinates = new double[DIMENSIONS];
             coordinates[axis] = cutPosition;
 
             /* Assigning index for axes that are going to vary in each iteration */
             int firstVariableIndex = (axis == 0) ? 1 : 0, secondVariableIndex = (axis == 2) ? 1 : 2;
 
-            float currentNormalizedValue;
             FeatureVector featureVector;
 
             for (int i = 0; i < resolution.Height; i++)
             {
-                cutData[i] = new Color[resolution.Width];
+                cutData[i] = new double[resolution.Width];
 
                 double secondDimensionProgress = ((double)i / ((double)resolution.Height - 1)) * referenceData.Bounds[secondVariableIndex];
                 coordinates[secondVariableIndex] = secondDimensionProgress;
@@ -46,43 +45,63 @@ namespace DataView
                     coordinates[firstVariableIndex] = firstDimensionProgress;
 
                     featureVector = featureComputer.ComputeFeatureVector(referenceData, new Point3D(coordinates[0], coordinates[1], coordinates[2]));
-
-
-
-                    if (0.00625 < featureVector.Features[0] && featureVector.Features[0] < 0.1)
-                        currentNormalizedValue = Normalize((float)featureVector.Features[0]);
-
-                    else
-                        currentNormalizedValue = Constrain((float)featureVector.Features[0], 0, 1);
-
-
-
-
-
-                    //if (Math.Abs(coordinates[0]-1515) < 3 && Math.Abs(coordinates[1] - 170) < 3)
-                    //{
-                    //    Debug.Log("");
-                    //    Debug.Log($"[{coordinates[0]}, {coordinates[1]}, {coordinates[2]}");
-                    //    Debug.Log(featureVector);
-                    //    Debug.Log($"{currentNormalizedValue}");
-                    //    Debug.Log("");
-                    //}
-
-                    cutData[i][j] = new Color(currentNormalizedValue, currentNormalizedValue, currentNormalizedValue);
+                    cutData[i][j] = featureVector.Features[1];
                 }
             }
 
-            return cutData;
+            NormalizeArray(cutData);
+
+            Color[][] cutDataColors = new Color[cutData.Length][];
+
+            for(int i = 0; i<cutData.Length; i++)
+            {
+                cutDataColors[i] = new Color[cutData[i].Length];
+
+                for(int j = 0; j < cutData[i].Length; j++)
+                {
+                    cutDataColors[i][j] = new Color((float)cutData[i][j], (float)cutData[i][j], (float)cutData[i][j]); 
+                }
+            }
+
+            return cutDataColors;
         }
 
-        private float Constrain(float constrainedValue, float minValue, float maxValue)
+        private List<double> Flatten(double[][] array)
         {
-            return Mathf.Max(Mathf.Min(constrainedValue, maxValue), minValue);
+            List<double> flattenedArray = new List<double>();
+
+            for(int i = 0; i<array.Length; i++)
+            {
+                for (int j = 0; j < array[i].Length; j++)
+                    flattenedArray.Add(array[i][j]);
+            }
+
+            return flattenedArray;
         }
 
-        private float Normalize(float valueToNormalize)
+        private void NormalizeArray(double[][] array)
         {
-            return (valueToNormalize - 0.00625f) / (0.1f - 0.00625f);
+            List<double> flattenedArray = Flatten(array);
+
+            var quickSelect = new QuickSelectClass();
+            double lowerThreshold = quickSelect.QuickSelect(flattenedArray, (int)(flattenedArray.Count * 0.05));
+            double upperThreshold = quickSelect.QuickSelect(flattenedArray, (int)(flattenedArray.Count * 0.7));
+
+            for(int i = 0; i<array.Length; i++)
+            {
+                for (int j = 0; j < array[i].Length; j++)
+                    array[i][j] = Normalize(array[i][j], lowerThreshold, upperThreshold);
+            }
+        }
+
+        private double Constrain(double constrainedValue, double minValue, double maxValue)
+        {
+            return Math.Max(Math.Min(constrainedValue, maxValue), minValue);
+        }
+
+        private double Normalize(double valueToNormalize, double lowerThreshold, double upperThreshold)
+        {
+            return Constrain((valueToNormalize - lowerThreshold) / (upperThreshold - lowerThreshold), 0, 1);
         }
     }
 }

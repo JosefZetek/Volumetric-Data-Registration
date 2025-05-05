@@ -3,9 +3,8 @@ using UnityEngine;
 
 namespace DataView
 {
-    public class DataSamplerSlicer : IDataSlicer
+    public class DataSamplerSlicer : ADataSlicer
     {
-        private AData referenceData;
         private ISampler sampler;
         private Point3D[] sampledPoints;
 
@@ -18,7 +17,7 @@ namespace DataView
             this.sampledPoints = sampler.Sample(data, 1000);
         }
 
-        public Color[][] Cut(double t, int axis, CutResolution resolution)
+        public override Color[][] Cut(double t, int axis, CutResolution resolution)
         {
             /* Constraining t to be within range */
             t = Math.Min(Math.Max(0, t), 1);

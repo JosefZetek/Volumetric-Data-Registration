@@ -129,7 +129,7 @@ namespace DataView
 
         public double GetRelativeTransformationDistance(Transform3D transformation1, Transform3D transformation2)
         {
-            return GetTransformationsDistance(transformation1, transformation2) / numberOfVertices;
+            return GetSqrtTransformationDistance(transformation1, transformation2) / numberOfVertices;
         }
     }
 }

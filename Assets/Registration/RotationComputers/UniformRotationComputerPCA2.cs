@@ -23,15 +23,15 @@ namespace DataView
         /// <param name="pointMacro">Point in data2 to take samples around</param>
         /// <param name="count">Number of samples taken</param>
         /// <returns>Returns rotation matrix</returns>
-        public static Matrix<double> CalculateRotation(AData dMicro, AData dMacro, Point3D pointMicro, Point3D pointMacro, double spacing)
+        public static Matrix<double>[] CalculateRotation(AData dMicro, AData dMacro, Point3D pointMicro, Point3D pointMacro, double spacing)
         {
-            Matrix<double> basisMicro = GetPointBasis(dMicro, pointMicro, spacing, radius, "micro.csv");
-            Matrix<double> basisMacro = GetPointBasis(dMacro, pointMacro, spacing, radius, "macro.csv");
+            Matrix<double>[] basisMicro = GetPointBasis(dMicro, pointMicro, spacing, radius);
+            Matrix<double> basisMacro = GetPointBasis(dMacro, pointMacro, spacing, radius)[0];
 
-            Console.WriteLine($"Micro: {basisMicro}");
-            Console.WriteLine($"Macro: {basisMacro}");
-
-            return CalculateTransitionMatrix(basisMicro, basisMacro);
+            return new Matrix<double>[] {
+                CalculateTransitionMatrix(basisMicro[0], basisMacro),
+                CalculateTransitionMatrix(basisMicro[1], basisMacro),
+            };
         }
 
         private static Vector<double> CrossProduct(Vector<double> firstVector, Vector<double> secondVector)
@@ -41,25 +41,6 @@ namespace DataView
                 firstVector[2] * secondVector[0] - firstVector[0] * secondVector[2],
                 firstVector[0] * secondVector[1] - firstVector[1] * secondVector[0]
             });
-        }
-
-        private static Matrix<double> AdjustBasis(Matrix<double> basis, int i, int j)
-        {
-            if (basis.ColumnCount != 3 || basis.RowCount != 3)
-                throw new ArgumentException("Basis needs to have dimensions 3x3");
-
-            Vector<double> vector1 = i * basis.Column(0);
-            Vector<double> vector2 = j * basis.Column(1);
-
-            Vector<double> vector3 = CrossProduct(vector1, vector2);
-
-            Matrix<double> adjustedMatrix = Matrix<double>.Build.Dense(3, 3);
-
-            adjustedMatrix.SetColumn(0, vector1);
-            adjustedMatrix.SetColumn(1, vector2);
-            adjustedMatrix.SetColumn(2, vector3);
-
-            return adjustedMatrix;
         }
 
         /// <summary>
@@ -120,45 +101,101 @@ namespace DataView
         }
 
         // od pana Váši
-        public static Matrix<double> GetPointBasis(AData d, Point3D point, double spacing, double radius, string outputFilename)
+        public static Matrix<double>[] GetPointBasis(AData d, Point3D point, double spacing, double radius)
         {
+            Matrix<double> alternativeBasisMatrix = Matrix<double>.Build.Dense(3, 3);
+
             List<Point3D> points = GetSphere(point, radius, spacing, d);
             List<double> values = CalculateValues(points, d);
-
-            //Save(outputFilename, "unfiltered", points, values);
 
             /* Threshold to filter insignificant  values */
             QuickSelectClass quickSelectClass = new QuickSelectClass();
             double threshold = quickSelectClass.QuickSelect(values, values.Count / 2);
             FilterPoints(ref points, ref values, threshold);
 
-
-            //Save(outputFilename, "filtered", points, values);
-
             Vector<double> meanVector = CalculateWeightedMeanVector(points);
-            Console.WriteLine("Mean " + outputFilename + ":\n" + meanVector);
 
             Matrix<double> covarianceMatrix = CalculateCovarianceMatrix(points, meanVector);
-            Console.WriteLine("Covariance matrix " + outputFilename + ":\n" + covarianceMatrix);
 
             Matrix<double> basisMatrix = GetEigenVectors(covarianceMatrix.Evd());
-            //Vector<double> gradient = GradientCalculator.GetFunctionGradient(point, d);
 
-            AdjustBasis(basisMatrix, point.Coordinates);
+            Vector<double> gradient = GradientCalculator.GetFunctionGradient(point, d);
 
-            return basisMatrix;
+            int fixedColumn = AdjustColumnBasedOnGradient(basisMatrix, gradient);
+            int unstableColumnIndex = fixedColumn == 1 ? 0 : 1;
+            int crossProductColumn = fixedColumn == 2 ? 0 : 2;
+
+            basisMatrix.CopyTo(alternativeBasisMatrix);
+
+
+            //Set unstable columns
+            basisMatrix.SetColumn(
+                unstableColumnIndex,
+                basisMatrix.Column(unstableColumnIndex) * -1
+            );
+
+            alternativeBasisMatrix.SetColumn(
+                unstableColumnIndex,
+                alternativeBasisMatrix.Column(unstableColumnIndex)
+            );
+
+            //Set cross product
+            basisMatrix.SetColumn(
+                crossProductColumn,
+                CrossProduct(basisMatrix.Column(fixedColumn), basisMatrix.Column(unstableColumnIndex))
+            );
+
+            alternativeBasisMatrix.SetColumn(
+                crossProductColumn,
+                CrossProduct(alternativeBasisMatrix.Column(fixedColumn), alternativeBasisMatrix.Column(unstableColumnIndex))
+            );
+
+            return new Matrix<double>[] { basisMatrix, alternativeBasisMatrix };
+        }
+
+        private static int AdjustColumnBasedOnGradient(Matrix<double> basisMatrix, Vector<double> gradient)
+        {
+            double greatestDotProduct = double.NegativeInfinity, currentDotProduct = 0;
+            Vector<double> column;
+
+            int columnIndex = 0;
+
+            for (int i = 0; i < basisMatrix.ColumnCount; i++)
+            {
+                column = basisMatrix.Column(i);
+                currentDotProduct = column.DotProduct(gradient);
+
+                if(greatestDotProduct < Math.Abs(currentDotProduct))
+                {
+                    greatestDotProduct = currentDotProduct;
+                    columnIndex = i;
+                }
+            }
+
+            basisMatrix.SetColumn(
+                columnIndex,
+                basisMatrix.Column(columnIndex) * Math.Sign(currentDotProduct)
+            );
+
+            return columnIndex;
         }
 
         private static void AdjustBasis(Matrix<double> basisMatrix, Vector<double> gradient)
         {
             Vector<double> temp;
-            for (int i = 0; i < 2; i++)
+            double dotProduct;
+
+
+
+            for (int i = 0; i < 3; i++)
             {
                 temp = basisMatrix.Column(i);
-                basisMatrix.SetColumn(i, Math.Sign(temp.DotProduct(gradient)) * temp);
+                dotProduct = temp.DotProduct(gradient);
+                //Debug.Log($"Dot product {i}: {dotProduct}");
+                basisMatrix.SetColumn(i, Math.Sign(dotProduct) * temp);
             }
 
-            basisMatrix.SetColumn(2, CrossProduct(basisMatrix.Column(0), basisMatrix.Column(1)));
+            //basisMatrix.SetColumn(2, CrossProduct(basisMatrix.Column(0), basisMatrix.Column(1)));
         }
 
         private static Matrix<double> GetEigenVectors(Evd<double> evd)
@@ -169,7 +206,7 @@ namespace DataView
             // Get indices sorted by eigenvalues in descending order
             int[] sortedIndices = eigenValues.Enumerate()
                                              .Select((value, index) => (value, index))
-                                             .OrderByDescending(pair => pair.value)
+                                             .OrderByDescending(pair => Math.Abs(pair.value))
                                              .Select(pair => pair.index)
                                              .ToArray();
 

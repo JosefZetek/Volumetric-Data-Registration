@@ -3,6 +3,8 @@ using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
 using DataView;
 using System.Collections.Generic;
+using System;
+using MathNet.Numerics.LinearAlgebra;
 
 public class MainViewHandler : MonoBehaviour
 {
@@ -12,20 +14,12 @@ public class MainViewHandler : MonoBehaviour
         var rootVisualElement = uiDocument.rootVisualElement;
 
         Button runRegistrationButton = rootVisualElement.Q<Button>("runRegistration");
-        Button createObjectButton = rootVisualElement.Q<Button>("createObject");
         Button objectViewerButton = rootVisualElement.Q<Button>("objectViewer");
         Button slicerButton = rootVisualElement.Q<Button>("slicer");
-        Button testDataGeneratorButton = rootVisualElement.Q<Button>("testDataGenerator");
-        Button testButton = rootVisualElement.Q<Button>("test");
         Button transformedSlicerButton = rootVisualElement.Q<Button>("transformedSlicer");
 
         runRegistrationButton.clicked += () => {
             SceneManager.LoadScene("RegistrationRunner");
-        };
-
-        createObjectButton.clicked += () =>
-        {
-            SceneManager.LoadScene("ModelCreator");
         };
 
         objectViewerButton.clicked += () =>
@@ -36,16 +30,6 @@ public class MainViewHandler : MonoBehaviour
         slicerButton.clicked += () =>
         {
             SceneManager.LoadScene("CutViewer");
-        };
-
-        testDataGeneratorButton.clicked += () =>
-        {
-            SceneManager.LoadScene("DataGeneration");
-        };
-
-        testButton.clicked += () =>
-        {
-            SceneManager.LoadScene("TestResultVisualizer");
         };
 
         transformedSlicerButton.clicked += () =>
@@ -65,70 +49,21 @@ public class MainViewHandler : MonoBehaviour
 
     private void RegistrationTest()
     {
-        //EllipsoidMockData ellipsoidMockData = new EllipsoidMockData(80, 50, 30, new int[] { 90, 60, 40 }, new double[] { 1, 1, 1 });
+        //AData microData = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/TEST3/microData1.mhd", "/Users/pepazetek/Desktop/Tests/TEST3/microData1.raw"));
 
-        //FileSaver fileSaver = new FileSaver("/Users/pepazetek/Desktop/", "EllipsoidMacro", ellipsoidMockData);
-        //fileSaver.MakeFiles();
+        //Transform3D transformation = TransformationIO.FetchTransformation("/Users/pepazetek/Desktop/Tests/TEST3/microData5.txt");
+        Transform3D transformation2 = TransformationIO.FetchTransformation("/Users/pepazetek/Downloads/elipsoid_5.txt");
+        //TransformationIO.ExportTransformation("/Users/pepazetek/Downloads/export.txt", transformation2);
 
-
-
-        //TransformedFileSaver transformedFileSaver = new TransformedFileSaver("/Users/pepazetek/Desktop/", "EllipsoidMicro", ellipsoidMockData, new Transform3D(Generator.GetRotationMatrix(0, 0, 0), Generator.GetTranslationVector(20, 20, 10)), ellipsoidMockData.Measures, new double[] { ellipsoidMockData.XSpacing, ellipsoidMockData.YSpacing, ellipsoidMockData.ZSpacing });
-        //transformedFileSaver.MakeFiles();
-
-        //AData macro = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/EllipsoidMacroData.mhd", "/Users/pepazetek/Desktop/Tests/EllipsoidMacroData.raw"));
-        //CutViewerHandler.SetSamplerSlicer(macro);
-        //SceneManager.LoadScene("CutViewer");
-
-
-        //AData macro = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/EllipsoidMacroData.mhd", "/Users/pepazetek/Desktop/Tests/EllipsoidMacroData.raw"));
-        //AData micro = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/EllipsoidMicroData.mhd", "/Users/pepazetek/Desktop/Tests/EllipsoidMicroData.raw"));
-        //Transform3D transformation = TransformationIO.FetchTransformation("/Users/pepazetek/Desktop/Tests/transformation.txt");
-
-        //CutViewerHandler.SetDataSlicer(micro, macro, transformation);
-
-
-
-        //TransformationIO.ExportTransformation("/Users/pepazetek/Desktop/", transformation);
-        //AData macroData = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/TEST2/macroData.mhd", "/Users/pepazetek/Desktop/Tests/TEST2/macroData.raw"));
-        //AData microData = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/TEST2/microData5.mhd", "/Users/pepazetek/Desktop/Tests/TEST2/microData5.raw"));
-
-        //SpheresMockData spheresMockData = new SpheresMockData();
-
-        //AData data = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/ExportedSpheres.mhd", "/Users/pepazetek/ExportedSpheres.raw"));
-        //IFeatureComputer fc = new FeatureComputerISOSurfaceCurvature();
-        //Point3D point = new Point3D(0, 0, 2.5);
-        //Point3D centerPoint = new Point3D(2.5, 2.5, 2.5);
-
-        //Debug.Log($"Distance to center: {centerPoint.Distance(point)}");
-
-        //Debug.Log($"Value: {data.GetValue(point)}");
-        //Debug.Log($"FC: {fc.ComputeFeatureVector(data, point)}");
-
-        //:4.34 y: 4.54 z: 2.4 and current value: 1
-
-
-        //CutViewerHandler.SetFCSlicer(data);
-
-        //Transform3D transformation = TransformationIO.FetchTransformation("/Users/pepazetek/Desktop/Tests/TEST2/microData5.txt");
-        //Transform3D transformation = new Transform3D();
-
-        //Debug.Log($"Loaded transformation: {transformation}");
-
+        //Transform3D.SetTransformationDistance(new TransformationDistanceSeven(microData));
         //RegistrationLauncher.expectedTransformation = transformation;
         //RegistrationLauncher registrationLauncher = new RegistrationLauncher();
-        //Debug.Log($"Value: {registrationLauncher.GetVariation(microData, macroData)}");
-
-        //registrationLauncher.Krivost(data);
-        //registrationLauncher.ZK(data, data);
-
-
         //Transform3D resultTransformation = registrationLauncher.RunRegistration(microData, macroData);
 
-        //Debug.Log($"Result transformation {resultTransformation}");
-        //Debug.Log($"Distance: {transformation.RelativeDistanceTo(resultTransformation)}");
-
+        //Debug.Log($"Distance: {transformation.SqrtDistanceTo(transformation2)}");
         //CutViewerHandler.SetDataSlicer(microData, macroData, resultTransformation);
         //SceneManager.LoadScene("CutViewer");
+
     }
 
     private List<Transform3D> InitTransformations(int count)

@@ -10,7 +10,7 @@ public class CutViewerHandler : MonoBehaviour
     private DropdownField dropdown;
     private VisualElement cutPreview;
 
-    private static IDataSlicer dataSlicer;
+    private static ADataSlicer dataSlicer;
     private Image image;
 
     /// <summary>
@@ -120,15 +120,13 @@ public class CutViewerHandler : MonoBehaviour
             return;
 
         Color[][] values;
-        CutResolution resolution = new CutResolution(500, 500);
+        CutResolution resolution = dataSlicer.GetRecommendedResolution(dropdown.index);
 
+        //slider.value
         values = dataSlicer.Cut(slider.value, dropdown.index, resolution);
-        //values = dataSlicer.Cut(0.5, 2, resolution);
 
         Texture2D texture = GetTexture(values);
         image.image = texture;
-        //byte[] pngData = texture.EncodeToPNG();
-        //File.WriteAllBytes("/Users/pepazetek/UpdatedSphere.png", pngData);
     }
 
     private void ResetValues()

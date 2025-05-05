@@ -1,9 +1,7 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text.RegularExpressions;
 using DataView;
 using MathNet.Numerics.LinearAlgebra;
-using UnityEngine;
 
 /// <summary>
 /// Class that exports and fetches expected transformation from and to a file
@@ -94,7 +92,7 @@ public class TransformationIO
 
         private bool FetchMatrixValues(Matrix<double> fetchedMatrix)
         {
-            Regex regexPattern = new Regex("(-?\\d+([,\\.]\\d+)?)");
+            Regex regexPattern = new Regex("(-?\\d+([,\\.]\\d+)?([eE][-+]?\\d+)?)");
             string line;
             int numbersParsed = 0;
 
@@ -179,7 +177,7 @@ public class TransformationIO
 
         private bool FetchVectorValues(Vector<double> fetchedVector)
         {
-            Regex regexPattern = new Regex("(-?\\d+([,\\.]\\d+)?)");
+            Regex regexPattern = new Regex("(-?\\d+([,\\.]\\d+)?([eE][-+]?\\d+)?)");
             string line;
             int numbersParsed = 0;
 

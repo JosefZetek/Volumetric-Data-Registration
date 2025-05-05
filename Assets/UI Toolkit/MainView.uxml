@@ -8,9 +8,6 @@
                 <ui:Button text="Run Registration" parse-escape-sequences="true" display-tooltip-when-elided="true" name="runRegistration" />
                 <ui:Button text="Object Viewer" parse-escape-sequences="true" display-tooltip-when-elided="true" name="objectViewer" />
                 <ui:Button text="Slicer" parse-escape-sequences="true" display-tooltip-when-elided="true" name="slicer" />
-                <ui:Button text="Generate Test Data" parse-escape-sequences="true" display-tooltip-when-elided="true" name="testDataGenerator" />
-                <ui:Button text="Create Object" parse-escape-sequences="true" display-tooltip-when-elided="true" name="createObject" />
-                <ui:Button text="Test" parse-escape-sequences="true" display-tooltip-when-elided="true" name="test" />
                 <ui:Button text="Transformed Slicer" parse-escape-sequences="true" display-tooltip-when-elided="true" name="transformedSlicer" />
             </ui:VisualElement>
         </ui:VisualElement>

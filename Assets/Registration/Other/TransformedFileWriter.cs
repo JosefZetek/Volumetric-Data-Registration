@@ -171,23 +171,20 @@ public class TransformedFileSaver
     /// <returns>Returns buffer for data to save</returns>
     private byte[] GetDataBuffer(int dimensionX, int dimensionY, int dimensionZ, int currentX, int currentY, int currentZ, int BYTES_PER_POINT)
     {
-        int binaryDataCapacity;
-        int remainingSpace;
-        int remainingArea;
-        try
-        {
-            remainingSpace = checked((dimensionZ - 1 - currentZ) * dimensionX * dimensionY); /* Points in the space reduced by Z */
-            remainingArea = checked(dimensionX - 1 - currentX); /* Points remaining in current line */
-            remainingArea += checked((dimensionY - 1 - currentY) * dimensionX); /* Point remaining in other lines */
+        // Calculate points remaining to process
+        long totalPoints = (long)dimensionX * dimensionY * dimensionZ;
+        long processedPoints = ((long)currentZ * dimensionX * dimensionY) +
+                               ((long)currentY * dimensionX) +
+                               currentX;
+        long remainingPoints = totalPoints - processedPoints;
 
-            binaryDataCapacity = checked(BYTES_PER_POINT * (remainingSpace + remainingArea));
-        }
-        catch (OverflowException)
-        {
-            /* Round to nearest smallest multiple of bytes per point */
-            binaryDataCapacity = int.MaxValue - int.MaxValue % BYTES_PER_POINT;
-        }
+        // Define a reasonable buffer size (e.g., 1 MB or size for remaining points, whichever is smaller)
+        const int MAX_BUFFER_SIZE = 1024 * 1024; // 1 MB
+        int pointsInBuffer = (int)Math.Min(remainingPoints, MAX_BUFFER_SIZE / BYTES_PER_POINT);
 
-        return new byte[binaryDataCapacity];
+        // Ensure at least one point fits in the buffer
+        pointsInBuffer = Math.Max(1, pointsInBuffer);
+
+        return new byte[pointsInBuffer * BYTES_PER_POINT];
     }
 }

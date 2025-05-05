@@ -19,7 +19,7 @@ namespace DataView
             double[] spacings = new double[] { dataMicro.XSpacing, dataMicro.YSpacing, dataMicro.ZSpacing, dataMacro.XSpacing, dataMacro.YSpacing, dataMacro.ZSpacing };
             double minSpacing = spacings.Min();
 
-            try { rotationMatrix = UniformRotationComputerPCA.CalculateRotation(dataMicro, dataMacro, pMicro, pMacro, minSpacing); }
+            try { rotationMatrix = UniformRotationComputerPCA.CalculateRotation(dataMicro, dataMacro, pMicro, pMacro, minSpacing)[0]; }
             catch (Exception e) { throw e; }
 
             pMicro = pMicro.Rotate(rotationMatrix);
@@ -42,21 +42,22 @@ namespace DataView
 
             try
             {
-                Matrix<double> rotationMatrix = UniformRotationComputerPCA.CalculateRotation(dataMicro, dataMacro, pMicro, pMacro, minSpacing);
+                Matrix<double>[] rotationMatrices = UniformRotationComputerPCA.CalculateRotation(dataMicro, dataMacro, pMicro, pMacro, minSpacing);
 
-                Vector<double> translationVector = Vector<double>.Build.Dense(3);
-                Transform3D currentTransformation;
+                foreach (Matrix<double> rotationMatrix in rotationMatrices)
+                {
+                    Vector<double> translationVector = Vector<double>.Build.Dense(3);
+                    Transform3D currentTransformation;
 
-                pMicro = pMicro.Rotate(rotationMatrix);
+                    pMicro = pMicro.Rotate(rotationMatrix);
 
-                translationVector[0] = pMacro.X - pMicro.X; // real coordinates
-                translationVector[1] = pMacro.Y - pMicro.Y;
-                translationVector[2] = pMacro.Z - pMicro.Z;
+                    translationVector[0] = pMacro.X - pMicro.X; // real coordinates
+                    translationVector[1] = pMacro.Y - pMicro.Y;
+                    translationVector[2] = pMacro.Z - pMicro.Z;
 
-                currentTransformation = new Transform3D(rotationMatrix, translationVector);
-                transformations.Add(currentTransformation);
-
-
+                    currentTransformation = new Transform3D(rotationMatrix, translationVector);
+                    transformations.Add(currentTransformation);
+                }
             }
             catch (Exception e) { throw e; }
         }

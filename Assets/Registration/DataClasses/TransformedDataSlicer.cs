@@ -3,10 +3,11 @@ using UnityEngine;
 
 namespace DataView
 {
-	public class TransformedDataSlicer: IDataSlicer
+	public class TransformedDataSlicer: ADataSlicer
 	{
 		private AData macroData;
         private AData microData;
+
         private Transform3D transformation;
 
         private const int DIMENSIONS = 3;
@@ -19,6 +20,7 @@ namespace DataView
         /// <param name="transformation">Transformation that aligns microData onto macroData by calculating (Rx + t)</param>
 		public TransformedDataSlicer(AData macroData, AData microData, Transform3D transformation)
 		{
+            this.referenceData = macroData;
 			this.macroData = macroData;
             this.microData = microData;
             this.transformation = transformation;
@@ -30,7 +32,7 @@ namespace DataView
             return Math.Max(Math.Min(normalizedValue, 1), 0);
         }
 
-        public Color[][] Cut(double t, int axis, CutResolution resolution)
+        public override Color[][] Cut(double t, int axis, CutResolution resolution)
         {
             Point3D microDataPoint;
 
@@ -62,7 +64,7 @@ namespace DataView
 
 
                     microDataPoint = new Point3D(coordinates[0], coordinates[1], coordinates[2]);
-                    microDataPoint = microDataPoint.ApplyTranslationRotation(transformation.GetInverseTransformation());
+                    microDataPoint = microDataPoint.ApplyRotationTranslation(transformation.GetInverseTransformation());
 
                     if (microData.PointWithinBounds(microDataPoint))
                     {

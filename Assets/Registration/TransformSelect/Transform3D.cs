@@ -85,7 +85,7 @@ namespace DataView
         /// <returns>Returns the inverse of this object's transformation</returns>
         public Transform3D GetInverseTransformation()
         {
-            return new Transform3D(this.rotationMatrix.Transpose(), -this.translationVector);
+            return new Transform3D(this.rotationMatrix.Transpose(), -this.rotationMatrix.Transpose().Multiply(this.translationVector));
         }
     }
 }

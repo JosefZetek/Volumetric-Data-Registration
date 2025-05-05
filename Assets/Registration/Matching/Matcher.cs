@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System;
+using UnityEngine;
 
 namespace DataView
 {
@@ -22,6 +24,7 @@ namespace DataView
                     matches.Add(new Match(fMicro[i], fMacro[index], s));
                 }
             }
+
             matches.Sort((x, y) => x.Similarity.CompareTo(y.Similarity));
             int numberOfMatches = (int)(matches.Count / 100.0 * threshold); //takes top [threshold] %
             Match[] matchesReturn = new Match[numberOfMatches];

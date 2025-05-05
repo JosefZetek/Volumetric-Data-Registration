@@ -61,7 +61,7 @@ namespace DataView
 
             //Density is calculated like SUM of e^(-(spreadParameter * distance)^2) for all close transformations
             foreach (Transform3D currentTransformation in transformations)
-                currentDensity += Math.Exp(-spreadParameter * Math.Pow(referenceTransformation.RelativeDistanceTo(currentTransformation), 2));
+                currentDensity += Math.Exp(-spreadParameter * Math.Pow(referenceTransformation.SqrtDistanceTo(currentTransformation), 2));
 
             return currentDensity;
         }

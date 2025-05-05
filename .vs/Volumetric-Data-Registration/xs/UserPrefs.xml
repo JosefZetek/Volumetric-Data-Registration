@@ -1,25 +1,66 @@
 ﻿<Properties StartupConfiguration="{E9E6DABC-757D-9313-16C6-28C0AFD75379}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SceneHandlers/MainViewHandler.cs">
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Registration/RotationComputers/Transformer3D.cs">
     <Files>
-      <File FileName="Assets/Registration/FeatureComputers/FeatureComputerISOSurfaceCurvature.cs" />
+      <File FileName="Assets/Registration/FeatureComputers/FeatureComputerRings.cs" />
+      <File FileName="Assets/Registration/FeatureComputers/FeatureComputerISOSurfaceCurvature.cs" Line="1" Column="1" />
       <File FileName="Assets/Registration/Samplers/SamplerGradient.cs" />
       <File FileName="Assets/Registration/Samplers/SamplerVariance.cs" />
       <File FileName="Assets/Registration/Samplers/SamplerPercentile.cs" />
-      <File FileName="Assets/SceneHandlers/MainViewHandler.cs" Line="1" Column="1" />
-      <File FileName="Assets/SceneHandlers/CutViewer/CutViewerHandler.cs" />
+      <File FileName="Assets/SceneHandlers/MainViewHandler.cs" Line="69" Column="6" />
+      <File FileName="Assets/SceneHandlers/CutViewer/CutViewerHandler.cs" Line="22" Column="43" />
       <File FileName="Assets/Registration/DataClasses/DataSamplerSlicer.cs" />
       <File FileName="Assets/Registration/RegistrationLaunchers/IRegistrationLauncher.cs" />
-      <File FileName="Assets/Registration/RegistrationLaunchers/FakeRegistrationLauncher.cs" Line="1" Column="1" />
-      <File FileName="Assets/Registration/Other/TransformedFileWriter.cs" />
+      <File FileName="Assets/Registration/RegistrationLaunchers/FakeRegistrationLauncher.cs" />
+      <File FileName="Assets/Registration/Other/TransformedFileWriter.cs" Line="33" Column="12" />
       <File FileName="Assets/Registration/Other/Point3D.cs" />
       <File FileName="Assets/Registration/Other/QuickSelectClass.cs" />
-      <File FileName="Assets/Registration/RegistrationLaunchers/RegistrationLauncher.cs" />
+      <File FileName="Assets/Registration/RegistrationLaunchers/RegistrationLauncher.cs" Line="55" Column="34" />
       <File FileName="Assets/Registration/FeatureComputers/FeatureComputerCurvature.cs" />
-      <File FileName="Assets/Registration/Other/TransformationIO.cs" />
+      <File FileName="Assets/Registration/Other/TransformationIO.cs" Line="10" Column="14" />
       <File FileName="Assets/SceneHandlers/RegistrationView/RegistrationViewHandler.cs" />
       <File FileName="Assets/Registration/Samplers/Sampler.cs" />
       <File FileName="Assets/SceneHandlers/ObjectViewer/InstancedColorShader.shader" />
       <File FileName="Assets/SceneHandlers/ObjectViewer/LoadData.cs" />
+      <File FileName="Assets/Registration/RotationComputers/UniformRotationComputerPCA2.cs" Line="29" Column="95" />
+      <File FileName="Assets/Registration/Other/CSVWriter.cs" />
+      <File FileName="Assets/Registration/RotationComputers/Transformer3D.cs" Line="49" Column="45" />
+      <File FileName="Assets/Registration/FeatureComputers/FeatureComputerHistogram.cs" Line="1" Column="1" />
+      <File FileName="Assets/Registration/FeatureComputers/FeatureComputerPCA.cs" />
+      <File FileName="Assets/Registration/FeatureComputers/FeatureComputerNormedRings.cs" />
+      <File FileName="Assets/Registration/FeatureComputers/TestFeatureComputer.cs" />
+      <File FileName="Assets/Registration/Matching/Matcher.cs" />
+      <File FileName="Assets/Registration/Matching/KDTree.cs" />
+      <File FileName="Assets/Registration/DataClasses/DataFCSlicer.cs" />
+      <File FileName="Assets/SceneHandlers/TestResultVisualizerHandler.cs" />
+      <File FileName="Assets/SceneHandlers/DataGenerationHandler.cs" />
+      <File FileName="Assets/Registration/Matching/Match.cs" />
+      <File FileName="Assets/Registration/Other/FeatureVector.cs" />
+      <File FileName="Assets/Registration/DataClasses/DataSlicer.cs" />
+      <File FileName="Assets/Registration/DataClasses/AMockObject.cs" />
+      <File FileName="Assets/Registration/DataClasses/SmallObjectMock.cs" />
+      <File FileName="Assets/Registration/DataClasses/AData.cs" />
+      <File FileName="Assets/Registration/DataClasses/IDataSlicer.cs" />
+      <File FileName="Assets/Registration/DataClasses/TransformedDataSlicer.cs" Line="21" Column="10" />
+      <File FileName="Assets/Registration/FeatureComputers/FeatureComputerDataDistribution.cs" />
+      <File FileName="Assets/Registration/TransformationDistanceMetrics/NaiveTransformationDistance.cs" />
+      <File FileName="Assets/Registration/FeatureComputers/FakeFeatureComputer.cs" />
+      <File FileName="Assets/Registration/FeatureComputers/FeatureComputer.cs" />
+      <File FileName="Assets/Registration/FeatureComputers/FeatureComputerVectorDeviation.cs" />
+      <File FileName="Assets/Registration/FeatureComputers/IFeatureComputer.cs" />
+      <File FileName="Assets/Registration/FeatureComputers/CompoundFeatureComputer.cs" />
+      <File FileName="Assets/Registration/RotationComputers/UniformRotationComputerPCA.cs" />
+      <File FileName="Assets/SceneHandlers/CutViewer/ScaleHUD.asset" />
+      <File FileName="Assets/Registration/Density/DensityTree.cs" Line="144" Column="1" />
+      <File FileName="Assets/Registration/Density/DensityStructure.cs" />
+      <File FileName="Assets/Registration/RotationComputers/RotationComputerVector.cs" />
+      <File FileName="Assets/Registration/TransformSelect/Transform3D.cs" Line="48" Column="1" />
+      <File FileName="Assets/Registration/TransformationDistanceMetrics/ITransformationDistance.cs" />
+      <File FileName="Assets/Registration/TransformationDistanceMetrics/TransformationDistance7.cs" />
+      <File FileName="Assets/Registration/Density/DensityNaive.cs" />
+      <File FileName="Assets/Registration/Other/Generator.cs" Line="15" Column="34" />
+      <File FileName="Assets/Registration/Other/FileSaver.cs" Line="23" Column="12" />
+      <File FileName="Assets/Registration/DataClasses/MockDataSegment.cs" Line="14" Column="12" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -29,20 +70,18 @@
               <Node name="Registration" expanded="True">
                 <Node name="DataClasses" expanded="True" />
                 <Node name="Density" expanded="True" />
-                <Node name="FeatureComputers" expanded="True" />
-                <Node name="Matching" expanded="True" />
                 <Node name="Other" expanded="True" />
                 <Node name="RegistrationLaunchers" expanded="True" />
-                <Node name="RotationComputers" expanded="True" />
+                <Node name="RotationComputers" expanded="True">
+                  <Node name="Transformer3D.cs" selected="True" />
+                </Node>
                 <Node name="Samplers" expanded="True" />
                 <Node name="TransformationDistanceMetrics" expanded="True" />
                 <Node name="TransformSelect" expanded="True" />
               </Node>
               <Node name="SceneHandlers" expanded="True">
                 <Node name="CutViewer" expanded="True" />
-                <Node name="ObjectViewer" expanded="True" />
                 <Node name="RegistrationView" expanded="True" />
-                <Node name="MainViewHandler.cs" selected="True" />
               </Node>
             </Node>
           </Node>
@@ -50,11 +89,10 @@
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="5422e52f-8ffa-41d3-948a-12122b76748a" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="217ec067-21c1-4147-b718-a72512c5ef82" />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

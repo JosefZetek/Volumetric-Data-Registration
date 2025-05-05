@@ -3,9 +3,8 @@ using UnityEngine;
 
 namespace DataView
 {
-	public class DataSlicer: IDataSlicer
+    public class DataSlicer : ADataSlicer
 	{
-		private AData referenceData;
         private const int DIMENSIONS = 3;
 
 		public DataSlicer(AData data)
@@ -13,7 +12,7 @@ namespace DataView
 			this.referenceData = data;
 		}
 
-        public Color[][] Cut(double t, int axis, CutResolution resolution)
+        public override Color[][] Cut(double t, int axis, CutResolution resolution)
         {
             /* Constraining t to be within range */
             t = Math.Min(Math.Max(0, t), 1);

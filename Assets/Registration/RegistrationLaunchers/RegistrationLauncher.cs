@@ -20,8 +20,8 @@ namespace DataView
 
         public RegistrationLauncher()
         {
-            this.NUMBER_OF_POINTS_MICRO = 1_000;
-            this.NUMBER_OF_POINTS_MACRO = 1_000;
+            this.NUMBER_OF_POINTS_MICRO = 8_000;
+            this.NUMBER_OF_POINTS_MACRO = 8_000;
             this.THRESHOLD = 10;
 
             InitializeRegistrationModules();
@@ -47,10 +47,17 @@ namespace DataView
 
         private void InitializeRegistrationModules()
         {
-            RegistrationLauncher.expectedTransformation = TransformationIO.FetchTransformation("/Users/pepazetek/Desktop/Tests/TEST3/EllipsoidMicroData1.txt");
-            this.sampler = new SamplerGradient(0.1);
-            this.featureComputer = new FeatureComputerISOSurfaceCurvature();
-            this.matcher = new FakeMatcher(expectedTransformation);
+            //RegistrationLauncher.expectedTransformation = TransformationIO.FetchTransformation("/Users/pepazetek/Desktop/Tests/TEST2/microData5.txt");
+            //this.sampler = new SamplerGradient(0.1);
+
+            this.sampler = new SamplerPercentile(0.1);
+            this.featureComputer = new FeatureComputerISOCurvature();
+            //this.featureComputer = new FakeFeatureComputer(expectedTransformation);
+
+            //this.featureComputer = new CompoundFeatureComputer(new IFeatureComputer[] { new FeatureComputerISOSurfaceCurvature(), new FeatureComputerPCALength() });
+            //this.featureComputer = new FeatureComputerPCALength();
+
+            this.matcher = new Matcher();
             this.transformer = new Transformer3D();
         }
 
@@ -91,23 +98,28 @@ namespace DataView
 
             //----------------------------------------FEATURE VECTOR CALCULATION------------------------------------------------
 
-            
 
+
+             //var fc = (FakeFeatureComputer)featureComputer;
+
+            //fc.SetTransformedSampling(true);
             Debug.Log("Computing micro feature vectors.");
             List<FeatureVector> featureVectorsMicro = CalculateFeatureVectors(sampler, featureComputer, microData, NUMBER_OF_POINTS_MICRO);
+
+            //fc.SetTransformedSampling(false);
             Debug.Log("Computing macro feature vectors.");
             List<FeatureVector> featureVectorsMacro = CalculateFeatureVectors(sampler, featureComputer, macroData, NUMBER_OF_POINTS_MACRO);
 
             Debug.Log($"Number of feature vectors micro: {featureVectorsMicro.Count}");
             Debug.Log($"Number of feature vectors macro: {featureVectorsMacro.Count}");
 
-            /*
-            System.Random random = new System.Random();
-            FeatureVector[] featureVectorsMicro = FeatureVectorsMicroData(microData, random, NUMBER_OF_POINTS_MICRO);
-            FeatureVector[] featureVectorsMacro = FeatureVectorsMacroData(featureVectorsMicro);
-            */
+            
+            //FeatureVector[] featureVectorsMicro = FeatureVectorsMicroData(microData, random, NUMBER_OF_POINTS_MICRO);
+            //FeatureVector[] featureVectorsMacro = FeatureVectorsMacroData(featureVectorsMicro);
+            
 
             //CheckValidity(featureVectorsMicro, featureVectorsMacro);
+
 
             //----------------------------------------SETUP TRANSFORMATION METRICS------------------------------------------------
             ITransformationDistance transformationDistance = new TransformationDistanceSeven(microData);
@@ -118,8 +130,9 @@ namespace DataView
 
             //Match[] matches = matcher.Match(featureVectorsMicro.ToArray(), featureVectorsMacro.ToArray(), THRESHOLD);
 
-            //FakeMatcher matcher = new FakeMatcher(expectedTransformation);
+            
             Match[] matches = matcher.Match(featureVectorsMicro.ToArray(), featureVectorsMacro.ToArray(), THRESHOLD);
+            //Match[] matches = SampleGreedy(this.sampler, this.featureComputer, microData, featureVectorsMacro.ToArray());
 
             //CompareAlternativeMatches(matches, matchesAlternative);
 
@@ -133,7 +146,7 @@ namespace DataView
 
             //Debug.Log($"Test match: {testMatch}");
 
-            PrintRealDistances(matches);
+            //PrintRealDistances(matches);
 
             //------------------------------------GET TRANSFORMATION -----------------------------------------
 
@@ -147,7 +160,52 @@ namespace DataView
             DensityStructure densityStructure = new DensityStructure(transformations, 0.1);
 
             Transform3D tr = densityStructure.TransformationsDensityFilter();
+
+            if(expectedTransformation != null)
+                Debug.Log($"Transformation distance: {expectedTransformation.SqrtDistanceTo(tr)}");
+
             return tr;
+        }
+
+        private Match[] SampleGreedy(ISampler sampler, IFeatureComputer fc, AData microData, FeatureVector[] fMacro)
+        {
+            KDTree tree = new KDTree(fMacro);
+
+            PriorityQueue<Match> priorityQueue = new PriorityQueue<Match>();
+            int notEnhancedCounter = 0;
+            int stopIteration = 100;
+            bool stopped = false;
+            while (!stopped)
+            {
+                Point3D[] sampledPoints = sampler.Sample(microData, NUMBER_OF_POINTS_MICRO);
+
+                foreach (Point3D sampledPoint in sampledPoints)
+                {
+                    FeatureVector microFC = fc.ComputeFeatureVector(microData, sampledPoint);
+
+                    int index = tree.FindNearest(microFC);
+
+                    Match currentMatch = new Match(microFC, fMacro[index]);
+
+                    priorityQueue.Enqueue(currentMatch);
+
+                    if (priorityQueue.Count < fMacro.Length)
+                        continue;
+
+                    if (priorityQueue.Dequeue() == currentMatch)
+                        notEnhancedCounter++;
+                    else
+                        notEnhancedCounter = 0;
+
+                    if (notEnhancedCounter >= stopIteration)
+                    {
+                        stopped = true;
+                        break;
+                    }
+                }
+            }
+
+            return priorityQueue.GetData();
         }
 
 
@@ -173,7 +231,7 @@ namespace DataView
         {
 
             List<Point2D> distances = new List<Point2D>();
-            double realDistance, fvDistance;
+            double fvDistance;
             FeatureVector microFV, macroFV;
 
             SpheresMockData spheresMockData = new SpheresMockData();
@@ -249,9 +307,9 @@ namespace DataView
             {
                 try
                 {
-                    Transform3D transformation = transformer.GetTransformation(matches[i], microData, macroData);
-                    transformations.Add(transformation);
-                    //transformer.AppendTransformation(matches[i], microData, macroData, ref transformations);
+                    //Transform3D transformation = transformer.GetTransformation(matches[i], microData, macroData);
+                    //transformations.Add(transformation);
+                    transformer.AppendTransformation(matches[i], microData, macroData, ref transformations);
                 }
                 catch { continue; }
             }
@@ -266,13 +324,13 @@ namespace DataView
 
             //}
 
-            if (expectedTransformation == null)
-            {
-                Debug.Log("Expected transformation not specified.");
-                return;
-            }
+            ////if (expectedTransformation == null)
+            ////{
+            ////    Debug.Log("Expected transformation not specified.");
+            ////    return;
+            //}
 
-            for (int i = 0; i < matches.Length; i++)
+            for (int i = 0; i<matches.Length; i++)
                 Debug.Log(matches[i]
                     .microFV
                     .Point

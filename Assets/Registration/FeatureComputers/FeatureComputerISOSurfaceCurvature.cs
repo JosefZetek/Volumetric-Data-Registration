@@ -4,7 +4,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace DataView
 {
-    public class FeatureComputerISOSurfaceCurvature : IFeatureComputer
+    public class FeatureComputerISOCurvature : IFeatureComputer
     {
         private double spreadParameterX;
         private double spreadParameterY;
@@ -24,13 +24,18 @@ namespace DataView
             //CalculateSpreadParameter(d, 0.3);
             //Curvature furtherNeighborhood = ComputeCurvature(p, d, nearestGridPoint, 2);
 
-            CalculateSpreadParameter(d, 0.4);
-            Curvature furthestNeighborhood = ComputeCurvature(p, d, nearestGridPoint, 3);
+            CalculateSpreadParameter(d, 0.8);
+            Curvature furthestNeighborhood = ComputeCurvature(p, d, nearestGridPoint, 5);
+
+            //CalculateSpreadParameter(d, 0.5);
+
+            return new FeatureVector(p, new double[] { furthestNeighborhood.GaussianCurvature, furthestNeighborhood.MeanCurvature, d.GetValue(p) });
+
 
             //double[] filteredCurvatures = FilterCurvatures(closerNeighborhood, furtherNeighborhood, furthestNeighborhood);
 
-            //return new FeatureVector(p, new double[] { 1/closerNeighborhood.GaussianCurvature, 1/closerNeighborhood.MeanCurvature, 1/furtherNeighborhood.GaussianCurvature, 1/furtherNeighborhood.MeanCurvature});
-            return new FeatureVector(p, new double[] { furthestNeighborhood.GaussianCurvature, furthestNeighborhood.MeanCurvature });
+            //return new FeatureVector(p, new double[] { closerNeighborhood.GaussianCurvature, closerNeighborhood.MeanCurvature, furtherNeighborhood.GaussianCurvature, furtherNeighborhood.MeanCurvature, furthestNeighborhood.GaussianCurvature, furthestNeighborhood.GaussianCurvature});
+            //return new FeatureVector(p, new double[] { furthestNeighborhood.GaussianCurvature, furthestNeighborhood.MeanCurvature });
         }
 
         private double[] FilterCurvatures(Curvature closerNeighborhood, Curvature furtherNeighborhood, Curvature furthestNeighborhood)
@@ -72,18 +77,18 @@ namespace DataView
             {
                 {
                     hessianMatrix[1, 1] * hessianMatrix[2, 2] - hessianMatrix[1, 2] * hessianMatrix[2, 1],
-                    hessianMatrix[0, 2] * hessianMatrix[2, 1] - hessianMatrix[0, 1] * hessianMatrix[2, 2],
-                    hessianMatrix[0, 1] * hessianMatrix[1, 2] - hessianMatrix[0, 2] * hessianMatrix[1, 1],
+                    hessianMatrix[1, 2] * hessianMatrix[2, 0] - hessianMatrix[0, 1] * hessianMatrix[2, 2],
+                    hessianMatrix[1, 0] * hessianMatrix[2, 1] - hessianMatrix[1, 1] * hessianMatrix[2, 0],
                 },
                 {
-                    hessianMatrix[1, 2] * hessianMatrix[2, 0] - hessianMatrix[1, 0] * hessianMatrix[2, 2],
+                    hessianMatrix[0, 2] * hessianMatrix[2, 1] - hessianMatrix[0, 1] * hessianMatrix[2, 2],
                     hessianMatrix[0, 0] * hessianMatrix[2, 2] - hessianMatrix[0, 2] * hessianMatrix[2, 0],
-                    hessianMatrix[0, 2] * hessianMatrix[1, 0] - hessianMatrix[0, 0] * hessianMatrix[1, 2],
+                    hessianMatrix[0, 1] * hessianMatrix[2, 0] - hessianMatrix[0, 0] * hessianMatrix[2, 1],
 
                 },
                 {
-                    hessianMatrix[1, 0] * hessianMatrix[2, 1] - hessianMatrix[1, 1] * hessianMatrix[2, 0],
-                    hessianMatrix[0, 1] * hessianMatrix[2, 0] - hessianMatrix[0, 0] * hessianMatrix[2, 1],
+                    hessianMatrix[0, 1] * hessianMatrix[1, 2] - hessianMatrix[0, 2] * hessianMatrix[1, 1],
+                    hessianMatrix[1, 0] * hessianMatrix[0, 2] - hessianMatrix[0, 0] * hessianMatrix[1, 2],
                     hessianMatrix[0, 0] * hessianMatrix[1, 1] - hessianMatrix[0, 1] * hessianMatrix[1, 0]
                 }
             });
@@ -111,29 +116,34 @@ namespace DataView
 
         private Curvature ComputeCurvature(Point3D point, AData d, Point3D centerPoint, int radius)
         {
-            List<Point3D> surroundingPoints = GetSurroundingPoints(centerPoint, d, radius);
-
+            List<Point3D> surroundingPoints = CalculateSurroundingPoints(point, d, radius);
             Vector<double> coeficients = GetApproximationEquation(surroundingPoints, point, centerPoint, d);
 
-            //if (!equation.CheckCondition())
-            //    return new Curvature(0, 0);
-
-            //Vector<double> coeficients = equation.GetEquationResult();
             Matrix<double> hessianMatrix = ConstructHessianMatrix(coeficients);
-
-            /* If the frobenius norm is too small */
-            if (hessianMatrix.FrobeniusNorm() < 1e-5)
-                return new Curvature(0, 0);
-
             Vector<double> functionGradient = GetFunctionGradient(point - centerPoint, coeficients);
             Matrix<double> adjointHessian = ConstructAdjointMatrix(hessianMatrix);
 
             double functionGradientNorm = functionGradient.L2Norm();
 
+            if (functionGradientNorm == 0)
+                return new Curvature(
+                    double.PositiveInfinity,
+                    double.PositiveInfinity
+                );
+
             double gaussianCurvature = adjointHessian.LeftMultiply(functionGradient).DotProduct(functionGradient) / Math.Pow(functionGradientNorm, 4); /* Gaussian curvature */
             double meanCurvature = (hessianMatrix.LeftMultiply(functionGradient).DotProduct(functionGradient) - Math.Pow(functionGradientNorm, 2) * hessianMatrix.Trace()) / (2 * Math.Pow(functionGradientNorm, 3)); /* Mean curvature */
 
-            double sqDiff = Math.Max(Math.Pow(meanCurvature, 2) - gaussianCurvature, 0);
+            //meanCurvature = Math.Abs(meanCurvature);
+            //gaussianCurvature = Math.Abs(gaussianCurvature);
+
+            //return new Curvature(
+            //    meanCurvature,
+            //    gaussianCurvature
+            //);
+
+            double sqDiff = Math.Pow(meanCurvature, 2) - gaussianCurvature;
+            sqDiff = Math.Max(sqDiff, 0);
             sqDiff = Math.Sqrt(sqDiff);
 
             return new Curvature(
@@ -141,6 +151,27 @@ namespace DataView
                 meanCurvature - sqDiff
             );
         }
+
+        //private Curvature ComputeCurvatureAlternative(Point3D point, AData d, Point3D centerPoint, int radius)
+        //{
+        //    double isoValue = d.GetValue(point);
+
+        //    List<Point3D> surroundingPoints = GetIntersectionPoints(centerPoint, d, radius, isoValue);
+        //    //List<Point3D> intersectionPoints = GetIntersectionPointsAlternative(centerPoint, d, radius, isoValue);
+
+        //    Vector<double> coeficients = GetApproximationEquation(surroundingPoints, point, centerPoint, d);
+
+        //    double fx = 2 * coeficients[0] * point.X + coeficients[2] * point.Y + coeficients[3];
+        //    double fy 
+
+        //    double sqDiff = Math.Max(Math.Pow(meanCurvature, 2) - gaussianCurvature, 0);
+        //    sqDiff = Math.Sqrt(sqDiff);
+
+        //    return new Curvature(
+        //        meanCurvature + sqDiff,
+        //        meanCurvature - sqDiff
+        //    );
+        //}
 
         private double GetValue(Vector<double> coeficients, double x, double y, double z)
         {
@@ -158,33 +189,36 @@ namespace DataView
             Vector<double> weightedValues = Vector<double>.Build.Dense(surroundingPoints.Count);
             Matrix<double> rightSide = Matrix<double>.Build.Dense(qMatrix.ColumnCount, 1);
 
+            Point3D centeredPoint = new Point3D(
+                referencePoint.X - centerPoint.X,
+                referencePoint.Y - centerPoint.Y,
+                referencePoint.Z - centerPoint.Z
+            );
 
-            Point3D currentCenteredPoint;
             for (int i = 0; i < surroundingPoints.Count; i++)
             {
                 double weight = GetGaussianWeight(
-                    surroundingPoints[i].X - referencePoint.X,
-                    surroundingPoints[i].Y - referencePoint.Y,
-                    surroundingPoints[i].Z - referencePoint.Z
+                    surroundingPoints[i].X - centeredPoint.X,
+                    surroundingPoints[i].Y - centeredPoint.Y,
+                    surroundingPoints[i].Z - centeredPoint.Z
                 );
 
-                currentCenteredPoint = surroundingPoints[i] - centerPoint;
-
-                qMatrixT[0, i] = Math.Pow(currentCenteredPoint.X, 2);
-                qMatrixT[1, i] = Math.Pow(currentCenteredPoint.Y, 2);
-                qMatrixT[2, i] = Math.Pow(currentCenteredPoint.Z, 2);
-                qMatrixT[3, i] = currentCenteredPoint.X * currentCenteredPoint.Y;
-                qMatrixT[4, i] = currentCenteredPoint.X * currentCenteredPoint.Z;
-                qMatrixT[5, i] = currentCenteredPoint.Y * currentCenteredPoint.Z;
-                qMatrixT[6, i] = currentCenteredPoint.X;
-                qMatrixT[7, i] = currentCenteredPoint.Y;
-                qMatrixT[8, i] = currentCenteredPoint.Z;
+                qMatrixT[0, i] = Math.Pow(surroundingPoints[i].X, 2);
+                qMatrixT[1, i] = Math.Pow(surroundingPoints[i].Y, 2);
+                qMatrixT[2, i] = Math.Pow(surroundingPoints[i].Z, 2);
+                qMatrixT[3, i] = surroundingPoints[i].X * surroundingPoints[i].Y;
+                qMatrixT[4, i] = surroundingPoints[i].X * surroundingPoints[i].Z;
+                qMatrixT[5, i] = surroundingPoints[i].Y * surroundingPoints[i].Z;
+                qMatrixT[6, i] = surroundingPoints[i].X;
+                qMatrixT[7, i] = surroundingPoints[i].Y;
+                qMatrixT[8, i] = surroundingPoints[i].Z;
                 qMatrixT[9, i] = 1;
 
                 for (int j = 0; j < qMatrixT.RowCount; j++)
                     qMatrix[i, j] = qMatrixT[j, i] * weight;
 
-                values[i] = d.GetValue(surroundingPoints[i]);
+                values[i] = d.GetValue(surroundingPoints[i] + centerPoint);
+
                 weightedValues[i] = values[i] * weight;
             }
 
@@ -220,13 +254,87 @@ namespace DataView
             return Math.Exp(-(spreadParameterX * x * x + spreadParameterY * y * y + spreadParameterZ * z * z));
         }
 
-        private List<Point3D> GetSurroundingPoints(Point3D nearestGridPoint, AData d, int radius)
+        private List<Point3D> IntersectionPointsAlternative(Point3D nearestGridPoint, AData d, int radius, double isoValue)
+        {
+            List<Point3D> intersectionPoints = new List<Point3D>();
+
+            return intersectionPoints;
+        }
+
+        private List<Point3D> GetIntersectionPoints(Point3D nearestGridPoint, AData d, int radius, double isoValue)
+        {
+            List<Point3D> intersectionPoints = new List<Point3D>();
+            //HashSet<ProcessedEdge> processedEdges = new HashSet<ProcessedEdge>();
+
+            //List<Point3D> surroundingPoints;
+            //ProcessedEdge processedEdge;
+
+            //double valA, valB, t;
+
+            //int minSpacingMulitplierX = MinSpacingMulitplier(nearestGridPoint.X, d.XSpacing, radius), maxSpacingMultiplierX = MaxSpacingMultiplier(nearestGridPoint.X, d.MaxValueX, d.XSpacing, radius);
+            //int minSpacingMulitplierY = MinSpacingMulitplier(nearestGridPoint.Y, d.YSpacing, radius), maxSpacingMultiplierY = MaxSpacingMultiplier(nearestGridPoint.Y, d.MaxValueY, d.YSpacing, radius);
+            //int minSpacingMulitplierZ = MinSpacingMulitplier(nearestGridPoint.Z, d.ZSpacing, radius), maxSpacingMultiplierZ = MaxSpacingMultiplier(nearestGridPoint.Z, d.MaxValueZ, d.ZSpacing, radius);
+
+            //for (int x = -minSpacingMulitplierX; x <= maxSpacingMultiplierX; x++)
+            //{
+            //    for (int y = -minSpacingMulitplierY; y <= maxSpacingMultiplierY; y++)
+            //    {
+            //        for (int z = -minSpacingMulitplierZ; z <= maxSpacingMultiplierZ; z++)
+            //        {
+            //            Point3D currentPoint = new Point3D(
+            //                nearestGridPoint.X + x * d.XSpacing,
+            //                nearestGridPoint.Y + y * d.YSpacing,
+            //                nearestGridPoint.Z + z * d.ZSpacing
+            //            );
+
+            //            valA = d.GetValue(currentPoint);
+            //            surroundingPoints = CalculateSurroundingPoints(currentPoint, d);
+
+            //            foreach (Point3D shift in surroundingPoints)
+            //            {
+            //                processedEdge = new ProcessedEdge(x, y, z, (int)shift.X, (int)shift.Y, (int)shift.Z);
+
+            //                if (processedEdges.Contains(processedEdge))
+            //                    continue;
+
+            //                Point3D anotherPoint = new Point3D(
+            //                    currentPoint.X + shift.X * d.XSpacing,
+            //                    currentPoint.Y + shift.Y * d.YSpacing,
+            //                    currentPoint.Z + shift.Z * d.ZSpacing
+            //                );
+
+            //                valB = d.GetValue(anotherPoint);
+
+            //                if ((valA < isoValue && valB >= isoValue) || (valB < isoValue && valA >= isoValue))
+            //                {
+            //                    t = (isoValue - valA) / (valB - valA);
+            //                    intersectionPoints.Add(Lerp(currentPoint, anotherPoint, t));
+            //                }
+
+            //            }
+            //        }
+            //    }
+            //}
+
+            return intersectionPoints;
+        }
+
+        private Point3D Lerp(Point3D a, Point3D b, double t)
+        {
+            return new Point3D(
+                a.X + (b.X - a.X) * t,
+                a.Y + (b.Y - a.Y) * t,
+                a.Z + (b.Z - a.Z) * t
+            );
+        }
+
+        private List<Point3D> CalculateSurroundingPoints(Point3D point, AData d, int radius)
         {
             List<Point3D> surroundingPoints = new List<Point3D>();
 
-            int minSpacingMulitplierX = MinSpacingMulitplier(nearestGridPoint.X, d.XSpacing, radius), maxSpacingMultiplierX = MaxSpacingMultiplier(nearestGridPoint.X, d.MaxValueX, d.XSpacing, radius);
-            int minSpacingMulitplierY = MinSpacingMulitplier(nearestGridPoint.Y, d.YSpacing, radius), maxSpacingMultiplierY = MaxSpacingMultiplier(nearestGridPoint.Y, d.MaxValueY, d.YSpacing, radius);
-            int minSpacingMulitplierZ = MinSpacingMulitplier(nearestGridPoint.Z, d.ZSpacing, radius), maxSpacingMultiplierZ = MaxSpacingMultiplier(nearestGridPoint.Z, d.MaxValueZ, d.ZSpacing, radius);
+            int minSpacingMulitplierX = MinSpacingMulitplier(point.X, d.XSpacing, radius), maxSpacingMultiplierX = MaxSpacingMultiplier(point.X, d.MaxValueX, d.XSpacing, radius);
+            int minSpacingMulitplierY = MinSpacingMulitplier(point.Y, d.YSpacing, radius), maxSpacingMultiplierY = MaxSpacingMultiplier(point.Y, d.MaxValueY, d.YSpacing, radius);
+            int minSpacingMulitplierZ = MinSpacingMulitplier(point.Z, d.ZSpacing, radius), maxSpacingMultiplierZ = MaxSpacingMultiplier(point.Z, d.MaxValueZ, d.ZSpacing, radius);
 
             for (int x = -minSpacingMulitplierX; x <= maxSpacingMultiplierX; x++)
             {
@@ -234,16 +342,11 @@ namespace DataView
                 {
                     for (int z = -minSpacingMulitplierZ; z <= maxSpacingMultiplierZ; z++)
                     {
-                        surroundingPoints.Add(
-                            new Point3D(
-                                nearestGridPoint.X + x * d.XSpacing,
-                                nearestGridPoint.Y + y * d.YSpacing,
-                                nearestGridPoint.Z + z * d.ZSpacing
-                            )
-                        );
+                        surroundingPoints.Add(new Point3D(x, y, z));
                     }
                 }
             }
+
             return surroundingPoints;
         }
 
@@ -272,6 +375,52 @@ namespace DataView
         public static int MaxSpacingMultiplier(double currentCoordinate, double maxValue, double spacing, int desiredShift)
         {
             return (int)Math.Min((maxValue - currentCoordinate) / spacing, desiredShift);
+        }
+
+        private class ProcessedEdge
+        {
+            private int firstX;
+            private int firstY;
+            private int firstZ;
+
+            private int secondX;
+            private int secondY;
+            private int secondZ;
+
+            public ProcessedEdge(int firstX, int firstY, int firstZ, int secondX, int secondY, int secondZ)
+            {
+                this.firstX = firstX;
+                this.firstY = firstY;
+                this.firstZ = firstZ;
+
+                this.secondX = secondX;
+                this.secondY = secondY;
+                this.secondZ = secondZ;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (!(obj is ProcessedEdge))
+                    return false;
+
+                ProcessedEdge secondInstance = (ProcessedEdge)obj;
+
+                if (firstX != secondInstance.firstX && firstX != secondInstance.secondX)
+                    return false;
+
+                if (firstY != secondInstance.firstY && firstY != secondInstance.secondY)
+                    return false;
+
+                if (firstZ != secondInstance.firstZ && firstZ != secondInstance.secondZ)
+                    return false;
+
+                return true;
+            }
+
+            public override int GetHashCode()
+            {
+                return firstX + firstY + firstZ + secondX + secondY + secondZ;
+            }
         }
 
         private class Curvature

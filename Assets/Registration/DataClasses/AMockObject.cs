@@ -6,6 +6,19 @@
         public abstract double YSpacing { get; }
         public abstract double ZSpacing { get; }
 
+        private double[] _spacings;
+
+
+        public double[] Spacings {
+            get
+            {
+                if (_spacings == null)
+                    _spacings = new double[] { XSpacing, YSpacing, ZSpacing };
+
+                return _spacings;
+            }
+        }
+
         public abstract int[] Measures { get; }
 
         public abstract double GetValue(double x, double y, double z);

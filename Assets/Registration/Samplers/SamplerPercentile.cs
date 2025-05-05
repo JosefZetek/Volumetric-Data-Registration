@@ -20,6 +20,7 @@ namespace DataView
 
         public SamplerPercentile(double percentile)
         {
+            this.r = new Random();
             this.percentile = Constrain(percentile, 0, 1);
         }
 
@@ -33,11 +34,11 @@ namespace DataView
         {
             Point3D[] points = new Point3D[count];
             Point3D currentPoint;
-            int currentIndex = 0;
+            //int currentIndex = 0;
 
             SampledPoint[] sampledPoints = new SampledPoint[count * sampledMultiplier];
 
-            for(int i = 0; i<count * sampledMultiplier; i++)
+            for (int i = 0; i < count * sampledMultiplier; i++)
             {
                 currentPoint = GetRandomPoint(d);
                 sampledPoints[i] = new SampledPoint(currentPoint, CalculateVariance(d, currentPoint));
@@ -48,7 +49,7 @@ namespace DataView
             for (int i = 0; i < points.Length; i++)
                 points[i] = sampledPoints[sampledPoints.Length - 1 - i].sampledPoint;
 
-            ///* Sample 1000 points and obtain percentile */
+            /////* Sample 1000 points and obtain percentile */
             //double threshold = FindGivenPercentile(d, 1000);
 
             //while (currentIndex < count)
