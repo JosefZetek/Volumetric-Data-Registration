@@ -48,14 +48,10 @@ namespace DataView
         private void InitializeRegistrationModules()
         {
             //RegistrationLauncher.expectedTransformation = TransformationIO.FetchTransformation("/Users/pepazetek/Desktop/Tests/TEST2/microData5.txt");
-            //this.sampler = new SamplerGradient(0.1);
 
             this.sampler = new SamplerPercentile(0.1);
             this.featureComputer = new FeatureComputerISOCurvature();
             //this.featureComputer = new FakeFeatureComputer(expectedTransformation);
-
-            //this.featureComputer = new CompoundFeatureComputer(new IFeatureComputer[] { new FeatureComputerISOSurfaceCurvature(), new FeatureComputerPCALength() });
-            //this.featureComputer = new FeatureComputerPCALength();
 
             this.matcher = new Matcher();
             this.transformer = new Transformer3D();

@@ -52,7 +52,7 @@ public class MainViewHandler : MonoBehaviour
         //AData microData = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/TEST3/microData1.mhd", "/Users/pepazetek/Desktop/Tests/TEST3/microData1.raw"));
 
         //Transform3D transformation = TransformationIO.FetchTransformation("/Users/pepazetek/Desktop/Tests/TEST3/microData5.txt");
-        Transform3D transformation2 = TransformationIO.FetchTransformation("/Users/pepazetek/Downloads/elipsoid_5.txt");
+        //Transform3D transformation2 = TransformationIO.FetchTransformation("/Users/pepazetek/Downloads/elipsoid_5.txt");
         //TransformationIO.ExportTransformation("/Users/pepazetek/Downloads/export.txt", transformation2);
 
         //Transform3D.SetTransformationDistance(new TransformationDistanceSeven(microData));
