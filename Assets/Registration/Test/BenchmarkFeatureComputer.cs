@@ -6,11 +6,11 @@ namespace DataView
     public class BenchmarkFeatureComputer
 	{
 		private AData d;
-		private IFeatureComputer featureComputer;
+		private AFeatureComputer featureComputer;
 		private Random random;
 		private List<Point2D> listOfPoints;
 
-		public BenchmarkFeatureComputer(AData d, IFeatureComputer featureComputer)
+		public BenchmarkFeatureComputer(AData d, AFeatureComputer featureComputer)
 		{
 			this.d = d;
 			this.featureComputer = featureComputer;

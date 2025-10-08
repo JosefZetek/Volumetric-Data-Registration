@@ -1,5 +1,8 @@
+using MathNet.Numerics.LinearAlgebra.Factorization;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace DataView
@@ -8,53 +11,34 @@ namespace DataView
     {
         /* Registration blocks */
         private ISampler sampler;
-        private IFeatureComputer featureComputer;
+        private AFeatureComputer featureComputer;
         private IMatcher matcher;
-        private ITransformer transformer;
-
-        private int NUMBER_OF_POINTS_MICRO;
-        private int NUMBER_OF_POINTS_MACRO;
-        private double THRESHOLD;
+        private ATransformer transformer;
 
         public static Transform3D expectedTransformation = null;
 
         public RegistrationLauncher()
         {
-            this.NUMBER_OF_POINTS_MICRO = 8_000;
-            this.NUMBER_OF_POINTS_MACRO = 8_000;
-            this.THRESHOLD = 10;
-
-            InitializeRegistrationModules();
-        }
-
-        /// <summary>
-        /// Constructor for creation of registration launcher
-        /// </summary>
-        /// <param name="NUMBER_OF_POINTS_MICRO">Number of points to sample in Micro object - at least 1</param>
-        /// <param name="NUMBER_OF_POINTS_MACRO">Number of points to sample in Macro object - at least 1</param>
-        /// <param name="THRESHOLD">How many % of top matches should be kept - number between 1 - 100</param>
-        public RegistrationLauncher(int NUMBER_OF_POINTS_MICRO, int NUMBER_OF_POINTS_MACRO, double THRESHOLD)
-        {
-            const int MIN_NUMBER_OF_SAMPLES = 1;
-            const double MIN_THRESHOLD = 1, MAX_THRESHOLD = 100;
-
-            this.NUMBER_OF_POINTS_MICRO = Math.Max(NUMBER_OF_POINTS_MICRO, MIN_NUMBER_OF_SAMPLES);
-            this.NUMBER_OF_POINTS_MACRO = Math.Max(NUMBER_OF_POINTS_MACRO, MIN_NUMBER_OF_SAMPLES);
-            this.THRESHOLD = Math.Min(Math.Max(THRESHOLD, MIN_THRESHOLD), MAX_THRESHOLD);
-
             InitializeRegistrationModules();
         }
 
         private void InitializeRegistrationModules()
         {
             //RegistrationLauncher.expectedTransformation = TransformationIO.FetchTransformation("/Users/pepazetek/Desktop/Tests/TEST2/microData5.txt");
-
-            this.sampler = new SamplerPercentile(0.1);
-            this.featureComputer = new FeatureComputerISOCurvature();
+            //this.featureComputer = new CompoundFeatureComputer(new AFeatureComputer[] { new FeatureComputerISOCurvature()});
             //this.featureComputer = new FakeFeatureComputer(expectedTransformation);
 
+            UniformSphereSampler uniformSphereSampler = new UniformSphereSampler();
+
+            this.sampler = new SamplerPercentile(0.1);
+            this.featureComputer = new CompoundFeatureComputer(new AFeatureComputer[] {
+                new FeatureComputerISOCurvature(),
+                new FeatureComputerPCALength(uniformSphereSampler),
+                new FeatureComputerGradient()
+                //new FeatureComputerQuantiles()
+        });
             this.matcher = new Matcher();
-            this.transformer = new Transformer3D();
+            this.transformer = new UniformRotationComputerPCA();
         }
 
         public Transform3D RunRegistration(FilePathDescriptor microDataPath, FilePathDescriptor macroDataPath)
@@ -66,7 +50,7 @@ namespace DataView
         {
             List<Point2D> graphPoints = new List<Point2D>();
 
-            Point3D[] points = sampler.Sample(data, NUMBER_OF_POINTS_MACRO);
+            Point3D[] points = sampler.Sample(data, Constants.NUMBER_OF_POINTS_MACRO);
             for (int i = 0; i<points.Length; i++)
             {
                 double distance = points[i].Distance(new Point3D(2.5, 2.5, 2.5));
@@ -79,8 +63,8 @@ namespace DataView
 
         public void ZK(AData microData, AData macroData)
         {
-            Point3D[] microPoints = sampler.Sample(microData, NUMBER_OF_POINTS_MICRO);
-            Point3D[] macroPoints = sampler.Sample(macroData, NUMBER_OF_POINTS_MACRO);
+            Point3D[] microPoints = sampler.Sample(microData, Constants.NUMBER_OF_POINTS_MICRO);
+            Point3D[] macroPoints = sampler.Sample(macroData, Constants.NUMBER_OF_POINTS_MACRO);
 
             GenerateFVGraph(microData, macroData, microPoints, macroPoints);
         }
@@ -94,76 +78,61 @@ namespace DataView
 
             //----------------------------------------FEATURE VECTOR CALCULATION------------------------------------------------
 
+            
 
-
-             //var fc = (FakeFeatureComputer)featureComputer;
+            // var fc = (FakeFeatureComputer)featureComputer;
 
             //fc.SetTransformedSampling(true);
-            Debug.Log("Computing micro feature vectors.");
-            List<FeatureVector> featureVectorsMicro = CalculateFeatureVectors(sampler, featureComputer, microData, NUMBER_OF_POINTS_MICRO);
+            Point3D[] pointsMicro = sampler.Sample(microData, Constants.NUMBER_OF_POINTS_MICRO);
+
+            Console.WriteLine("Computing micro feature vectors.");
+            List<FeatureVector> featureVectorsMicro = CalculateFeatureVectors(microData, featureComputer, pointsMicro);
 
             //fc.SetTransformedSampling(false);
-            Debug.Log("Computing macro feature vectors.");
-            List<FeatureVector> featureVectorsMacro = CalculateFeatureVectors(sampler, featureComputer, macroData, NUMBER_OF_POINTS_MACRO);
+            Point3D[] pointsMacro = sampler.Sample(macroData, Constants.NUMBER_OF_POINTS_MACRO);
 
-            Debug.Log($"Number of feature vectors micro: {featureVectorsMicro.Count}");
-            Debug.Log($"Number of feature vectors macro: {featureVectorsMacro.Count}");
+            Console.WriteLine("Computing macro feature vectors.");
+            List<FeatureVector> featureVectorsMacro = CalculateFeatureVectors(macroData, featureComputer, pointsMacro);
 
-            
-            //FeatureVector[] featureVectorsMicro = FeatureVectorsMicroData(microData, random, NUMBER_OF_POINTS_MICRO);
-            //FeatureVector[] featureVectorsMacro = FeatureVectorsMacroData(featureVectorsMicro);
-            
+            Console.WriteLine($"Number of feature vectors micro: {featureVectorsMicro.Count}");
+            Console.WriteLine($"Number of feature vectors macro: {featureVectorsMacro.Count}");
 
-            //CheckValidity(featureVectorsMicro, featureVectorsMacro);
-
+            FeatureNormalizer featureNormalizer = new FeatureNormalizer(featureVectorsMacro, featureVectorsMacro);
+            featureVectorsMicro = featureNormalizer.NormalizeList(featureVectorsMicro);
+            featureVectorsMacro = featureNormalizer.NormalizeList(featureVectorsMacro);
 
             //----------------------------------------SETUP TRANSFORMATION METRICS------------------------------------------------
             ITransformationDistance transformationDistance = new TransformationDistanceSeven(microData);
             Transform3D.SetTransformationDistance(transformationDistance);
 
             //----------------------------------------MATCHES-------------------------------------------------
-            Debug.Log("Matching.");
+            Console.WriteLine("Matching.");
 
-            //Match[] matches = matcher.Match(featureVectorsMicro.ToArray(), featureVectorsMacro.ToArray(), THRESHOLD);
-
-            
-            Match[] matches = matcher.Match(featureVectorsMicro.ToArray(), featureVectorsMacro.ToArray(), THRESHOLD);
+            Match[] matches = matcher.Match(featureVectorsMicro.ToArray(), featureVectorsMacro.ToArray(), Constants.THRESHOLD);
             //Match[] matches = SampleGreedy(this.sampler, this.featureComputer, microData, featureVectorsMacro.ToArray());
-
             //CompareAlternativeMatches(matches, matchesAlternative);
 
-            //Match[] matches = CreateFakeMatches(microData, Math.Min(NUMBER_OF_POINTS_MACRO, NUMBER_OF_POINTS_MICRO));
-
-            //Match testMatch = new Match(
-            //    featureVectorsMicro[0],
-            //    featureVectorsMacro[0],
-            //    1
-            //);
-
-            //Debug.Log($"Test match: {testMatch}");
-
-            //PrintRealDistances(matches);
+            PrintRealDistances(matches);
 
             //------------------------------------GET TRANSFORMATION -----------------------------------------
 
-            Debug.Log("Computing transformations.\n");
+            Console.WriteLine("Computing transformations.\n");
 
-            List<Transform3D> transformations = new List<Transform3D>();
-            CalculateTransformations(microData, macroData, matches, ref transformations);
+            List<Transform3D> transformations = CalculateTransformations(microData, macroData, matches);
 
-            Debug.Log($"Number of transformations: {transformations.Count}");
+            Console.WriteLine($"Number of transformations: {transformations.Count}");
 
             DensityStructure densityStructure = new DensityStructure(transformations, 0.1);
 
             Transform3D tr = densityStructure.TransformationsDensityFilter();
 
-            if(expectedTransformation != null)
-                Debug.Log($"Transformation distance: {expectedTransformation.SqrtDistanceTo(tr)}");
+            if (expectedTransformation != null)
+                Console.WriteLine($"Transformation distance: {expectedTransformation.SqrtDistanceTo(tr)}");
 
             return tr;
         }
 
-        private Match[] SampleGreedy(ISampler sampler, IFeatureComputer fc, AData microData, FeatureVector[] fMacro)
+        private Match[] SampleGreedy(ISampler sampler, AFeatureComputer fc, AData microData, FeatureVector[] fMacro)
         {
             KDTree tree = new KDTree(fMacro);
 
@@ -173,7 +142,7 @@ namespace DataView
             bool stopped = false;
             while (!stopped)
             {
-                Point3D[] sampledPoints = sampler.Sample(microData, NUMBER_OF_POINTS_MICRO);
+                Point3D[] sampledPoints = sampler.Sample(microData, Constants.NUMBER_OF_POINTS_MICRO);
 
                 foreach (Point3D sampledPoint in sampledPoints)
                 {
@@ -205,20 +174,43 @@ namespace DataView
         }
 
 
-        private List<FeatureVector> CalculateFeatureVectors(ISampler sampler, IFeatureComputer featureComputer, AData data, int NUMBER_OF_POINTS)
+        private List<FeatureVector> CalculateFeatureVectors(AData data, AFeatureComputer featureComputer, Point3D[] sampledPoints)
         {
-            Debug.Log("Sampling.");
-            Point3D[] pointsMicro = sampler.Sample(data, NUMBER_OF_POINTS);
+            System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
 
-            Debug.Log($"Sampled points: {pointsMicro.Length}");
+            object lockObj = new object();
+
             List<FeatureVector> featureVectors = new List<FeatureVector>();
+            Thread[] threads = new Thread[Environment.ProcessorCount];
 
-            Debug.Log("Computing micro feature vectors.");
-            for (int i = 0; i < pointsMicro.Length; i++)
+            int chunkSize = (sampledPoints.Length / Environment.ProcessorCount) + 1;
+
+            for (int t = 0; t < Environment.ProcessorCount; t++)
             {
-                try { featureVectors.Add(featureComputer.ComputeFeatureVector(data, pointsMicro[i])); }
-                catch { continue; }
+                int start = t * chunkSize;
+                int end = Math.Min(start + chunkSize, sampledPoints.Length);
+
+                threads[t] = new Thread(() =>
+                {
+                    for (int i = start; i < end; i++)
+                    {
+                        FeatureVector fv = featureComputer.ComputeFeatureVector(data, sampledPoints[i]);
+                        lock (lockObj)
+                        {
+                            featureVectors.Add(fv);
+                        }
+                    }
+                });
+
+                threads[t].Start();
             }
+
+            for (int t = 0; t < threads.Length; t++)
+                threads[t].Join();
+
+            stopwatch.Stop();
+            Debug.Log($"Feature computation time: {stopwatch.ElapsedMilliseconds}");
 
             return featureVectors;
         }
@@ -271,44 +263,45 @@ namespace DataView
 
         private List<Transform3D> CalculateTransformations(AData microData, AData macroData, Match[] matches)
         {
+            System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+
             List<Transform3D> transformations = new List<Transform3D>();
 
-            for (int i = 0; i < matches.Length; i++)
+            Thread[] threads = new Thread[Environment.ProcessorCount];
+
+            object lockObj = new object();
+
+            int chunkSize = (matches.Length / Environment.ProcessorCount) + 1;
+
+            for (int t = 0; t < Environment.ProcessorCount; t++)
             {
-                //Calculate transformation and if the transformation doesnt exist, it will skip it and print out the error message
-                try
+                int start = t * chunkSize;
+                int end = Math.Min(start + chunkSize, matches.Length);
+
+                threads[t] = new Thread(() =>
                 {
-                    Transform3D transformation = transformer.GetTransformation(matches[i], microData, macroData);
-                    transformations.Add(transformation);
-                    //Debug.Log("Candidate for transformation: " + transformation);
-                    Debug.Log($"Candidate's distance from correct transformation: {transformation.DistanceTo(expectedTransformation)}");
-                }
-                catch { continue; }
+                    for (int i = start; i < end; i++)
+                    {
+                        Transform3D[] currentTransformations = transformer.GetTransformations(matches[i], microData, macroData);
+                        lock (lockObj)
+                        {
+                            foreach (Transform3D currentTransformation in currentTransformations)
+                                transformations.Add(currentTransformation);
+                        }
+                    }
+                });
+
+                threads[t].Start();
             }
+
+            for (int t = 0; t < threads.Length; t++)
+                threads[t].Join();
+
+            stopwatch.Stop();
+            Console.WriteLine($"Transformations computation time: {stopwatch.ElapsedMilliseconds}");
 
             return transformations;
-        }
-
-
-        /// <summary>
-        /// Adds transformations to a list passed by reference
-        /// </summary>
-        /// <param name="microData"></param>
-        /// <param name="macroData"></param>
-        /// <param name="matches"></param>
-        /// <param name="transformations"></param>
-        private void CalculateTransformations(AData microData, AData macroData, Match[] matches, ref List<Transform3D> transformations)
-        {
-            for (int i = 0; i < matches.Length; i++)
-            {
-                try
-                {
-                    //Transform3D transformation = transformer.GetTransformation(matches[i], microData, macroData);
-                    //transformations.Add(transformation);
-                    transformer.AppendTransformation(matches[i], microData, macroData, ref transformations);
-                }
-                catch { continue; }
-            }
         }
 
         private void PrintRealDistances(Match[] matches)
@@ -320,14 +313,15 @@ namespace DataView
 
             //}
 
-            ////if (expectedTransformation == null)
-            ////{
-            ////    Debug.Log("Expected transformation not specified.");
-            ////    return;
-            //}
+            if (expectedTransformation == null)
+            {
+                Console.WriteLine("Expected transformation not specified.");
+                return;
+            }
+
 
             for (int i = 0; i<matches.Length; i++)
-                Debug.Log(matches[i]
+                Console.WriteLine(matches[i]
                     .microFV
                     .Point
                     .ApplyRotationTranslation(expectedTransformation)
@@ -391,19 +385,6 @@ namespace DataView
             }
 
             return featureVectorsMacro;
-        }
-
-        private void CheckValidity(List<FeatureVector> microFV, List<FeatureVector> macroFV)
-        {
-            Debug.Log("Checking validity");
-            for(int i = 0; i<microFV.Count; i++)
-            {
-                double distanceFromMacro = macroFV[i].Point.Translate(-expectedTransformation.TranslationVector).Rotate(expectedTransformation.RotationMatrix.Transpose()).Distance(microFV[i].Point);
-                double distanceFromMicro = microFV[i].Point.Rotate(expectedTransformation.RotationMatrix).Translate(expectedTransformation.TranslationVector).Distance(macroFV[i].Point);
-                Debug.Log($"Distance of FV Points {distanceFromMacro}, {distanceFromMicro}");
-
-            }
-            Debug.Log("Validity checked");
         }
 
         private Point3D GenerateRandomPoint(System.Random random, double maxX, double maxY, double maxZ)

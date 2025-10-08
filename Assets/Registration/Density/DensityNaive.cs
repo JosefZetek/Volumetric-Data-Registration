@@ -30,8 +30,6 @@ namespace DataView
 
                 double currentDensity = CalculateDensity(transformations[i], result);
 
-                UnityEngine.Debug.Log($"For transformation {i} the density is: {currentDensity}");
-
                 if (bestDensity < currentDensity)
                 {
                     bestDensity = currentDensity;

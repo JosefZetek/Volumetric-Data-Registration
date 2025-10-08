@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System;
-using UnityEngine;
 
 namespace DataView
 {
@@ -56,7 +54,7 @@ namespace DataView
         /// <returns></returns>
         public Match[] Match(FeatureVector[] f1, FeatureVector[] f2)
         {
-            return Match(f1, f2, 0);
+            return Match(f1, f2, 0.1);
         }
 
         /// <summary>

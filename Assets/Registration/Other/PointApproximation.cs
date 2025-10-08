@@ -12,7 +12,7 @@ namespace DataView
 	{
 
 		private AData data;
-		private IFeatureComputer featureComputer;
+		private AFeatureComputer featureComputer;
 
 		private FeatureVector targetPointValue;
 		private double learningRate;
@@ -26,7 +26,7 @@ namespace DataView
 		/// <param name="featureComputer">Class used for computing feature vectors of given points</param>
         /// <param name="learningRate">Coeficient that influences programs sensitivity to calculate result. The lower it is, the more accurate the result is, but the more time it takes to be fully calculated.</param>
 		/// <param name="maxStep">Maximum possible step in a direction of a derivative</param>
-        public PointApproximation(AData data, IFeatureComputer featureComputer, double learningRate, double maxStep, double convergenceValue)
+        public PointApproximation(AData data, AFeatureComputer featureComputer, double learningRate, double maxStep, double convergenceValue)
 		{
 			this.data = data;
 			this.featureComputer = featureComputer;

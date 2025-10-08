@@ -4,48 +4,43 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace DataView
 {
-    public class FeatureComputerISOCurvature : IFeatureComputer
+    public class FeatureComputerISOCurvature : AFeatureComputer
     {
         private double spreadParameterX;
         private double spreadParameterY;
         private double spreadParameterZ;
 
-        public FeatureVector ComputeFeatureVector(AData d, Point3D p)
+        public override int NumberOfFeatures => 6;
+
+        public override void ComputeFeatureVector(AData d, Point3D p, double[] array, int startIndex)
         {
+            CheckArrayDimensions(array, startIndex);
+
             Point3D nearestGridPoint = new Point3D(
                 RoundToNearestSpacingMultiplier(p.X, d.XSpacing),
                 RoundToNearestSpacingMultiplier(p.Y, d.YSpacing),
                 RoundToNearestSpacingMultiplier(p.Z, d.ZSpacing)
             );
 
-            //CalculateSpreadParameter(d, 0.2);
-            //Curvature closerNeighborhood = ComputeCurvature(p, d, nearestGridPoint, 1);
-
-            //CalculateSpreadParameter(d, 0.3);
-            //Curvature furtherNeighborhood = ComputeCurvature(p, d, nearestGridPoint, 2);
-
             CalculateSpreadParameter(d, 0.8);
             Curvature furthestNeighborhood = ComputeCurvature(p, d, nearestGridPoint, 5);
 
-            //CalculateSpreadParameter(d, 0.5);
+            CalculateSpreadParameter(d, 0.9);
+            Curvature furthestNeighborhood1 = ComputeCurvature(p, d, nearestGridPoint, 7);
 
-            return new FeatureVector(p, new double[] { furthestNeighborhood.GaussianCurvature, furthestNeighborhood.MeanCurvature, d.GetValue(p) });
+            //CalculateSpreadParameter(d, 0.95);
+            //Curvature furthestNeighborhood2 = ComputeCurvature(p, d, nearestGridPoint, 9);
 
-
-            //double[] filteredCurvatures = FilterCurvatures(closerNeighborhood, furtherNeighborhood, furthestNeighborhood);
-
-            //return new FeatureVector(p, new double[] { closerNeighborhood.GaussianCurvature, closerNeighborhood.MeanCurvature, furtherNeighborhood.GaussianCurvature, furtherNeighborhood.MeanCurvature, furthestNeighborhood.GaussianCurvature, furthestNeighborhood.GaussianCurvature});
-            //return new FeatureVector(p, new double[] { furthestNeighborhood.GaussianCurvature, furthestNeighborhood.MeanCurvature });
+            array[startIndex] = furthestNeighborhood.GaussianCurvature;
+            array[startIndex + 1] = furthestNeighborhood.MeanCurvature;
+            array[startIndex + 2] = furthestNeighborhood.MeanCurvature;
+            array[startIndex + 3] = furthestNeighborhood1.GaussianCurvature;
+            array[startIndex + 4] = furthestNeighborhood1.MeanCurvature;
+            array[startIndex + 5] = d.GetValue(p);
         }
 
         private double[] FilterCurvatures(Curvature closerNeighborhood, Curvature furtherNeighborhood, Curvature furthestNeighborhood)
         {
-            //double[] gaussianCurvatures = new double[] { closerNeighborhood.GaussianCurvature, furtherNeighborhood.GaussianCurvature, furthestNeighborhood.GaussianCurvature };
-            //double[] meanCurvatures = new double[] { closerNeighborhood.MeanCurvature, furtherNeighborhood.MeanCurvature, furthestNeighborhood.MeanCurvature };
-
-            //Array.Sort(gaussianCurvatures);
-            //Array.Sort(meanCurvatures);
-
             double filteredGaussian = FindMedian(closerNeighborhood.GaussianCurvature, furtherNeighborhood.GaussianCurvature, furthestNeighborhood.GaussianCurvature);
             double filteredMean = FindMedian(closerNeighborhood.MeanCurvature, furtherNeighborhood.MeanCurvature, furthestNeighborhood.MeanCurvature);
 
@@ -137,19 +132,19 @@ namespace DataView
             //meanCurvature = Math.Abs(meanCurvature);
             //gaussianCurvature = Math.Abs(gaussianCurvature);
 
-            //return new Curvature(
-            //    meanCurvature,
-            //    gaussianCurvature
-            //);
-
-            double sqDiff = Math.Pow(meanCurvature, 2) - gaussianCurvature;
-            sqDiff = Math.Max(sqDiff, 0);
-            sqDiff = Math.Sqrt(sqDiff);
-
             return new Curvature(
-                meanCurvature + sqDiff,
-                meanCurvature - sqDiff
+                meanCurvature,
+                gaussianCurvature
             );
+
+            //double sqDiff = Math.Pow(meanCurvature, 2) - gaussianCurvature;
+            //sqDiff = Math.Max(sqDiff, 0);
+            //sqDiff = Math.Sqrt(sqDiff);
+
+            //return new Curvature(
+            //    meanCurvature + sqDiff,
+            //    meanCurvature - sqDiff
+            //);
         }
 
         //private Curvature ComputeCurvatureAlternative(Point3D point, AData d, Point3D centerPoint, int radius)
@@ -172,12 +167,6 @@ namespace DataView
         //        meanCurvature - sqDiff
         //    );
         //}
-
-        private double GetValue(Vector<double> coeficients, double x, double y, double z)
-        {
-            //a* x^2 + b * y ^ 2 + c * z ^ 2 + d * x * y + e * x * z + f * y * z + g * x + h * y + i * z = f(x, y, z)
-            return coeficients[0] * Math.Pow(x, 2) + coeficients[1] * Math.Pow(y, 2) + coeficients[2] * Math.Pow(z, 2) + coeficients[3] * x * y + coeficients[4] * x * z + coeficients[5] * y * z + coeficients[6] * x + coeficients[7] * y + coeficients[8] * z + coeficients[9];
-        }
 
         private Vector<double> GetApproximationEquation(List<Point3D> surroundingPoints, Point3D referencePoint, Point3D centerPoint, AData d)
         {

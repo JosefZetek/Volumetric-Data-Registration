@@ -1,51 +1,33 @@
 ﻿using System;
+using System.Linq;
 
 namespace DataView
 {
-    public class CompoundFeatureComputer : IFeatureComputer
+    public class CompoundFeatureComputer : AFeatureComputer
     {
-        private IFeatureComputer[] featureComputers;
+        private AFeatureComputer[] featureComputers;
+        private int numberOfFeatures;
 
-        public CompoundFeatureComputer(IFeatureComputer[] featureComputers)
+
+        public CompoundFeatureComputer(AFeatureComputer[] featureComputers)
         {
             this.featureComputers = featureComputers;
+            this.numberOfFeatures = featureComputers.Sum(fc => fc.NumberOfFeatures);
         }
 
-        public FeatureVector ComputeFeatureVector(AData d, Point3D p)
+        public override int NumberOfFeatures => numberOfFeatures;
+
+        public override void ComputeFeatureVector(AData d, Point3D p, double[] array, int startIndex)
         {
-            FeatureVector[] featureVectors = new FeatureVector[featureComputers.Length];
+            int currentIndex = startIndex;
 
-            int numberOfFeatures = CalculateFeatureVectors(featureVectors, d, p);
-            double[] features = ConcatenateFeatures(featureVectors, numberOfFeatures);
+            CheckArrayDimensions(array, startIndex);
 
-            return new FeatureVector(p, features);
-        }
-
-        private int CalculateFeatureVectors(FeatureVector[] featureVectors, AData d, Point3D p)
-        {
-            int numberOfFeatures = 0;
-
-            for (int i = 0; i < featureComputers.Length; i++)
+            for(int i = 0; i<featureComputers.Length; i++)
             {
-                featureVectors[i] = featureComputers[i].ComputeFeatureVector(d, p);
-                numberOfFeatures += featureVectors[i].Features.Length;
+                featureComputers[i].ComputeFeatureVector(d, p, array, currentIndex);
+                currentIndex += featureComputers[i].NumberOfFeatures;
             }
-
-            return numberOfFeatures;
-        }
-
-        private double[] ConcatenateFeatures(FeatureVector[] featureVectors, int numberOfFeatures)
-        {
-            double[] features = new double[numberOfFeatures];
-            int index = 0;
-
-            for (int i = 0; i < featureVectors.Length; i++)
-            {
-                Array.Copy(featureVectors[i].Features, 0, features, index, featureVectors[i].Features.Length);
-                index += featureVectors[i].Features.Length;
-            }
-
-            return features;
         }
     }
 }
