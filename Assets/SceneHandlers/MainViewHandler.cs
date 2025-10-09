@@ -5,6 +5,8 @@ using DataView;
 using System.Collections.Generic;
 using System;
 using MathNet.Numerics.LinearAlgebra;
+using UnityEngine.WSA;
+using MathNet.Numerics;
 
 public class MainViewHandler : MonoBehaviour
 {
@@ -49,21 +51,32 @@ public class MainViewHandler : MonoBehaviour
 
     private void RegistrationTest()
     {
-        //AData microData = new VolumetricData(new FilePathDescriptor("/Users/pepazetek/Desktop/Tests/TEST3/microData1.mhd", "/Users/pepazetek/Desktop/Tests/TEST3/microData1.raw"));
+        List<string[]> distances = new List<string[]>();
 
-        //Transform3D transformation = TransformationIO.FetchTransformation("/Users/pepazetek/Desktop/Tests/TEST3/microData5.txt");
-        //Transform3D transformation2 = TransformationIO.FetchTransformation("/Users/pepazetek/Downloads/elipsoid_5.txt");
-        //TransformationIO.ExportTransformation("/Users/pepazetek/Downloads/export.txt", transformation2);
+        string[] folders = new string[] {
+            "/Users/pepazetek/Desktop/Tests/Elipsoid/",
+            "/Users/pepazetek/Desktop/Tests/Jatra/",
+            "/Users/pepazetek/Desktop/Tests/Trup/"
+            //"/Users/pepazetek/Desktop/Tests/MRI/"
+        };
 
-        //Transform3D.SetTransformationDistance(new TransformationDistanceSeven(microData));
-        //RegistrationLauncher.expectedTransformation = transformation;
-        //RegistrationLauncher registrationLauncher = new RegistrationLauncher();
-        //Transform3D resultTransformation = registrationLauncher.RunRegistration(microData, macroData);
+        foreach (string folder in folders)
+        {
+            FilePathDescriptor macroData = new FilePathDescriptor($"{folder}macroData.mhd", $"{folder}macroData.raw");
+            for (int i = 1; i <= 5; i++)
+            {
+                FilePathDescriptor microData = new FilePathDescriptor($"{folder}microData{i}.mhd", $"{folder}microData{i}.raw");
 
-        //Debug.Log($"Distance: {transformation.SqrtDistanceTo(transformation2)}");
-        //CutViewerHandler.SetDataSlicer(microData, macroData, resultTransformation);
-        //SceneManager.LoadScene("CutViewer");
+                Transform3D expectedTransformation = TransformationIO.FetchTransformation($"{folder}transformation{i}.txt");
 
+                TestCase testCase = new TestCase(microData, macroData, expectedTransformation);
+                double distance = testCase.RunTest();
+                distances.Add(new string[] { folder, i.ToString(), distance.ToString() });
+                Debug.Log($"Folder: {folder}, Test case: {i}, Distance: {distance}");
+            }
+        }
+
+        CSVWriter.WriteResult("/Users/pepazetek/Desktop/distances.csv", distances.ToArray());
     }
 
     private List<Transform3D> InitTransformations(int count)

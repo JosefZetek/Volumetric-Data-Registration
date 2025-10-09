@@ -48,7 +48,7 @@ namespace DataView
             writer.Close();
         }
 
-        public static void WriteResult(string filename, double[][] values)
+        public static void WriteResult(string filename, string[][] values)
         {
             StreamWriter writer = new StreamWriter(filename);
 
